@@ -1,19 +1,39 @@
 (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+var fontSize = 14;
+var fontColor = '#ffffff';
+var defaultFontAlignment = 'left';
+var padding = 20;
+var fontOptions = {
+    fontSize: fontSize,
+    fontColor: fontColor,
+    defaultFontAlignment: defaultFontAlignment
+};
+exports.fontOptions = fontOptions;
 var clearCanvas = function (ctx, canvasProps) {
     ctx.fillStyle = '#000000';
     ctx.rect(0, 0, canvasProps.width, canvasProps.height);
     ctx.fill();
 };
 exports.clearCanvas = clearCanvas;
+var renderSpaceToContinue = function (ctx, canvasProps) {
+    var message = 'Press [SPACE] to continue';
+    ctx.fillStyle = fontOptions.fontColor;
+    ctx.textAlign = 'center';
+    ctx.fillText(message, canvasProps.width / 2, canvasProps.height - padding);
+    ctx.textAlign = fontOptions.defaultFontAlignment;
+};
+exports.renderSpaceToContinue = renderSpaceToContinue;
 
 },{}],2:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Input_1 = require("./Input");
 var Game = /** @class */ (function () {
-    function Game(map, screens, canvasProps, ctx) {
+    function Game(gameMap, screens, canvasProps, ctx) {
+        console.log(gameMap, 'here');
+        this.gameMap = gameMap;
         this.screens = screens;
         this.activeScreen = screens[0];
         this.canvasProps = canvasProps;
@@ -23,12 +43,28 @@ var Game = /** @class */ (function () {
         window.onkeyup = this.handleInput.bind(this);
     }
     Game.prototype.handleInput = function (e) {
+        e.preventDefault();
         var keyCode = e.keyCode, type = e.type;
         this.keyMap[keyCode] = type === 'keydown';
         if (type === 'keydown') {
             var char = Input_1.mapKeyPressToActualCharacter(Boolean(this.keyMap[Input_1.keyCharToCode['Shift']]), keyCode);
+            // Not an uppercase-able character returns and empty string
+            char = char.trim();
+            if (!char) {
+                char = Input_1.keyCodeToChar[keyCode];
+            }
             this.activeScreen.handleInput(char);
+            this.activeScreen.render(this.ctx);
         }
+    };
+    Game.prototype.updatePlayerPos = function (player) {
+        var tiles = this.gameMap.tiles;
+        var posX = player.posX, posY = player.posY;
+        var row = tiles[posY];
+        var item = row[posX];
+        item.o = player;
+        item.isOccupied = true;
+        this.gameMap.tiles = tiles;
     };
     return Game;
 }());
@@ -139,6 +175,7 @@ var keyCodeToChar = {
     221: ']',
     222: '"'
 };
+exports.keyCodeToChar = keyCodeToChar;
 var keyCharToCode = {
     Backspace: 8,
     Tab: 9,
@@ -460,12 +497,21 @@ exports.mapKeyPressToActualCharacter = mapKeyPressToActualCharacter;
 },{}],4:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+var Canvas_1 = require("../Canvas");
 var InventoryScreen = /** @class */ (function () {
     function InventoryScreen() {
+        var _this = this;
+        this.name = 'inventoryScreen';
         this.inputs = {
             'A': {
                 handler: function () {
                     console.log('Handled A');
+                }
+            },
+            'Space': {
+                handler: function () {
+                    var mapScreen = _this.game.screens.filter(function (screen) { return screen.name === 'mapScreen'; })[0];
+                    _this.game.activeScreen = mapScreen;
                 }
             }
         };
@@ -474,26 +520,39 @@ var InventoryScreen = /** @class */ (function () {
         this.game = game;
     };
     InventoryScreen.prototype.handleInput = function (keyValue) {
+        console.log(keyValue);
         if (this.inputs[keyValue]) {
             this.inputs[keyValue].handler();
         }
     };
     ;
     InventoryScreen.prototype.render = function (ctx) {
+        var canvasProps = this.game.canvasProps;
+        Canvas_1.clearCanvas(ctx, canvasProps);
+        ctx.fillStyle = '#ffffff';
+        var text = 'This is the inventory screen.';
+        ctx.fillText(text, 10, 30);
+        Canvas_1.renderSpaceToContinue(ctx, canvasProps);
     };
     return InventoryScreen;
 }());
 exports["default"] = InventoryScreen;
 
-},{}],5:[function(require,module,exports){
+},{"../Canvas":1}],5:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Canvas_1 = require("../Canvas");
 var MapScreen = /** @class */ (function () {
     function MapScreen() {
+        var _this = this;
+        this.name = 'mapScreen';
         this.inputs = {
             'I': {
                 handler: function () {
+                    var inventoryScreen = _this.game.screens[1];
+                    console.log(inventoryScreen);
+                    console.log(_this.game);
+                    _this.game.activeScreen = inventoryScreen;
                 }
             }
         };
@@ -508,10 +567,29 @@ var MapScreen = /** @class */ (function () {
     };
     ;
     MapScreen.prototype.render = function (ctx) {
-        Canvas_1.clearCanvas(ctx, this.game.canvasProps);
-        ctx.fillStyle = '#ffffff';
+        var _a = this.game, gameMap = _a.gameMap, canvasProps = _a.canvasProps;
+        var tiles = gameMap.tiles;
+        Canvas_1.clearCanvas(ctx, canvasProps);
+        ctx.fillStyle = Canvas_1.fontOptions.fontColor;
         var text = 'This is the main map screen.';
-        ctx.fillText(text, 10, 10);
+        ctx.fillText(text, 10, 30);
+        this.renderTiles(tiles, ctx, canvasProps);
+    };
+    MapScreen.prototype.renderTiles = function (tiles, ctx, canvasProps) {
+        var fontColor = Canvas_1.fontOptions.fontColor, fontSize = Canvas_1.fontOptions.fontSize;
+        var width = canvasProps.width;
+        var padding = fontSize * 3;
+        ctx.fillStyle = fontColor;
+        ctx.textAlign = 'center';
+        for (var row = 0; row < tiles.length; row++) {
+            var chars = [];
+            for (var col = 0; col < tiles[row].length; col++) {
+                var char = (tiles[row][col].isOccupied ?
+                    tiles[row][col].o : tiles[row][col]).char;
+                chars.push(char);
+            }
+            ctx.fillText(chars.join(''), width / 2, (row * fontSize) + padding);
+        }
     };
     return MapScreen;
 }());
@@ -523,8 +601,8 @@ exports.__esModule = true;
 var Game_1 = require("./Game");
 var MapScreen_1 = require("./Screens/MapScreen");
 var InventoryScreen_1 = require("./Screens/InventoryScreen");
-var height = 600;
-var width = 800;
+var height = 240;
+var width = 600;
 window.onload = function () {
     var canvas = document.getElementById('canvas');
     canvas.style.height = height + "px";
@@ -541,10 +619,33 @@ window.onload = function () {
         height: height,
         width: width
     };
+    var F = function () { return ({
+        isPassable: true,
+        isOccupied: false,
+        description: 'Hard stone floor',
+        posX: 0,
+        posY: 0,
+        char: '.'
+    }); };
+    var W = function () { return ({
+        isPassable: false,
+        isOccupied: false,
+        description: 'A wall',
+        posX: 0,
+        posY: 0,
+        char: 'H'
+    }); };
     var gameMap = {
         width: 10,
         height: 10,
-        tiles: []
+        tiles: [
+            [W(), W(), W(), W()],
+            [W(), F(), F(), W()],
+            [W(), F(), F(), W()],
+            [W(), F(), F(), W()],
+            [W(), F(), F(), W()],
+            [W(), W(), W(), W()]
+        ]
     };
     var screens = [
         new MapScreen_1["default"](),
@@ -553,6 +654,13 @@ window.onload = function () {
     var g = new Game_1["default"](gameMap, screens, canvasProps, ctx);
     // Bind the current game to all screens
     g.screens.forEach(function (screen) { return screen.setGame(g); });
+    // Adds a player
+    var player = {
+        posX: 1,
+        posY: 1,
+        char: '@'
+    };
+    g.updatePlayerPos(player);
     g.activeScreen.render(g.ctx);
 };
 

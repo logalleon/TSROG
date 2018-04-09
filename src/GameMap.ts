@@ -1,4 +1,16 @@
 interface GameMap {
-  tiles: any[]
+  height: number,
+  width: number,
+  tiles: Tile[][]
 }
-export { GameMap };
+
+interface Tile {
+  isPassable: boolean,
+  isOccupied: boolean,
+  description: string,
+  posX: number,
+  posY: number,
+  char: string,
+  o?: any
+}
+export { GameMap, Tile };

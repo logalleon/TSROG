@@ -1,11 +1,20 @@
 "use strict";
 exports.__esModule = true;
+var Canvas_1 = require("../Canvas");
 var InventoryScreen = /** @class */ (function () {
     function InventoryScreen() {
+        var _this = this;
+        this.name = 'inventoryScreen';
         this.inputs = {
             'A': {
                 handler: function () {
                     console.log('Handled A');
+                }
+            },
+            'Space': {
+                handler: function () {
+                    var mapScreen = _this.game.screens.filter(function (screen) { return screen.name === 'mapScreen'; })[0];
+                    _this.game.activeScreen = mapScreen;
                 }
             }
         };
@@ -14,12 +23,19 @@ var InventoryScreen = /** @class */ (function () {
         this.game = game;
     };
     InventoryScreen.prototype.handleInput = function (keyValue) {
+        console.log(keyValue);
         if (this.inputs[keyValue]) {
             this.inputs[keyValue].handler();
         }
     };
     ;
     InventoryScreen.prototype.render = function (ctx) {
+        var canvasProps = this.game.canvasProps;
+        Canvas_1.clearCanvas(ctx, canvasProps);
+        ctx.fillStyle = '#ffffff';
+        var text = 'This is the inventory screen.';
+        ctx.fillText(text, 10, 30);
+        Canvas_1.renderSpaceToContinue(ctx, canvasProps);
     };
     return InventoryScreen;
 }());

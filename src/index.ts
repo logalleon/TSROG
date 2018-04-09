@@ -1,14 +1,15 @@
 import Game from './Game';
-import { GameMap } from './GameMap';
+import { GameMap, Tile } from './GameMap';
 import { Screen } from './Screen';
 import * as Input from './Input';
 import { clearCanvas, CanvasProps } from './Canvas';
+import { Player } from './Player';
 
 import MapScreen from './Screens/MapScreen';
 import InventoryScreen from './Screens/InventoryScreen';
 
-const height = 600;
-const width = 800;
+const height = 240;
+const width = 600;
 window.onload = () => {
   const canvas: HTMLCanvasElement = <HTMLCanvasElement> document.getElementById('canvas');
   canvas.style.height = `${height}px`;
@@ -26,10 +27,33 @@ window.onload = () => {
     height,
     width
   };
+  const F = () => ({
+    isPassable: true,
+    isOccupied: false,
+    description: 'Hard stone floor',
+    posX: 0,
+    posY: 0,
+    char: '.'
+  });
+  const W = () => ({
+    isPassable: false,
+    isOccupied: false,
+    description: 'A wall',
+    posX: 0,
+    posY: 0,
+    char: 'H'
+  });
   const gameMap: GameMap = {
     width: 10,
     height: 10,
-    tiles: []
+    tiles: [
+      [W(),W(),W(),W()],
+      [W(),F(),F(),W()],
+      [W(),F(),F(),W()],
+      [W(),F(),F(),W()],
+      [W(),F(),F(),W()],
+      [W(),W(),W(),W()]
+    ]
   };
   const screens: Screen[] = [
     new MapScreen(),
@@ -38,5 +62,13 @@ window.onload = () => {
   const g = new Game(gameMap, screens, canvasProps, ctx);
   // Bind the current game to all screens
   g.screens.forEach((screen) => screen.setGame(g));
+
+  // Adds a player
+  const player: Player = {
+    posX: 1,
+    posY: 1,
+    char: '@'
+  };
+  g.updatePlayerPos(player);
   g.activeScreen.render(g.ctx);
 };

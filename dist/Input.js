@@ -102,6 +102,7 @@ var keyCodeToChar = {
     221: ']',
     222: '"'
 };
+exports.keyCodeToChar = keyCodeToChar;
 var keyCharToCode = {
     Backspace: 8,
     Tab: 9,

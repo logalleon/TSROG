@@ -426,4 +426,4 @@ interface Handler {
   handler(): void
 }
 
-export { mapKeyPressToActualCharacter, InputMap, keyCharToCode };
+export { mapKeyPressToActualCharacter, InputMap, keyCharToCode, keyCodeToChar };

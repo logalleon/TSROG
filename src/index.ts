@@ -3,12 +3,14 @@ import { GameMap, Tile } from './GameMap';
 import { Screen } from './Screen';
 import * as Input from './Input';
 import { clearCanvas, CanvasProps, setupCanvas } from './Canvas/Canvas';
-import Player from './Entity/Actor/Player';
+import { Player, PlayerOptions, Pickup, InventoryItems, EquipmentSlots } from './Entity/Actor/Player';
 import MapScreen from './Screens/MapScreen';
 import InventoryScreen from './Screens/InventoryScreen';
 import Vector2 from './Vector';
 import { fontOptions } from './Canvas/Canvas';
 import { ActorOptions } from './Entity/Actor/Actor';
+import { Armor, ArmorOptions } from './Entity/Prop/Armor';
+import { PropOptions, Quality } from './Entity/Prop/Prop';
 
 const height = 240;
 const width = 600;
@@ -52,7 +54,7 @@ window.onload = () => {
     new InventoryScreen()
   ];
   // Adds a player
-  const options: ActorOptions = {
+  const actorOptions: ActorOptions = {
     pos: new Vector2(1, 1),
     char: '@',
     isActive: true,
@@ -62,11 +64,39 @@ window.onload = () => {
     damage: '1d4',
     cth: 0
   }
+  const options: PlayerOptions = {
+    actorOptions
+  }
+  
   const player: Player = new Player(options);
+
+  // Some test equipment for the player
+  const armorPropOptions: PropOptions = {
+    isActive: true,
+    color: { hex: '#ff00ff' },
+    char: 'A',
+    name: 'Plate Mail',
+    canBePickedUp: true,
+    description: 'A set of plate mail'
+  };
+  const armorOptions: ArmorOptions = {
+    modifier: 4,
+    material: 'Iron',
+    quality: Quality.FAIR,
+    propOptions: armorPropOptions
+  }
+  const plateMail = new Armor(armorOptions);
+
   const g = new Game(gameMap, screens, canvasProps, ctx, player);
   // Bind the current game to all screens
   g.screens.forEach((screen) => screen.setGame(g));
 
+  const pickup: Pickup = {
+    type: InventoryItems.ARMOR,
+    item: plateMail
+  }
+  player.addToInventory(pickup);
+  player.attemptToEquip({ index: 0, type: InventoryItems.ARMOR }, EquipmentSlots.ARMOR);
   g.updatePlayerPos(player, player.pos);
   g.activeScreen.render(g.ctx);
 };

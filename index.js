@@ -73,7 +73,7 @@ var Actor = /** @class */ (function () {
 }());
 exports.Actor = Actor;
 
-},{"../../Random/Dice":7}],3:[function(require,module,exports){
+},{"../../Random/Dice":9}],3:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -87,16 +87,130 @@ var __extends = (this && this.__extends) || (function () {
 })();
 exports.__esModule = true;
 var Actor_1 = require("./Actor");
+var InventoryItems;
+(function (InventoryItems) {
+    InventoryItems["AMULETS"] = "amulets";
+    InventoryItems["ARMOR"] = "armor";
+    InventoryItems["FOOD"] = "food";
+    InventoryItems["POTIONS"] = "potions";
+    InventoryItems["RINGS"] = "rings";
+    InventoryItems["SCROLLS"] = "scrolls";
+    InventoryItems["WEAPONS"] = "weapons";
+})(InventoryItems || (InventoryItems = {}));
+exports.InventoryItems = InventoryItems;
+var EquipmentSlots;
+(function (EquipmentSlots) {
+    EquipmentSlots["NECK"] = "neck";
+    EquipmentSlots["ARMOR"] = "armor";
+    EquipmentSlots["LEFT_HAND"] = "left hand";
+    EquipmentSlots["RIGHT_HAND"] = "right hand";
+    EquipmentSlots["WEAPON"] = "weapon";
+})(EquipmentSlots || (EquipmentSlots = {}));
+exports.EquipmentSlots = EquipmentSlots;
 var Player = /** @class */ (function (_super) {
     __extends(Player, _super);
-    function Player() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function Player(options) {
+        var _this = _super.call(this, options.actorOptions) || this;
+        _this[_a] = [];
+        _this[_b] = [];
+        _this[_c] = [];
+        _this[_d] = [];
+        _this[_e] = [];
+        _this[_f] = [];
+        _this[_g] = [];
+        _this.equipped = (_a = {},
+            _a[EquipmentSlots.NECK] = null,
+            _a[EquipmentSlots.ARMOR] = null,
+            _a[EquipmentSlots.LEFT_HAND] = null,
+            _a[EquipmentSlots.RIGHT_HAND] = null,
+            _a[EquipmentSlots.WEAPON] = null,
+            _a);
+        for (var key in options) {
+            if (key !== 'actorOptions') {
+                _this[key] = options[key];
+            }
+        }
+        return _this;
+        var _a;
     }
+    Player.prototype.addToInventory = function (pickup) {
+        this[pickup.type] = [].concat(this[pickup.type], pickup.item);
+        console.log(this);
+    };
+    Player.prototype.attemptToEquip = function (accessor, slot) {
+        // There's already something in that equipment slot
+        console.log(this.equipped);
+        if (this.equipped[slot]) {
+            return false;
+            // Equip the item
+        }
+        else {
+            console.log(accessor, slot);
+            this.equipped[slot] = this[accessor.type][accessor.index];
+            return true;
+        }
+    };
     return Player;
 }(Actor_1.Actor));
-exports["default"] = Player;
+_a = InventoryItems.AMULETS, _b = InventoryItems.ARMOR, _c = InventoryItems.FOOD, _d = InventoryItems.POTIONS, _e = InventoryItems.RINGS, _f = InventoryItems.SCROLLS, _g = InventoryItems.WEAPONS;
+exports.Player = Player;
+var _a, _b, _c, _d, _e, _f, _g;
 
 },{"./Actor":2}],4:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var Prop_1 = require("./Prop");
+var Armor = /** @class */ (function (_super) {
+    __extends(Armor, _super);
+    function Armor(options) {
+        var _this = _super.call(this, options.propOptions) || this;
+        for (var key in options) {
+            if (key !== 'propOptions') {
+                _this[key] = options[key];
+            }
+        }
+        return _this;
+    }
+    return Armor;
+}(Prop_1.Prop));
+exports.Armor = Armor;
+
+},{"./Prop":5}],5:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var Quality;
+(function (Quality) {
+    Quality["RUINED"] = "ruined";
+    Quality["POOR"] = "poor";
+    Quality["FAIR"] = "fair";
+    Quality["COMMON"] = "common";
+    Quality["GOOD"] = "good";
+    Quality["EXCEPTIONAL"] = "exceptional";
+    Quality["LEGENDARY"] = "legendary";
+    Quality["MYTHICAL"] = "mythical";
+})(Quality || (Quality = {}));
+exports.Quality = Quality;
+var Prop = /** @class */ (function () {
+    function Prop(options) {
+        for (var key in options) {
+            this[key] = options[key];
+        }
+    }
+    return Prop;
+}());
+exports.Prop = Prop;
+
+},{}],6:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Input_1 = require("./Input");
@@ -145,7 +259,7 @@ var Game = /** @class */ (function () {
 }());
 exports["default"] = Game;
 
-},{"./Input":6}],5:[function(require,module,exports){
+},{"./Input":8}],7:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var GameMap = /** @class */ (function () {
@@ -166,7 +280,7 @@ var GameMap = /** @class */ (function () {
 }());
 exports.GameMap = GameMap;
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var keyCodeToChar = {
@@ -590,7 +704,7 @@ var mapKeyPressToActualCharacter = function (isShiftKey, characterCode) {
 };
 exports.mapKeyPressToActualCharacter = mapKeyPressToActualCharacter;
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var StandardDice;
@@ -609,7 +723,7 @@ var rollDice = function (dice) {
 };
 exports.rollDice = rollDice;
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Canvas_1 = require("../Canvas/Canvas");
@@ -654,7 +768,7 @@ var InventoryScreen = /** @class */ (function () {
 }());
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Canvas":1}],9:[function(require,module,exports){
+},{"../Canvas/Canvas":1}],11:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Canvas_1 = require("../Canvas/Canvas");
@@ -715,6 +829,7 @@ var MapScreen = /** @class */ (function () {
         }
     };
     MapScreen.prototype.calculateOffset = function (canvasProps, gameMap, fontSize) {
+        // This centers the map on the canvas
         return new Vector_1["default"]((canvasProps.width / 2) - (gameMap.width / 2 * fontSize), (canvasProps.height / 2) - (gameMap.height / 2 * fontSize));
     };
     MapScreen.prototype.attemptMovement = function (keyValue) {
@@ -777,7 +892,7 @@ var MapScreen = /** @class */ (function () {
 }());
 exports["default"] = MapScreen;
 
-},{"../Canvas/Canvas":1,"../Vector":10}],10:[function(require,module,exports){
+},{"../Canvas/Canvas":1,"../Vector":12}],12:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Vector2 = /** @class */ (function () {
@@ -796,7 +911,7 @@ var Vector2 = /** @class */ (function () {
 }());
 exports["default"] = Vector2;
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("./Game");
@@ -807,6 +922,8 @@ var MapScreen_1 = require("./Screens/MapScreen");
 var InventoryScreen_1 = require("./Screens/InventoryScreen");
 var Vector_1 = require("./Vector");
 var Canvas_2 = require("./Canvas/Canvas");
+var Armor_1 = require("./Entity/Prop/Armor");
+var Prop_1 = require("./Entity/Prop/Prop");
 var height = 240;
 var width = 600;
 window.onload = function () {
@@ -849,7 +966,7 @@ window.onload = function () {
         new InventoryScreen_1["default"]()
     ];
     // Adds a player
-    var options = {
+    var actorOptions = {
         pos: new Vector_1["default"](1, 1),
         char: '@',
         isActive: true,
@@ -859,12 +976,37 @@ window.onload = function () {
         damage: '1d4',
         cth: 0
     };
-    var player = new Player_1["default"](options);
+    var options = {
+        actorOptions: actorOptions
+    };
+    var player = new Player_1.Player(options);
+    // Some test equipment for the player
+    var armorPropOptions = {
+        isActive: true,
+        color: { hex: '#ff00ff' },
+        char: 'A',
+        name: 'Plate Mail',
+        canBePickedUp: true,
+        description: 'A set of plate mail'
+    };
+    var armorOptions = {
+        modifier: 4,
+        material: 'Iron',
+        quality: Prop_1.Quality.FAIR,
+        propOptions: armorPropOptions
+    };
+    var plateMail = new Armor_1.Armor(armorOptions);
     var g = new Game_1["default"](gameMap, screens, canvasProps, ctx, player);
     // Bind the current game to all screens
     g.screens.forEach(function (screen) { return screen.setGame(g); });
+    var pickup = {
+        type: Player_1.InventoryItems.ARMOR,
+        item: plateMail
+    };
+    player.addToInventory(pickup);
+    player.attemptToEquip({ index: 0, type: Player_1.InventoryItems.ARMOR }, Player_1.EquipmentSlots.ARMOR);
     g.updatePlayerPos(player, player.pos);
     g.activeScreen.render(g.ctx);
 };
 
-},{"./Canvas/Canvas":1,"./Entity/Actor/Player":3,"./Game":4,"./GameMap":5,"./Screens/InventoryScreen":8,"./Screens/MapScreen":9,"./Vector":10}]},{},[11]);
+},{"./Canvas/Canvas":1,"./Entity/Actor/Player":3,"./Entity/Prop/Armor":4,"./Entity/Prop/Prop":5,"./Game":6,"./GameMap":7,"./Screens/InventoryScreen":10,"./Screens/MapScreen":11,"./Vector":12}]},{},[13]);

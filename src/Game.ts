@@ -2,7 +2,7 @@ import { GameMap } from './GameMap';
 import { Screen } from './Screen';
 import { mapKeyPressToActualCharacter, keyCharToCode, keyCodeToChar } from './Input';
 import { CanvasProps } from './Canvas/Canvas';
-import Player from './Entity/Actor/Player';
+import { Player } from './Entity/Actor/Player';
 import Vector2 from './Vector';
 
 class Game {

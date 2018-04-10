@@ -8,6 +8,8 @@ var MapScreen_1 = require("./Screens/MapScreen");
 var InventoryScreen_1 = require("./Screens/InventoryScreen");
 var Vector_1 = require("./Vector");
 var Canvas_2 = require("./Canvas/Canvas");
+var Armor_1 = require("./Entity/Prop/Armor");
+var Prop_1 = require("./Entity/Prop/Prop");
 var height = 240;
 var width = 600;
 window.onload = function () {
@@ -50,7 +52,7 @@ window.onload = function () {
         new InventoryScreen_1["default"]()
     ];
     // Adds a player
-    var options = {
+    var actorOptions = {
         pos: new Vector_1["default"](1, 1),
         char: '@',
         isActive: true,
@@ -60,10 +62,35 @@ window.onload = function () {
         damage: '1d4',
         cth: 0
     };
-    var player = new Player_1["default"](options);
+    var options = {
+        actorOptions: actorOptions
+    };
+    var player = new Player_1.Player(options);
+    // Some test equipment for the player
+    var armorPropOptions = {
+        isActive: true,
+        color: { hex: '#ff00ff' },
+        char: 'A',
+        name: 'Plate Mail',
+        canBePickedUp: true,
+        description: 'A set of plate mail'
+    };
+    var armorOptions = {
+        modifier: 4,
+        material: 'Iron',
+        quality: Prop_1.Quality.FAIR,
+        propOptions: armorPropOptions
+    };
+    var plateMail = new Armor_1.Armor(armorOptions);
     var g = new Game_1["default"](gameMap, screens, canvasProps, ctx, player);
     // Bind the current game to all screens
     g.screens.forEach(function (screen) { return screen.setGame(g); });
+    var pickup = {
+        type: Player_1.InventoryItems.ARMOR,
+        item: plateMail
+    };
+    player.addToInventory(pickup);
+    player.attemptToEquip({ index: 0, type: Player_1.InventoryItems.ARMOR }, Player_1.EquipmentSlots.ARMOR);
     g.updatePlayerPos(player, player.pos);
     g.activeScreen.render(g.ctx);
 };

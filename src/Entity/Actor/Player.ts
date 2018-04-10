@@ -51,13 +51,13 @@ interface EquippedItemAccessor {
 
 class Player extends Actor {
 
-  public [InventoryItems.AMULETS]: Amulet[] = [];
-  public [InventoryItems.ARMOR]: Armor[] = [];
-  public [InventoryItems.FOOD]: Food[] = [];
-  public [InventoryItems.POTIONS]: Potion[] = [];
-  public [InventoryItems.RINGS]: Ring[] = [];
-  public [InventoryItems.SCROLLS]: Scroll[] = [];
-  public [InventoryItems.WEAPONS]: Weapon[] = [];
+  public [InventoryItems.AMULETS]: Amulet[];
+  public [InventoryItems.ARMOR]: Armor[];
+  public [InventoryItems.FOOD]: Food[];
+  public [InventoryItems.POTIONS]: Potion[];
+  public [InventoryItems.RINGS]: Ring[];
+  public [InventoryItems.SCROLLS]: Scroll[];
+  public [InventoryItems.WEAPONS]: Weapon[];
 
   public equipped: EquippedItems = {
     [EquipmentSlots.NECK]: null,
@@ -69,6 +69,9 @@ class Player extends Actor {
 
   constructor (options: PlayerOptions) {
     super(options.actorOptions);
+    for (let key in InventoryItems) {
+      this[InventoryItems[key]] = [];
+    }
     for (let key in options) {
       if (key !== 'actorOptions') {
         this[key] = options[key];

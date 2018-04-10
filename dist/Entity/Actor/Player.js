@@ -35,13 +35,6 @@ var Player = /** @class */ (function (_super) {
     __extends(Player, _super);
     function Player(options) {
         var _this = _super.call(this, options.actorOptions) || this;
-        _this[_a] = [];
-        _this[_b] = [];
-        _this[_c] = [];
-        _this[_d] = [];
-        _this[_e] = [];
-        _this[_f] = [];
-        _this[_g] = [];
         _this.equipped = (_a = {},
             _a[EquipmentSlots.NECK] = null,
             _a[EquipmentSlots.ARMOR] = null,
@@ -49,6 +42,9 @@ var Player = /** @class */ (function (_super) {
             _a[EquipmentSlots.RIGHT_HAND] = null,
             _a[EquipmentSlots.WEAPON] = null,
             _a);
+        for (var key in InventoryItems) {
+            _this[InventoryItems[key]] = [];
+        }
         for (var key in options) {
             if (key !== 'actorOptions') {
                 _this[key] = options[key];
@@ -73,6 +69,5 @@ var Player = /** @class */ (function (_super) {
     };
     return Player;
 }(Actor_1.Actor));
-_a = InventoryItems.AMULETS, _b = InventoryItems.ARMOR, _c = InventoryItems.FOOD, _d = InventoryItems.POTIONS, _e = InventoryItems.RINGS, _f = InventoryItems.SCROLLS, _g = InventoryItems.WEAPONS;
+InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
 exports.Player = Player;
-var _a, _b, _c, _d, _e, _f, _g;

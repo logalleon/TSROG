@@ -111,13 +111,6 @@ var Player = /** @class */ (function (_super) {
     __extends(Player, _super);
     function Player(options) {
         var _this = _super.call(this, options.actorOptions) || this;
-        _this[_a] = [];
-        _this[_b] = [];
-        _this[_c] = [];
-        _this[_d] = [];
-        _this[_e] = [];
-        _this[_f] = [];
-        _this[_g] = [];
         _this.equipped = (_a = {},
             _a[EquipmentSlots.NECK] = null,
             _a[EquipmentSlots.ARMOR] = null,
@@ -125,6 +118,9 @@ var Player = /** @class */ (function (_super) {
             _a[EquipmentSlots.RIGHT_HAND] = null,
             _a[EquipmentSlots.WEAPON] = null,
             _a);
+        for (var key in InventoryItems) {
+            _this[InventoryItems[key]] = [];
+        }
         for (var key in options) {
             if (key !== 'actorOptions') {
                 _this[key] = options[key];
@@ -135,26 +131,22 @@ var Player = /** @class */ (function (_super) {
     }
     Player.prototype.addToInventory = function (pickup) {
         this[pickup.type] = [].concat(this[pickup.type], pickup.item);
-        console.log(this);
     };
     Player.prototype.attemptToEquip = function (accessor, slot) {
         // There's already something in that equipment slot
-        console.log(this.equipped);
         if (this.equipped[slot]) {
             return false;
             // Equip the item
         }
         else {
-            console.log(accessor, slot);
             this.equipped[slot] = this[accessor.type][accessor.index];
             return true;
         }
     };
     return Player;
 }(Actor_1.Actor));
-_a = InventoryItems.AMULETS, _b = InventoryItems.ARMOR, _c = InventoryItems.FOOD, _d = InventoryItems.POTIONS, _e = InventoryItems.RINGS, _f = InventoryItems.SCROLLS, _g = InventoryItems.WEAPONS;
+InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
 exports.Player = Player;
-var _a, _b, _c, _d, _e, _f, _g;
 
 },{"./Actor":2}],4:[function(require,module,exports){
 "use strict";
@@ -727,16 +719,12 @@ exports.rollDice = rollDice;
 "use strict";
 exports.__esModule = true;
 var Canvas_1 = require("../Canvas/Canvas");
+var Player_1 = require("../Entity/Actor/Player");
 var InventoryScreen = /** @class */ (function () {
     function InventoryScreen() {
         var _this = this;
         this.name = 'inventoryScreen';
         this.inputs = {
-            'A': {
-                handler: function () {
-                    console.log('Handled A');
-                }
-            },
             'Space': {
                 handler: function () {
                     var mapScreen = _this.game.screens.filter(function (screen) { return screen.name === 'mapScreen'; })[0];
@@ -758,17 +746,29 @@ var InventoryScreen = /** @class */ (function () {
     InventoryScreen.prototype.render = function (ctx) {
         var canvasProps = this.game.canvasProps;
         Canvas_1.clearCanvas(ctx, canvasProps);
+        this.renderPlayerInventory(ctx);
+        Canvas_1.renderSpaceToContinue(ctx, canvasProps);
+    };
+    InventoryScreen.prototype.renderPlayerInventory = function (ctx) {
+        var player = this.game.player;
+        var padding = Canvas_1.fontOptions.fontSize * 2;
+        var keyCode = 65;
+        var i = 0;
         ctx.textAlign = Canvas_1.fontOptions.defaultFontAlignment;
         ctx.fillStyle = Canvas_1.fontOptions.fontColor;
-        var text = 'This is the inventory screen.';
-        ctx.fillText(text, 10, 30);
-        Canvas_1.renderSpaceToContinue(ctx, canvasProps);
+        for (var key in Player_1.InventoryItems) {
+            player[Player_1.InventoryItems[key]].forEach(function (item) {
+                ctx.fillText(String.fromCharCode(keyCode) + ") " + item.name, padding, Canvas_1.fontOptions.fontSize * i + padding);
+                i++;
+                keyCode++;
+            });
+        }
     };
     return InventoryScreen;
 }());
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Canvas":1}],11:[function(require,module,exports){
+},{"../Canvas/Canvas":1,"../Entity/Actor/Player":3}],11:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Canvas_1 = require("../Canvas/Canvas");
@@ -996,6 +996,21 @@ window.onload = function () {
         propOptions: armorPropOptions
     };
     var plateMail = new Armor_1.Armor(armorOptions);
+    var armorPropOptions1 = {
+        isActive: true,
+        color: { hex: '#ff00ff' },
+        char: 'A',
+        name: 'Chain Mail',
+        canBePickedUp: true,
+        description: 'A set of chain mail'
+    };
+    var armorOptions1 = {
+        modifier: 2,
+        material: 'Tin',
+        quality: Prop_1.Quality.POOR,
+        propOptions: armorPropOptions1
+    };
+    var chainMail = new Armor_1.Armor(armorOptions1);
     var g = new Game_1["default"](gameMap, screens, canvasProps, ctx, player);
     // Bind the current game to all screens
     g.screens.forEach(function (screen) { return screen.setGame(g); });
@@ -1005,6 +1020,11 @@ window.onload = function () {
     };
     player.addToInventory(pickup);
     player.attemptToEquip({ index: 0, type: Player_1.InventoryItems.ARMOR }, Player_1.EquipmentSlots.ARMOR);
+    pickup = {
+        type: Player_1.InventoryItems.ARMOR,
+        item: chainMail
+    };
+    player.addToInventory(pickup);
     g.updatePlayerPos(player, player.pos);
     g.activeScreen.render(g.ctx);
 };

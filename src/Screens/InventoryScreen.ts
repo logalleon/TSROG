@@ -2,17 +2,14 @@ import { Screen } from '../Screen';
 import Game from '../Game';
 import { InputMap } from '../Input';
 import { clearCanvas, renderSpaceToContinue, fontOptions } from '../Canvas/Canvas'
+import { Player, InventoryItems } from '../Entity/Actor/Player';
+import { Prop } from '../Entity/Prop/Prop';
 
 class InventoryScreen implements Screen {
 
   public name: string = 'inventoryScreen';
   public game: Game;
   public inputs: InputMap = {
-    'A': {
-      handler: () => {
-      console.log('Handled A');
-      }
-    },
     'Space': {
       handler: () => {
         const [mapScreen] = this.game.screens.filter(screen => screen.name === 'mapScreen');
@@ -39,11 +36,28 @@ class InventoryScreen implements Screen {
   render(ctx: CanvasRenderingContext2D) {
     const { canvasProps } = this.game;
     clearCanvas(ctx, canvasProps);
+    this.renderPlayerInventory(ctx);
+    renderSpaceToContinue(ctx, canvasProps);
+  }
+
+  renderPlayerInventory (ctx: CanvasRenderingContext2D) {
+    const { player } = this.game;
+    const padding = fontOptions.fontSize * 2;
+    let keyCode = 65;
+    let i = 0;
     ctx.textAlign = fontOptions.defaultFontAlignment;
     ctx.fillStyle = fontOptions.fontColor;
-    const text = 'This is the inventory screen.';
-    ctx.fillText(text, 10, 30);
-    renderSpaceToContinue(ctx, canvasProps);
+    for (let key in InventoryItems) {
+      player[InventoryItems[key]].forEach((item: Prop) => {
+        ctx.fillText(
+          `${String.fromCharCode(keyCode)}) ${item.name}`,
+          padding,
+          fontOptions.fontSize * i + padding
+        );
+        i++;
+        keyCode++;
+      });
+    }
   }
 
 }

@@ -82,6 +82,21 @@ window.onload = function () {
         propOptions: armorPropOptions
     };
     var plateMail = new Armor_1.Armor(armorOptions);
+    var armorPropOptions1 = {
+        isActive: true,
+        color: { hex: '#ff00ff' },
+        char: 'A',
+        name: 'Chain Mail',
+        canBePickedUp: true,
+        description: 'A set of chain mail'
+    };
+    var armorOptions1 = {
+        modifier: 2,
+        material: 'Tin',
+        quality: Prop_1.Quality.POOR,
+        propOptions: armorPropOptions1
+    };
+    var chainMail = new Armor_1.Armor(armorOptions1);
     var g = new Game_1["default"](gameMap, screens, canvasProps, ctx, player);
     // Bind the current game to all screens
     g.screens.forEach(function (screen) { return screen.setGame(g); });
@@ -91,6 +106,11 @@ window.onload = function () {
     };
     player.addToInventory(pickup);
     player.attemptToEquip({ index: 0, type: Player_1.InventoryItems.ARMOR }, Player_1.EquipmentSlots.ARMOR);
+    pickup = {
+        type: Player_1.InventoryItems.ARMOR,
+        item: chainMail
+    };
+    player.addToInventory(pickup);
     g.updatePlayerPos(player, player.pos);
     g.activeScreen.render(g.ctx);
 };

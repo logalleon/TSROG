@@ -87,16 +87,37 @@ window.onload = () => {
   }
   const plateMail = new Armor(armorOptions);
 
+  const armorPropOptions1: PropOptions = {
+    isActive: true,
+    color: { hex: '#ff00ff' },
+    char: 'A',
+    name: 'Chain Mail',
+    canBePickedUp: true,
+    description: 'A set of chain mail'
+  };
+  const armorOptions1: ArmorOptions = {
+    modifier: 2,
+    material: 'Tin',
+    quality: Quality.POOR,
+    propOptions: armorPropOptions1
+  };
+  const chainMail = new Armor(armorOptions1)
+
   const g = new Game(gameMap, screens, canvasProps, ctx, player);
   // Bind the current game to all screens
   g.screens.forEach((screen) => screen.setGame(g));
 
-  const pickup: Pickup = {
+  let pickup: Pickup = {
     type: InventoryItems.ARMOR,
     item: plateMail
   }
   player.addToInventory(pickup);
   player.attemptToEquip({ index: 0, type: InventoryItems.ARMOR }, EquipmentSlots.ARMOR);
+  pickup = {
+    type: InventoryItems.ARMOR,
+    item: chainMail
+  };
+  player.addToInventory(pickup);
   g.updatePlayerPos(player, player.pos);
   g.activeScreen.render(g.ctx);
 };

@@ -1,11 +1,13 @@
 import { Screen } from '../Screen';
 import Game from '../Game';
 import { InputMap } from '../Input';
-import { clearCanvas, fontOptions, CanvasProps } from '../Canvas';
-import { Tile } from '../GameMap';
+import { clearCanvas, fontOptions, CanvasProps } from '../Canvas/Canvas';
+import { Tile, GameMap } from '../GameMap';
 import Vector2 from '../Vector';
 
 class MapScreen implements Screen {
+
+  private textSpacing: Vector2 = new Vector2(.9, 1.5);
 
   public name: string = 'mapScreen';
   public game: Game;
@@ -53,18 +55,28 @@ class MapScreen implements Screen {
   renderTiles (tiles: Tile[][], ctx: CanvasRenderingContext2D, canvasProps: CanvasProps) {
     const { fontColor, fontSize } = fontOptions;
     const { width } = canvasProps;
-    const padding = fontSize * 3;
-    ctx.fillStyle = fontColor;
-    ctx.textAlign = 'center';
+    const offset = this.calculateOffset(canvasProps, this.game.gameMap, fontSize);
     for (let row = 0; row < tiles.length; row++) {
-      let chars = [];
       for (let col = 0; col < tiles[row].length; col++) {
-        const { char } = tiles[row][col].isOccupied ?
-          tiles[row][col].o : tiles[row][col];
-        chars.push(char);
+        const tile = tiles[row][col];
+        const { char, color } = tile.isOccupied ?
+          tile.occupier : tile;
+        ctx.fillStyle = color.hex || color.rgb;
+        ctx.fillText(
+          char,
+          (col * fontSize * this.textSpacing.x) + offset.x,
+          (row * fontSize * this.textSpacing.y) + offset.y
+        );
       }
-      ctx.fillText(chars.join(''), width / 2, (row * fontSize) + padding);
     }
+  }
+
+  calculateOffset(canvasProps: CanvasProps, gameMap: GameMap, fontSize: number): Vector2 {
+    // This centers the map on the canvas
+    return new Vector2(
+      (canvasProps.width / 2) - (gameMap.width / 2 * fontSize),
+      (canvasProps.height / 2) - (gameMap.height / 2 * fontSize)
+    );
   }
 
   attemptMovement(keyValue: string) {

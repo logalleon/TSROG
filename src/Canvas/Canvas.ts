@@ -34,4 +34,22 @@ const renderSpaceToContinue = (ctx: CanvasRenderingContext2D, canvasProps: Canva
   ctx.textAlign = fontOptions.defaultFontAlignment;
 }
 
-export { CanvasProps, clearCanvas, renderSpaceToContinue, fontOptions };
+const setupCanvas = (canvas: HTMLCanvasElement, height: number, width: number): CanvasRenderingContext2D => {
+
+  canvas.style.height = `${height}px`;
+  canvas.style.width = `${width}px`;
+
+  // High DPI canvases
+  const { devicePixelRatio } = window;
+  canvas.width = width * devicePixelRatio;
+  canvas.height = height * devicePixelRatio;
+  const ctx: CanvasRenderingContext2D = <CanvasRenderingContext2D> canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  // Set the global font style
+  ctx.font = '16px Fira Mono';
+
+  return ctx;
+}
+
+export { CanvasProps, clearCanvas, renderSpaceToContinue, fontOptions, setupCanvas };

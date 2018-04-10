@@ -1,8 +1,8 @@
 import { GameMap } from './GameMap';
 import { Screen } from './Screen';
 import { mapKeyPressToActualCharacter, keyCharToCode, keyCodeToChar } from './Input';
-import { CanvasProps } from './Canvas';
-import { Player } from './Player';
+import { CanvasProps } from './Canvas/Canvas';
+import Player from './Entity/Actor/Player';
 import Vector2 from './Vector';
 
 class Game {
@@ -53,11 +53,11 @@ class Game {
     const { x: nextX, y: nextY } = nextPos;
     let row = tiles[y];
     let item = row[x];
-    item.o = null;
+    item.occupier = null;
     item.isOccupied = false;
     row = tiles[nextY];
     item = row[nextX];
-    item.o = player;
+    item.occupier = player;
     item.isOccupied = true;
     player.pos = nextPos;
   }

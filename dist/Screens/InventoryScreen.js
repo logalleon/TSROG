@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-var Canvas_1 = require("../Canvas");
+var Canvas_1 = require("../Canvas/Canvas");
 var InventoryScreen = /** @class */ (function () {
     function InventoryScreen() {
         var _this = this;
@@ -32,7 +32,8 @@ var InventoryScreen = /** @class */ (function () {
     InventoryScreen.prototype.render = function (ctx) {
         var canvasProps = this.game.canvasProps;
         Canvas_1.clearCanvas(ctx, canvasProps);
-        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = Canvas_1.fontOptions.defaultFontAlignment;
+        ctx.fillStyle = Canvas_1.fontOptions.fontColor;
         var text = 'This is the inventory screen.';
         ctx.fillText(text, 10, 30);
         Canvas_1.renderSpaceToContinue(ctx, canvasProps);

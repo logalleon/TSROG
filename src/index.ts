@@ -2,28 +2,19 @@ import Game from './Game';
 import { GameMap, Tile } from './GameMap';
 import { Screen } from './Screen';
 import * as Input from './Input';
-import { clearCanvas, CanvasProps } from './Canvas';
-import { Player } from './Player';
-
+import { clearCanvas, CanvasProps, setupCanvas } from './Canvas/Canvas';
+import Player from './Entity/Actor/Player';
 import MapScreen from './Screens/MapScreen';
 import InventoryScreen from './Screens/InventoryScreen';
 import Vector2 from './Vector';
+import { fontOptions } from './Canvas/Canvas';
+import { ActorOptions } from './Entity/Actor/Actor';
 
 const height = 240;
 const width = 600;
 window.onload = () => {
   const canvas: HTMLCanvasElement = <HTMLCanvasElement> document.getElementById('canvas');
-  canvas.style.height = `${height}px`;
-  canvas.style.width = `${width}px`;
-  // High DPI canvases
-  const { devicePixelRatio } = window;
-  canvas.width = width * devicePixelRatio;
-  canvas.height = height * devicePixelRatio;
-  const ctx: CanvasRenderingContext2D = <CanvasRenderingContext2D> canvas.getContext('2d');
-  ctx.scale(devicePixelRatio, devicePixelRatio);
-
-  // Set the global font style
-  ctx.font = '14px IBM Plex Mono';
+  const ctx: CanvasRenderingContext2D = setupCanvas(canvas, height, width);
   const canvasProps: CanvasProps = {
     height,
     width
@@ -34,7 +25,8 @@ window.onload = () => {
     description: 'Hard stone floor',
     posX: 0,
     posY: 0,
-    char: '.'
+    char: '.',
+    color: { hex: fontOptions.fontColor }
   });
   const W = () => ({
     isPassable: false,
@@ -42,11 +34,10 @@ window.onload = () => {
     description: 'A wall',
     posX: 0,
     posY: 0,
-    char: 'H'
+    char: '\u2592',
+    color: { hex: '#CCB69B' }
   });
-  const gameMap: GameMap = {
-    width: 10,
-    height: 10,
+  const gameMap = new GameMap({
     tiles: [
       [W(),W(),W(),W(),W(),W(),W()],
       [W(),F(),F(),F(),F(),F(),W()],
@@ -54,25 +45,24 @@ window.onload = () => {
       [W(),F(),F(),F(),F(),F(),W()],
       [W(),F(),F(),F(),F(),F(),W()],
       [W(),W(),W(),W(),W(),W(),W()],
-    ],
-    inBounds: (width: number, height: number, v: Vector2) => {
-      console.log(this.width);
-      console.log(v);
-      return v.x >= 0 &&
-        v.y >= 0 &&
-        v.x < width &&
-        v.y < height;
-    }
-  };
+    ]
+  });
   const screens: Screen[] = [
     new MapScreen(),
     new InventoryScreen()
   ];
-    // Adds a player
-    const player: Player = {
-      pos: new Vector2(1, 1),
-      char: '@'
-    };
+  // Adds a player
+  const options: ActorOptions = {
+    pos: new Vector2(1, 1),
+    char: '@',
+    isActive: true,
+    color: { hex: '#ff3354' },
+    hp: 17,
+    ac: 10,
+    damage: '1d4',
+    cth: 0
+  }
+  const player: Player = new Player(options);
   const g = new Game(gameMap, screens, canvasProps, ctx, player);
   // Bind the current game to all screens
   g.screens.forEach((screen) => screen.setGame(g));

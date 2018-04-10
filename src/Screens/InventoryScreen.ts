@@ -1,7 +1,7 @@
 import { Screen } from '../Screen';
 import Game from '../Game';
 import { InputMap } from '../Input';
-import { clearCanvas, renderSpaceToContinue } from '../Canvas';
+import { clearCanvas, renderSpaceToContinue, fontOptions } from '../Canvas/Canvas'
 
 class InventoryScreen implements Screen {
 
@@ -39,7 +39,8 @@ class InventoryScreen implements Screen {
   render(ctx: CanvasRenderingContext2D) {
     const { canvasProps } = this.game;
     clearCanvas(ctx, canvasProps);
-    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = fontOptions.defaultFontAlignment;
+    ctx.fillStyle = fontOptions.fontColor;
     const text = 'This is the inventory screen.';
     ctx.fillText(text, 10, 30);
     renderSpaceToContinue(ctx, canvasProps);

@@ -25,8 +25,78 @@ var renderSpaceToContinue = function (ctx, canvasProps) {
     ctx.textAlign = fontOptions.defaultFontAlignment;
 };
 exports.renderSpaceToContinue = renderSpaceToContinue;
+var setupCanvas = function (canvas, height, width) {
+    canvas.style.height = height + "px";
+    canvas.style.width = width + "px";
+    // High DPI canvases
+    var devicePixelRatio = window.devicePixelRatio;
+    canvas.width = width * devicePixelRatio;
+    canvas.height = height * devicePixelRatio;
+    var ctx = canvas.getContext('2d');
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+    // Set the global font style
+    ctx.font = '16px Fira Mono';
+    return ctx;
+};
+exports.setupCanvas = setupCanvas;
 
 },{}],2:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var Dice_1 = require("../../Random/Dice");
+var Actor = /** @class */ (function () {
+    function Actor(options) {
+        this.canMove = true;
+        this.canAttack = true;
+        for (var key in options) {
+            this[key] = options[key];
+        }
+    }
+    Actor.prototype.move = function (destination) {
+        if (this.canMove) {
+            this.pos = destination;
+        }
+    };
+    Actor.prototype.attemptAttack = function (target) {
+        var dice = Dice_1.StandardDice.d20 + "+" + this.cth;
+        return (Dice_1.rollDice(dice) >= target.ac);
+    };
+    Actor.prototype.attack = function (target) {
+        var damage = Dice_1.rollDice(this.damage);
+        target.hp -= damage;
+        return damage;
+    };
+    Actor.prototype.isDead = function () {
+        return this.hp <= 0;
+    };
+    return Actor;
+}());
+exports.Actor = Actor;
+
+},{"../../Random/Dice":7}],3:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var Actor_1 = require("./Actor");
+var Player = /** @class */ (function (_super) {
+    __extends(Player, _super);
+    function Player() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return Player;
+}(Actor_1.Actor));
+exports["default"] = Player;
+
+},{"./Actor":2}],4:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Input_1 = require("./Input");
@@ -63,11 +133,11 @@ var Game = /** @class */ (function () {
         var nextX = nextPos.x, nextY = nextPos.y;
         var row = tiles[y];
         var item = row[x];
-        item.o = null;
+        item.occupier = null;
         item.isOccupied = false;
         row = tiles[nextY];
         item = row[nextX];
-        item.o = player;
+        item.occupier = player;
         item.isOccupied = true;
         player.pos = nextPos;
     };
@@ -75,7 +145,28 @@ var Game = /** @class */ (function () {
 }());
 exports["default"] = Game;
 
-},{"./Input":3}],3:[function(require,module,exports){
+},{"./Input":6}],5:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var GameMap = /** @class */ (function () {
+    function GameMap(options) {
+        for (var key in options) {
+            this[key] = options[key];
+        }
+        this.height = this.tiles.length;
+        this.width = this.tiles[0].length;
+    }
+    GameMap.prototype.inBounds = function (width, height, v) {
+        return v.x >= 0 &&
+            v.y >= 0 &&
+            v.x < width &&
+            v.y < height;
+    };
+    return GameMap;
+}());
+exports.GameMap = GameMap;
+
+},{}],6:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var keyCodeToChar = {
@@ -499,10 +590,29 @@ var mapKeyPressToActualCharacter = function (isShiftKey, characterCode) {
 };
 exports.mapKeyPressToActualCharacter = mapKeyPressToActualCharacter;
 
-},{}],4:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-var Canvas_1 = require("../Canvas");
+var StandardDice;
+(function (StandardDice) {
+    StandardDice["d2"] = "d2";
+    StandardDice["d4"] = "d4";
+    StandardDice["d6"] = "d6";
+    StandardDice["d8"] = "d8";
+    StandardDice["d10"] = "d10";
+    StandardDice["d12"] = "d12";
+    StandardDice["d20"] = "d20";
+})(StandardDice || (StandardDice = {}));
+exports.StandardDice = StandardDice;
+var rollDice = function (dice) {
+    return 1;
+};
+exports.rollDice = rollDice;
+
+},{}],8:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var Canvas_1 = require("../Canvas/Canvas");
 var InventoryScreen = /** @class */ (function () {
     function InventoryScreen() {
         var _this = this;
@@ -534,7 +644,8 @@ var InventoryScreen = /** @class */ (function () {
     InventoryScreen.prototype.render = function (ctx) {
         var canvasProps = this.game.canvasProps;
         Canvas_1.clearCanvas(ctx, canvasProps);
-        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = Canvas_1.fontOptions.defaultFontAlignment;
+        ctx.fillStyle = Canvas_1.fontOptions.fontColor;
         var text = 'This is the inventory screen.';
         ctx.fillText(text, 10, 30);
         Canvas_1.renderSpaceToContinue(ctx, canvasProps);
@@ -543,14 +654,15 @@ var InventoryScreen = /** @class */ (function () {
 }());
 exports["default"] = InventoryScreen;
 
-},{"../Canvas":1}],5:[function(require,module,exports){
+},{"../Canvas/Canvas":1}],9:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-var Canvas_1 = require("../Canvas");
+var Canvas_1 = require("../Canvas/Canvas");
 var Vector_1 = require("../Vector");
 var MapScreen = /** @class */ (function () {
     function MapScreen() {
         var _this = this;
+        this.textSpacing = new Vector_1["default"](.9, 1.5);
         this.name = 'mapScreen';
         this.inputs = {
             'I': {
@@ -591,18 +703,19 @@ var MapScreen = /** @class */ (function () {
     MapScreen.prototype.renderTiles = function (tiles, ctx, canvasProps) {
         var fontColor = Canvas_1.fontOptions.fontColor, fontSize = Canvas_1.fontOptions.fontSize;
         var width = canvasProps.width;
-        var padding = fontSize * 3;
-        ctx.fillStyle = fontColor;
-        ctx.textAlign = 'center';
+        var offset = this.calculateOffset(canvasProps, this.game.gameMap, fontSize);
         for (var row = 0; row < tiles.length; row++) {
-            var chars = [];
             for (var col = 0; col < tiles[row].length; col++) {
-                var char = (tiles[row][col].isOccupied ?
-                    tiles[row][col].o : tiles[row][col]).char;
-                chars.push(char);
+                var tile = tiles[row][col];
+                var _a = tile.isOccupied ?
+                    tile.occupier : tile, char = _a.char, color = _a.color;
+                ctx.fillStyle = color.hex || color.rgb;
+                ctx.fillText(char, (col * fontSize * this.textSpacing.x) + offset.x, (row * fontSize * this.textSpacing.y) + offset.y);
             }
-            ctx.fillText(chars.join(''), width / 2, (row * fontSize) + padding);
         }
+    };
+    MapScreen.prototype.calculateOffset = function (canvasProps, gameMap, fontSize) {
+        return new Vector_1["default"]((canvasProps.width / 2) - (gameMap.width / 2 * fontSize), (canvasProps.height / 2) - (gameMap.height / 2 * fontSize));
     };
     MapScreen.prototype.attemptMovement = function (keyValue) {
         var _a = this.game, player = _a.player, gameMap = _a.gameMap;
@@ -664,7 +777,7 @@ var MapScreen = /** @class */ (function () {
 }());
 exports["default"] = MapScreen;
 
-},{"../Canvas":1,"../Vector":6}],6:[function(require,module,exports){
+},{"../Canvas/Canvas":1,"../Vector":10}],10:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Vector2 = /** @class */ (function () {
@@ -683,28 +796,22 @@ var Vector2 = /** @class */ (function () {
 }());
 exports["default"] = Vector2;
 
-},{}],7:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
-var _this = this;
 exports.__esModule = true;
 var Game_1 = require("./Game");
+var GameMap_1 = require("./GameMap");
+var Canvas_1 = require("./Canvas/Canvas");
+var Player_1 = require("./Entity/Actor/Player");
 var MapScreen_1 = require("./Screens/MapScreen");
 var InventoryScreen_1 = require("./Screens/InventoryScreen");
 var Vector_1 = require("./Vector");
+var Canvas_2 = require("./Canvas/Canvas");
 var height = 240;
 var width = 600;
 window.onload = function () {
     var canvas = document.getElementById('canvas');
-    canvas.style.height = height + "px";
-    canvas.style.width = width + "px";
-    // High DPI canvases
-    var devicePixelRatio = window.devicePixelRatio;
-    canvas.width = width * devicePixelRatio;
-    canvas.height = height * devicePixelRatio;
-    var ctx = canvas.getContext('2d');
-    ctx.scale(devicePixelRatio, devicePixelRatio);
-    // Set the global font style
-    ctx.font = '14px IBM Plex Mono';
+    var ctx = Canvas_1.setupCanvas(canvas, height, width);
     var canvasProps = {
         height: height,
         width: width
@@ -715,7 +822,8 @@ window.onload = function () {
         description: 'Hard stone floor',
         posX: 0,
         posY: 0,
-        char: '.'
+        char: '.',
+        color: { hex: Canvas_2.fontOptions.fontColor }
     }); };
     var W = function () { return ({
         isPassable: false,
@@ -723,11 +831,10 @@ window.onload = function () {
         description: 'A wall',
         posX: 0,
         posY: 0,
-        char: 'H'
+        char: '\u2592',
+        color: { hex: '#CCB69B' }
     }); };
-    var gameMap = {
-        width: 10,
-        height: 10,
+    var gameMap = new GameMap_1.GameMap({
         tiles: [
             [W(), W(), W(), W(), W(), W(), W()],
             [W(), F(), F(), F(), F(), F(), W()],
@@ -735,25 +842,24 @@ window.onload = function () {
             [W(), F(), F(), F(), F(), F(), W()],
             [W(), F(), F(), F(), F(), F(), W()],
             [W(), W(), W(), W(), W(), W(), W()],
-        ],
-        inBounds: function (width, height, v) {
-            console.log(_this.width);
-            console.log(v);
-            return v.x >= 0 &&
-                v.y >= 0 &&
-                v.x < width &&
-                v.y < height;
-        }
-    };
+        ]
+    });
     var screens = [
         new MapScreen_1["default"](),
         new InventoryScreen_1["default"]()
     ];
     // Adds a player
-    var player = {
+    var options = {
         pos: new Vector_1["default"](1, 1),
-        char: '@'
+        char: '@',
+        isActive: true,
+        color: { hex: '#ff3354' },
+        hp: 17,
+        ac: 10,
+        damage: '1d4',
+        cth: 0
     };
+    var player = new Player_1["default"](options);
     var g = new Game_1["default"](gameMap, screens, canvasProps, ctx, player);
     // Bind the current game to all screens
     g.screens.forEach(function (screen) { return screen.setGame(g); });
@@ -761,4 +867,4 @@ window.onload = function () {
     g.activeScreen.render(g.ctx);
 };
 
-},{"./Game":2,"./Screens/InventoryScreen":4,"./Screens/MapScreen":5,"./Vector":6}]},{},[7]);
+},{"./Canvas/Canvas":1,"./Entity/Actor/Player":3,"./Game":4,"./GameMap":5,"./Screens/InventoryScreen":8,"./Screens/MapScreen":9,"./Vector":10}]},{},[11]);

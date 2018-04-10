@@ -34,11 +34,11 @@ var Game = /** @class */ (function () {
         var nextX = nextPos.x, nextY = nextPos.y;
         var row = tiles[y];
         var item = row[x];
-        item.o = null;
+        item.occupier = null;
         item.isOccupied = false;
         row = tiles[nextY];
         item = row[nextX];
-        item.o = player;
+        item.occupier = player;
         item.isOccupied = true;
         player.pos = nextPos;
     };

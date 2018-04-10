@@ -1,10 +1,8 @@
 import Vector2 from './Vector';
+import Color from './Canvas/Color';
 
-interface GameMap {
-  height: number,
-  width: number,
+interface GameMapOptions {
   tiles: Tile[][]
-  inBounds(width: number, height: number, v: Vector2): boolean
 }
 
 interface Tile {
@@ -14,6 +12,33 @@ interface Tile {
   posX: number,
   posY: number,
   char: string,
-  o?: any
+  color: Color
+  occupier?: any
 }
-export { GameMap, Tile };
+
+class GameMap {
+
+  public height: number;
+  public width: number;
+  public tiles: Tile[][];
+
+  constructor (options: GameMapOptions) {
+    for (let key in options) {
+      this[key] = options[key];
+    }
+    this.height = this.tiles.length;
+    this.width = this.tiles[0].length;
+  }
+
+  inBounds (width: number, height: number, v: Vector2): boolean {
+    return v.x >= 0 &&
+      v.y >= 0 &&
+      v.x < width &&
+      v.y < height;
+  }
+
+}
+
+
+
+export { GameMap, GameMapOptions, Tile };

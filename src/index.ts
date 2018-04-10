@@ -7,6 +7,7 @@ import { Player } from './Player';
 
 import MapScreen from './Screens/MapScreen';
 import InventoryScreen from './Screens/InventoryScreen';
+import Vector2 from './Vector';
 
 const height = 240;
 const width = 600;
@@ -47,28 +48,35 @@ window.onload = () => {
     width: 10,
     height: 10,
     tiles: [
-      [W(),W(),W(),W()],
-      [W(),F(),F(),W()],
-      [W(),F(),F(),W()],
-      [W(),F(),F(),W()],
-      [W(),F(),F(),W()],
-      [W(),W(),W(),W()]
-    ]
+      [W(),W(),W(),W(),W(),W(),W()],
+      [W(),F(),F(),F(),F(),F(),W()],
+      [W(),F(),F(),F(),F(),F(),W()],
+      [W(),F(),F(),F(),F(),F(),W()],
+      [W(),F(),F(),F(),F(),F(),W()],
+      [W(),W(),W(),W(),W(),W(),W()],
+    ],
+    inBounds: (width: number, height: number, v: Vector2) => {
+      console.log(this.width);
+      console.log(v);
+      return v.x >= 0 &&
+        v.y >= 0 &&
+        v.x < width &&
+        v.y < height;
+    }
   };
   const screens: Screen[] = [
     new MapScreen(),
     new InventoryScreen()
   ];
-  const g = new Game(gameMap, screens, canvasProps, ctx);
+    // Adds a player
+    const player: Player = {
+      pos: new Vector2(1, 1),
+      char: '@'
+    };
+  const g = new Game(gameMap, screens, canvasProps, ctx, player);
   // Bind the current game to all screens
   g.screens.forEach((screen) => screen.setGame(g));
 
-  // Adds a player
-  const player: Player = {
-    posX: 1,
-    posY: 1,
-    char: '@'
-  };
-  g.updatePlayerPos(player);
+  g.updatePlayerPos(player, player.pos);
   g.activeScreen.render(g.ctx);
 };

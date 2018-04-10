@@ -3,6 +3,7 @@ import { Screen } from './Screen';
 import { mapKeyPressToActualCharacter, keyCharToCode, keyCodeToChar } from './Input';
 import { CanvasProps } from './Canvas';
 import { Player } from './Player';
+import Vector2 from './Vector';
 
 class Game {
 
@@ -16,8 +17,10 @@ class Game {
   public ctx: CanvasRenderingContext2D;
   public canvasProps: CanvasProps;
 
-  constructor (gameMap: GameMap, screens: Screen[], canvasProps: CanvasProps, ctx: CanvasRenderingContext2D) {
-    console.log(gameMap, 'here');
+  public player: Player;
+
+  constructor (gameMap: GameMap, screens: Screen[], canvasProps: CanvasProps, ctx: CanvasRenderingContext2D, player: Player) {
+    this.player = player;
     this.gameMap = gameMap;
     this.screens = screens;
     this.activeScreen = screens[0];
@@ -44,14 +47,19 @@ class Game {
     }
   }
 
-  updatePlayerPos (player: Player): void {
+  updatePlayerPos (player: Player, nextPos: Vector2): void {
     const { tiles } = this.gameMap;
-    const { posX, posY } = player;
-    const row = tiles[posY];
-    const item = row[posX];
+    const { x, y } = player.pos;
+    const { x: nextX, y: nextY } = nextPos;
+    let row = tiles[y];
+    let item = row[x];
+    item.o = null;
+    item.isOccupied = false;
+    row = tiles[nextY];
+    item = row[nextX];
     item.o = player;
     item.isOccupied = true;
-    this.gameMap.tiles = tiles;
+    player.pos = nextPos;
   }
 }
 

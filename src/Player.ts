@@ -1,6 +1,7 @@
+import Vector2 from './Vector';
+
 interface Player {
-  posX: number,
-  posY: number,
+  pos: Vector2
   char: string
 };
 

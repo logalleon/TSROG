@@ -31,8 +31,8 @@ exports.renderSpaceToContinue = renderSpaceToContinue;
 exports.__esModule = true;
 var Input_1 = require("./Input");
 var Game = /** @class */ (function () {
-    function Game(gameMap, screens, canvasProps, ctx) {
-        console.log(gameMap, 'here');
+    function Game(gameMap, screens, canvasProps, ctx, player) {
+        this.player = player;
         this.gameMap = gameMap;
         this.screens = screens;
         this.activeScreen = screens[0];
@@ -57,14 +57,19 @@ var Game = /** @class */ (function () {
             this.activeScreen.render(this.ctx);
         }
     };
-    Game.prototype.updatePlayerPos = function (player) {
+    Game.prototype.updatePlayerPos = function (player, nextPos) {
         var tiles = this.gameMap.tiles;
-        var posX = player.posX, posY = player.posY;
-        var row = tiles[posY];
-        var item = row[posX];
+        var _a = player.pos, x = _a.x, y = _a.y;
+        var nextX = nextPos.x, nextY = nextPos.y;
+        var row = tiles[y];
+        var item = row[x];
+        item.o = null;
+        item.isOccupied = false;
+        row = tiles[nextY];
+        item = row[nextX];
         item.o = player;
         item.isOccupied = true;
-        this.gameMap.tiles = tiles;
+        player.pos = nextPos;
     };
     return Game;
 }());
@@ -542,6 +547,7 @@ exports["default"] = InventoryScreen;
 "use strict";
 exports.__esModule = true;
 var Canvas_1 = require("../Canvas");
+var Vector_1 = require("../Vector");
 var MapScreen = /** @class */ (function () {
     function MapScreen() {
         var _this = this;
@@ -550,11 +556,17 @@ var MapScreen = /** @class */ (function () {
             'I': {
                 handler: function () {
                     var inventoryScreen = _this.game.screens[1];
-                    console.log(inventoryScreen);
-                    console.log(_this.game);
                     _this.game.activeScreen = inventoryScreen;
                 }
-            }
+            },
+            'w': { handler: this.attemptMovement.bind(this) },
+            'a': { handler: this.attemptMovement.bind(this) },
+            's': { handler: this.attemptMovement.bind(this) },
+            'd': { handler: this.attemptMovement.bind(this) },
+            'q': { handler: this.attemptMovement.bind(this) },
+            'e': { handler: this.attemptMovement.bind(this) },
+            'z': { handler: this.attemptMovement.bind(this) },
+            'c': { handler: this.attemptMovement.bind(this) }
         };
     }
     MapScreen.prototype.setGame = function (game) {
@@ -562,7 +574,7 @@ var MapScreen = /** @class */ (function () {
     };
     MapScreen.prototype.handleInput = function (keyValue) {
         if (this.inputs[keyValue]) {
-            this.inputs[keyValue].handler();
+            this.inputs[keyValue].handler(keyValue);
         }
     };
     ;
@@ -571,6 +583,7 @@ var MapScreen = /** @class */ (function () {
         var tiles = gameMap.tiles;
         Canvas_1.clearCanvas(ctx, canvasProps);
         ctx.fillStyle = Canvas_1.fontOptions.fontColor;
+        ctx.textAlign = Canvas_1.fontOptions.defaultFontAlignment;
         var text = 'This is the main map screen.';
         ctx.fillText(text, 10, 30);
         this.renderTiles(tiles, ctx, canvasProps);
@@ -591,16 +604,93 @@ var MapScreen = /** @class */ (function () {
             ctx.fillText(chars.join(''), width / 2, (row * fontSize) + padding);
         }
     };
+    MapScreen.prototype.attemptMovement = function (keyValue) {
+        var _a = this.game, player = _a.player, gameMap = _a.gameMap;
+        var pos = player.pos;
+        var tiles = gameMap.tiles;
+        var nextPos;
+        switch (keyValue) {
+            case 'w':
+                nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](0, -1));
+                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
+                    this.game.updatePlayerPos(player, nextPos);
+                }
+                break;
+            case 'a':
+                nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](-1, 0));
+                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
+                    this.game.updatePlayerPos(player, nextPos);
+                }
+                break;
+            case 's':
+                nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](0, 1));
+                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
+                    this.game.updatePlayerPos(player, nextPos);
+                }
+                break;
+            case 'd':
+                nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](1, 0));
+                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
+                    this.game.updatePlayerPos(player, nextPos);
+                }
+                break;
+            case 'q':
+                nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](-1, -1));
+                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
+                    this.game.updatePlayerPos(player, nextPos);
+                }
+                break;
+            case 'e':
+                nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](1, -1));
+                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
+                    this.game.updatePlayerPos(player, nextPos);
+                }
+                break;
+            case 'z':
+                nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](-1, 1));
+                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
+                    this.game.updatePlayerPos(player, nextPos);
+                }
+                break;
+            case 'c':
+                nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](1, 1));
+                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
+                    this.game.updatePlayerPos(player, nextPos);
+                }
+                break;
+        }
+    };
     return MapScreen;
 }());
 exports["default"] = MapScreen;
 
-},{"../Canvas":1}],6:[function(require,module,exports){
+},{"../Canvas":1,"../Vector":6}],6:[function(require,module,exports){
 "use strict";
+exports.__esModule = true;
+var Vector2 = /** @class */ (function () {
+    function Vector2(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    Vector2.prototype.add = function (other) {
+        this.x += other.x;
+        this.y += other.y;
+    };
+    Vector2.apply = function (v1, v2) {
+        return new Vector2(v1.x + v2.x, v1.y + v2.y);
+    };
+    return Vector2;
+}());
+exports["default"] = Vector2;
+
+},{}],7:[function(require,module,exports){
+"use strict";
+var _this = this;
 exports.__esModule = true;
 var Game_1 = require("./Game");
 var MapScreen_1 = require("./Screens/MapScreen");
 var InventoryScreen_1 = require("./Screens/InventoryScreen");
+var Vector_1 = require("./Vector");
 var height = 240;
 var width = 600;
 window.onload = function () {
@@ -639,29 +729,36 @@ window.onload = function () {
         width: 10,
         height: 10,
         tiles: [
-            [W(), W(), W(), W()],
-            [W(), F(), F(), W()],
-            [W(), F(), F(), W()],
-            [W(), F(), F(), W()],
-            [W(), F(), F(), W()],
-            [W(), W(), W(), W()]
-        ]
+            [W(), W(), W(), W(), W(), W(), W()],
+            [W(), F(), F(), F(), F(), F(), W()],
+            [W(), F(), F(), F(), F(), F(), W()],
+            [W(), F(), F(), F(), F(), F(), W()],
+            [W(), F(), F(), F(), F(), F(), W()],
+            [W(), W(), W(), W(), W(), W(), W()],
+        ],
+        inBounds: function (width, height, v) {
+            console.log(_this.width);
+            console.log(v);
+            return v.x >= 0 &&
+                v.y >= 0 &&
+                v.x < width &&
+                v.y < height;
+        }
     };
     var screens = [
         new MapScreen_1["default"](),
         new InventoryScreen_1["default"]()
     ];
-    var g = new Game_1["default"](gameMap, screens, canvasProps, ctx);
-    // Bind the current game to all screens
-    g.screens.forEach(function (screen) { return screen.setGame(g); });
     // Adds a player
     var player = {
-        posX: 1,
-        posY: 1,
+        pos: new Vector_1["default"](1, 1),
         char: '@'
     };
-    g.updatePlayerPos(player);
+    var g = new Game_1["default"](gameMap, screens, canvasProps, ctx, player);
+    // Bind the current game to all screens
+    g.screens.forEach(function (screen) { return screen.setGame(g); });
+    g.updatePlayerPos(player, player.pos);
     g.activeScreen.render(g.ctx);
 };
 
-},{"./Game":2,"./Screens/InventoryScreen":4,"./Screens/MapScreen":5}]},{},[6]);
+},{"./Game":2,"./Screens/InventoryScreen":4,"./Screens/MapScreen":5,"./Vector":6}]},{},[7]);

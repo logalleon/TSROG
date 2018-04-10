@@ -2,8 +2,8 @@
 exports.__esModule = true;
 var Input_1 = require("./Input");
 var Game = /** @class */ (function () {
-    function Game(gameMap, screens, canvasProps, ctx) {
-        console.log(gameMap, 'here');
+    function Game(gameMap, screens, canvasProps, ctx, player) {
+        this.player = player;
         this.gameMap = gameMap;
         this.screens = screens;
         this.activeScreen = screens[0];
@@ -28,14 +28,19 @@ var Game = /** @class */ (function () {
             this.activeScreen.render(this.ctx);
         }
     };
-    Game.prototype.updatePlayerPos = function (player) {
+    Game.prototype.updatePlayerPos = function (player, nextPos) {
         var tiles = this.gameMap.tiles;
-        var posX = player.posX, posY = player.posY;
-        var row = tiles[posY];
-        var item = row[posX];
+        var _a = player.pos, x = _a.x, y = _a.y;
+        var nextX = nextPos.x, nextY = nextPos.y;
+        var row = tiles[y];
+        var item = row[x];
+        item.o = null;
+        item.isOccupied = false;
+        row = tiles[nextY];
+        item = row[nextX];
         item.o = player;
         item.isOccupied = true;
-        this.gameMap.tiles = tiles;
+        player.pos = nextPos;
     };
     return Game;
 }());

@@ -13,6 +13,7 @@ enum InventoryItems {
   AMULETS = 'amulets',
   ARMOR = 'armor',
   FOOD = 'food',
+  KEYs = 'keys',
   POTIONS = 'potions',
   RINGS = 'rings',
   SCROLLS = 'scrolls',

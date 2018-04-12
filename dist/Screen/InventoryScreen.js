@@ -18,9 +18,6 @@ var InventoryScreen = /** @class */ (function (_super) {
     function InventoryScreen() {
         var _this = _super.call(this) || this;
         _this.name = Screen_1.ScreenNames.INVENTORY;
-        _this.inputs = {
-            'Space': { handler: _this.returnToMapScreen.bind(_this, _this.game) }
-        };
         return _this;
     }
     InventoryScreen.prototype.render = function (ctx) {

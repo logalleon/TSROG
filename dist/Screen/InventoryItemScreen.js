@@ -12,38 +12,42 @@ var __extends = (this && this.__extends) || (function () {
 exports.__esModule = true;
 var Screen_1 = require("./Screen");
 var Canvas_1 = require("../Canvas/Canvas");
-var Player_1 = require("../Entity/Actor/Player");
-var InventoryScreen = /** @class */ (function (_super) {
-    __extends(InventoryScreen, _super);
-    function InventoryScreen() {
+var InventoryItemScreen = /** @class */ (function (_super) {
+    __extends(InventoryItemScreen, _super);
+    function InventoryItemScreen(name, item) {
         var _this = _super.call(this) || this;
-        _this.name = Screen_1.ScreenNames.INVENTORY;
-        _this.inputs = {
-            'Space': { handler: _this.returnToMapScreen.bind(_this, _this.game) }
-        };
+        _this.name = name;
+        _this.item = item;
         return _this;
     }
-    InventoryScreen.prototype.render = function (ctx) {
+    InventoryItemScreen.prototype.render = function (ctx) {
         var canvasProps = this.game.canvasProps;
         Canvas_1.clearCanvas(ctx, canvasProps);
-        this.renderPlayerInventory(ctx);
+        this.renderTitle(ctx);
+        this.renderInventoryItems(ctx);
         Canvas_1.renderSpaceToContinue(ctx, canvasProps);
     };
-    InventoryScreen.prototype.renderPlayerInventory = function (ctx) {
+    InventoryItemScreen.prototype.renderTitle = function (ctx) {
+        var title = "" + this.item[0].toUpperCase() + this.item.slice(1);
+        ctx.fillStyle = Canvas_1.fontOptions.fontColor;
+        ctx.textAlign = 'center';
+        ctx.fillText(title, this.game.canvasProps.width / 2, Canvas_1.padding);
+    };
+    InventoryItemScreen.prototype.renderInventoryItems = function (ctx) {
         var player = this.game.player;
         var padding = Canvas_1.fontOptions.fontSize * 2;
         var keyCode = 65;
         var i = 0;
         ctx.textAlign = Canvas_1.fontOptions.defaultFontAlignment;
         ctx.fillStyle = Canvas_1.fontOptions.fontColor;
-        for (var key in Player_1.InventoryItems) {
-            player[Player_1.InventoryItems[key]].forEach(function (item) {
-                ctx.fillText(String.fromCharCode(keyCode) + ") " + item.name, padding, Canvas_1.fontOptions.fontSize * i + padding);
-                i++;
-                keyCode++;
-            });
-        }
+        console.log(player);
+        console.log(this.item);
+        player[this.item].forEach(function (item) {
+            ctx.fillText(String.fromCharCode(keyCode) + ") " + item.name, padding, Canvas_1.fontOptions.fontSize * i + padding);
+            i++;
+            keyCode++;
+        });
     };
-    return InventoryScreen;
+    return InventoryItemScreen;
 }(Screen_1.Screen));
-exports["default"] = InventoryScreen;
+exports["default"] = InventoryItemScreen;

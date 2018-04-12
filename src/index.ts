@@ -1,16 +1,17 @@
 import Game from './Game';
 import { GameMap, Tile } from './GameMap';
-import { Screen } from './Screen';
+import { Screen, ScreenNames } from './Screen/Screen';
 import * as Input from './Input';
 import { clearCanvas, CanvasProps, setupCanvas } from './Canvas/Canvas';
 import { Player, PlayerOptions, Pickup, InventoryItems, EquipmentSlots } from './Entity/Actor/Player';
-import MapScreen from './Screens/MapScreen';
-import InventoryScreen from './Screens/InventoryScreen';
+import MapScreen from './Screen/MapScreen';
+import InventoryScreen from './Screen/InventoryScreen';
 import Vector2 from './Vector';
 import { fontOptions } from './Canvas/Canvas';
 import { ActorOptions } from './Entity/Actor/Actor';
 import { Armor, ArmorOptions } from './Entity/Prop/Armor';
 import { PropOptions, Quality } from './Entity/Prop/Prop';
+import InventoryItemScreen from './Screen/InventoryItemScreen';
 
 const height = 240;
 const width = 600;
@@ -51,7 +52,15 @@ window.onload = () => {
   });
   const screens: Screen[] = [
     new MapScreen(),
-    new InventoryScreen()
+    new InventoryScreen(),
+    new InventoryItemScreen(ScreenNames.AMULET, InventoryItems.AMULETS),
+    new InventoryItemScreen(ScreenNames.ARMOR, InventoryItems.ARMOR),
+    new InventoryItemScreen(ScreenNames.FOOD, InventoryItems.FOOD),
+    new InventoryItemScreen(ScreenNames.KEYS, InventoryItems.KEYs),
+    new InventoryItemScreen(ScreenNames.POTIONS, InventoryItems.POTIONS),
+    new InventoryItemScreen(ScreenNames.RING, InventoryItems.RINGS),
+    new InventoryItemScreen(ScreenNames.SCROLL, InventoryItems.SCROLLS),
+    new InventoryItemScreen(ScreenNames.WEAPON, InventoryItems.WEAPONS)
   ];
   // Adds a player
   const actorOptions: ActorOptions = {

@@ -16,6 +16,7 @@ var InventoryItems;
     InventoryItems["AMULETS"] = "amulets";
     InventoryItems["ARMOR"] = "armor";
     InventoryItems["FOOD"] = "food";
+    InventoryItems["KEYs"] = "keys";
     InventoryItems["POTIONS"] = "potions";
     InventoryItems["RINGS"] = "rings";
     InventoryItems["SCROLLS"] = "scrolls";

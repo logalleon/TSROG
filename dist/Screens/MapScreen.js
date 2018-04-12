@@ -1,12 +1,13 @@
 "use strict";
 exports.__esModule = true;
+var Screen_1 = require("../Screen");
 var Canvas_1 = require("../Canvas/Canvas");
 var Vector_1 = require("../Vector");
 var MapScreen = /** @class */ (function () {
     function MapScreen() {
         var _this = this;
         this.textSpacing = new Vector_1["default"](.9, 1.5);
-        this.name = 'mapScreen';
+        this.name = Screen_1.ScreenNames.MAP;
         this.inputs = {
             'I': {
                 handler: function () {

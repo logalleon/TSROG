@@ -52,4 +52,4 @@ const setupCanvas = (canvas: HTMLCanvasElement, height: number, width: number): 
   return ctx;
 }
 
-export { CanvasProps, clearCanvas, renderSpaceToContinue, fontOptions, setupCanvas };
+export { CanvasProps, clearCanvas, renderSpaceToContinue, fontOptions, setupCanvas, padding };

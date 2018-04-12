@@ -2,14 +2,16 @@
 exports.__esModule = true;
 var Game_1 = require("./Game");
 var GameMap_1 = require("./GameMap");
+var Screen_1 = require("./Screen/Screen");
 var Canvas_1 = require("./Canvas/Canvas");
 var Player_1 = require("./Entity/Actor/Player");
-var MapScreen_1 = require("./Screens/MapScreen");
-var InventoryScreen_1 = require("./Screens/InventoryScreen");
+var MapScreen_1 = require("./Screen/MapScreen");
+var InventoryScreen_1 = require("./Screen/InventoryScreen");
 var Vector_1 = require("./Vector");
 var Canvas_2 = require("./Canvas/Canvas");
 var Armor_1 = require("./Entity/Prop/Armor");
 var Prop_1 = require("./Entity/Prop/Prop");
+var InventoryItemScreen_1 = require("./Screen/InventoryItemScreen");
 var height = 240;
 var width = 600;
 window.onload = function () {
@@ -49,7 +51,15 @@ window.onload = function () {
     });
     var screens = [
         new MapScreen_1["default"](),
-        new InventoryScreen_1["default"]()
+        new InventoryScreen_1["default"](),
+        new InventoryItemScreen_1["default"](Screen_1.ScreenNames.AMULET, Player_1.InventoryItems.AMULETS),
+        new InventoryItemScreen_1["default"](Screen_1.ScreenNames.ARMOR, Player_1.InventoryItems.ARMOR),
+        new InventoryItemScreen_1["default"](Screen_1.ScreenNames.FOOD, Player_1.InventoryItems.FOOD),
+        new InventoryItemScreen_1["default"](Screen_1.ScreenNames.KEYS, Player_1.InventoryItems.KEYs),
+        new InventoryItemScreen_1["default"](Screen_1.ScreenNames.POTIONS, Player_1.InventoryItems.POTIONS),
+        new InventoryItemScreen_1["default"](Screen_1.ScreenNames.RING, Player_1.InventoryItems.RINGS),
+        new InventoryItemScreen_1["default"](Screen_1.ScreenNames.SCROLL, Player_1.InventoryItems.SCROLLS),
+        new InventoryItemScreen_1["default"](Screen_1.ScreenNames.WEAPON, Player_1.InventoryItems.WEAPONS)
     ];
     // Adds a player
     var actorOptions = {

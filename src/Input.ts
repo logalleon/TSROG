@@ -423,7 +423,7 @@ interface InputMap {
 }
 
 interface Handler {
-  handler(stringValue?: string): void
+  (stringValue?: string): void;
 }
 
 export { mapKeyPressToActualCharacter, InputMap, keyCharToCode, keyCodeToChar };

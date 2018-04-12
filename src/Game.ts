@@ -1,5 +1,5 @@
 import { GameMap } from './GameMap';
-import { Screen } from './Screen';
+import { Screen } from './Screen/Screen';
 import { mapKeyPressToActualCharacter, keyCharToCode, keyCodeToChar } from './Input';
 import { CanvasProps } from './Canvas/Canvas';
 import { Player } from './Entity/Actor/Player';

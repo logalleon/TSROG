@@ -4,6 +4,7 @@ var fontSize = 14;
 var fontColor = '#ffffff';
 var defaultFontAlignment = 'left';
 var padding = 20;
+exports.padding = padding;
 var fontOptions = {
     fontSize: fontSize,
     fontColor: fontColor,

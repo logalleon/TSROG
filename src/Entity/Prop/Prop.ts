@@ -2,17 +2,6 @@ import Entity from '../Entity';
 import Vector2 from '../../Vector';
 import Color from '../../Canvas/Color';
 
-enum Quality {
-  RUINED = 'ruined',
-  POOR = 'poor',
-  FAIR = 'fair',
-  COMMON = 'common',
-  GOOD = 'good',
-  EXCEPTIONAL = 'exceptional',
-  LEGENDARY = 'legendary',
-  MYTHICAL = 'mythical'
-}
-
 interface PropOptions {
   pos?: Vector2,
   isActive: boolean,
@@ -48,4 +37,4 @@ class Prop implements Entity {
 
 }
 
-export { Prop, PropOptions, Quality };
+export { Prop, PropOptions };

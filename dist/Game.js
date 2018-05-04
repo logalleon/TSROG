@@ -1,8 +1,9 @@
 "use strict";
 exports.__esModule = true;
 var Input_1 = require("./Input");
+var Message_1 = require("./Message/Message");
 var Game = /** @class */ (function () {
-    function Game(gameMap, screens, canvasProps, ctx, player) {
+    function Game(gameMap, screens, canvasProps, ctx, player, el) {
         this.player = player;
         this.gameMap = gameMap;
         this.screens = screens;
@@ -10,9 +11,17 @@ var Game = /** @class */ (function () {
         this.canvasProps = canvasProps;
         this.keyMap = {};
         this.ctx = ctx;
+        this.messenger = new Message_1.Messenger(el);
         window.onkeydown = this.handleInput.bind(this);
         window.onkeyup = this.handleInput.bind(this);
     }
+    /**
+     * Effectively, this is the game loop. Since everything is turn-based,
+     * the browser window waits for input and then responds accordingly.
+     * Sometimes the screen is changed, sometimes enemies move: it all
+     * depends on what the key input is from the user.
+     * @param e - event
+     */
     Game.prototype.handleInput = function (e) {
         e.preventDefault();
         var keyCode = e.keyCode, type = e.type;
@@ -24,7 +33,16 @@ var Game = /** @class */ (function () {
             if (!char) {
                 char = Input_1.keyCodeToChar[keyCode];
             }
-            this.activeScreen.handleInput(char);
+            // Handle the player input first. The player gets priority for everything
+            this.messenger.logMessages(this.activeScreen.handleInput(char));
+            /*
+            if (this.player.hasMoveInteracted && this.activeEnemies.length) {
+              this.messenger.logMessages(this.activeEnemies.forEach(enemy => enemy.act());
+            }
+            this.messenger.logMessages(this.player.update());
+            // some kill check in update
+            */
+            // Finally, render what's changed
             this.activeScreen.render(this.ctx);
         }
     };

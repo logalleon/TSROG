@@ -9,6 +9,9 @@ var Actor = /** @class */ (function () {
             this[key] = options[key];
         }
     }
+    Actor.prototype.act = function () {
+        return null;
+    };
     Actor.prototype.move = function (destination) {
         if (this.canMove) {
             this.pos = destination;

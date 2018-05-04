@@ -13,45 +13,69 @@ exports.__esModule = true;
 var Screen_1 = require("./Screen");
 var Canvas_1 = require("../Canvas/Canvas");
 var Vector_1 = require("../Vector");
+var Color_1 = require("../Canvas/Color");
+var MapScreenInputs;
+(function (MapScreenInputs) {
+    MapScreenInputs["INVENTORY"] = "I";
+    MapScreenInputs["AMULET"] = "t";
+    MapScreenInputs["ARMOR"] = "u";
+    MapScreenInputs["FOOD"] = "o";
+    MapScreenInputs["KEYS"] = "y";
+    MapScreenInputs["POTIONS"] = "p";
+    MapScreenInputs["RING"] = "n";
+    MapScreenInputs["SCROLL"] = "l";
+    MapScreenInputs["WEAPONS"] = "k";
+    MapScreenInputs["COMMANDS"] = "?";
+    MapScreenInputs["UNEQUIP"] = "U";
+    MapScreenInputs["MESSAGES"] = "M";
+    MapScreenInputs["HELP"] = "/";
+    MapScreenInputs["MOVE_UP"] = "w";
+    MapScreenInputs["MOVE_LEFT"] = "a";
+    MapScreenInputs["MOVE_DOWN"] = "s";
+    MapScreenInputs["MOVE_RIGHT"] = "d";
+    MapScreenInputs["MOVE_UP_LEFT"] = "q";
+    MapScreenInputs["MOVE_UP_RIGHT"] = "e";
+    MapScreenInputs["MOVE_DOWN_LEFT"] = "z";
+    MapScreenInputs["MOVE_DOWN_RIGHT"] = "c";
+})(MapScreenInputs || (MapScreenInputs = {}));
+exports.MapScreenInputs = MapScreenInputs;
 var MapScreen = /** @class */ (function (_super) {
     __extends(MapScreen, _super);
     function MapScreen() {
         var _this = _super.call(this) || this;
         _this.textSpacing = new Vector_1["default"](.9, 1.5);
         _this.name = Screen_1.ScreenNames.MAP;
-        _this.inputs = {
-            'I': _this.showInventoryScreen,
-            't': _this.showAmuletScreen,
-            'u': _this.showArmorScreen,
-            'o': _this.showFoodScreen,
-            'y': _this.showKeyItems,
-            'p': _this.showPotionScreen,
-            'n': _this.showRingScreen,
-            'l': _this.showScrollScreen,
-            'k': _this.showWeaponScreen,
-            '?': _this.showCommandScreen,
-            'U': _this.showUnequipScreen,
-            'M': _this.showMessageScreen,
-            '/': _this.showHelpScreen,
-            'w': _this.attemptMovement.bind(_this),
-            'a': _this.attemptMovement.bind(_this),
-            's': _this.attemptMovement.bind(_this),
-            'd': _this.attemptMovement.bind(_this),
-            'q': _this.attemptMovement.bind(_this),
-            'e': _this.attemptMovement.bind(_this),
-            'z': _this.attemptMovement.bind(_this),
-            'c': _this.attemptMovement.bind(_this)
-        };
+        _this.inputs = (_a = {},
+            _a[MapScreenInputs.INVENTORY] = _this.showInventoryScreen,
+            _a[MapScreenInputs.AMULET] = _this.showAmuletScreen,
+            _a[MapScreenInputs.ARMOR] = _this.showArmorScreen,
+            _a[MapScreenInputs.FOOD] = _this.showFoodScreen,
+            _a[MapScreenInputs.KEYS] = _this.showKeyItems,
+            _a[MapScreenInputs.POTIONS] = _this.showPotionScreen,
+            _a[MapScreenInputs.RING] = _this.showRingScreen,
+            _a[MapScreenInputs.SCROLL] = _this.showScrollScreen,
+            _a[MapScreenInputs.WEAPONS] = _this.showWeaponScreen,
+            _a[MapScreenInputs.COMMANDS] = _this.showCommandScreen,
+            _a[MapScreenInputs.UNEQUIP] = _this.showUnequipScreen,
+            _a[MapScreenInputs.MESSAGES] = _this.showMessageScreen,
+            _a[MapScreenInputs.HELP] = _this.showHelpScreen,
+            _a[MapScreenInputs.MOVE_UP] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_LEFT] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_DOWN] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_RIGHT] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_UP_LEFT] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_UP_RIGHT] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_DOWN_LEFT] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_DOWN_RIGHT] = _this.attemptMovement.bind(_this),
+            _a);
         return _this;
+        var _a;
     }
     MapScreen.prototype.render = function (ctx) {
         var _a = this.game, gameMap = _a.gameMap, canvasProps = _a.canvasProps;
         var tiles = gameMap.tiles;
         Canvas_1.clearCanvas(ctx, canvasProps);
-        ctx.fillStyle = Canvas_1.fontOptions.fontColor;
-        ctx.textAlign = Canvas_1.fontOptions.defaultFontAlignment;
-        var text = 'This is the main map screen.';
-        ctx.fillText(text, 10, 30);
+        this.game.messenger.logMessages([{ text: 'This is the map screen', color: Color_1.Colors.DEFAULT }]);
         this.renderTiles(tiles, ctx, canvasProps);
     };
     MapScreen.prototype.renderTiles = function (tiles, ctx, canvasProps) {
@@ -127,6 +151,7 @@ var MapScreen = /** @class */ (function (_super) {
                 }
                 break;
         }
+        return null;
     };
     MapScreen.prototype.showHelpScreen = function () {
         var helpScreen = this.game.screens.filter(function (screen) { return screen.name === Screen_1.ScreenNames.HELP; })[0];

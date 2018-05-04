@@ -10,8 +10,11 @@ import Vector2 from './Vector';
 import { fontOptions } from './Canvas/Canvas';
 import { ActorOptions } from './Entity/Actor/Actor';
 import { Armor, ArmorOptions } from './Entity/Prop/Armor';
-import { PropOptions, Quality } from './Entity/Prop/Prop';
+import { PropOptions } from './Entity/Prop/Prop';
+import { Quality } from './Entity/Prop/Prop.data';
 import InventoryItemScreen from './Screen/InventoryItemScreen';
+import CommandScreen from './Screen/CommandScreen';
+import { Color } from './Canvas/Color';
 
 const height = 240;
 const width = 600;
@@ -22,6 +25,9 @@ window.onload = () => {
     height,
     width
   };
+  const el = document.getElementById('messages');
+
+  // TEST DATA ///////////////////////////////////////
   const F = () => ({
     isPassable: true,
     isOccupied: false,
@@ -29,7 +35,7 @@ window.onload = () => {
     posX: 0,
     posY: 0,
     char: '.',
-    color: { hex: fontOptions.fontColor }
+    color: new Color({ hex: fontOptions.fontColor })
   });
   const W = () => ({
     isPassable: false,
@@ -38,7 +44,7 @@ window.onload = () => {
     posX: 0,
     posY: 0,
     char: '\u2592',
-    color: { hex: '#CCB69B' }
+    color: new Color({ hex: '#CCB69B' })
   });
   const gameMap = new GameMap({
     tiles: [
@@ -50,6 +56,9 @@ window.onload = () => {
       [W(),W(),W(),W(),W(),W(),W()],
     ]
   });
+
+  // END TEST DATA
+
   const screens: Screen[] = [
     new MapScreen(),
     new InventoryScreen(),
@@ -60,14 +69,15 @@ window.onload = () => {
     new InventoryItemScreen(ScreenNames.POTIONS, InventoryItems.POTIONS),
     new InventoryItemScreen(ScreenNames.RING, InventoryItems.RINGS),
     new InventoryItemScreen(ScreenNames.SCROLL, InventoryItems.SCROLLS),
-    new InventoryItemScreen(ScreenNames.WEAPON, InventoryItems.WEAPONS)
+    new InventoryItemScreen(ScreenNames.WEAPON, InventoryItems.WEAPONS),
+    new CommandScreen()
   ];
-  // Adds a player
+  // Adds a player TEST DATAAAAAa
   const actorOptions: ActorOptions = {
     pos: new Vector2(1, 1),
     char: '@',
     isActive: true,
-    color: { hex: '#ff3354' },
+    color: new Color({ hex: '#ff3354' }),
     hp: 17,
     ac: 10,
     damage: '1d4',
@@ -75,14 +85,14 @@ window.onload = () => {
   }
   const options: PlayerOptions = {
     actorOptions
-  }
+  };
   
   const player: Player = new Player(options);
 
   // Some test equipment for the player
   const armorPropOptions: PropOptions = {
     isActive: true,
-    color: { hex: '#ff00ff' },
+    color: new Color({ hex: '#ff00ff' }),
     char: 'A',
     name: 'Plate Mail',
     canBePickedUp: true,
@@ -98,7 +108,7 @@ window.onload = () => {
 
   const armorPropOptions1: PropOptions = {
     isActive: true,
-    color: { hex: '#ff00ff' },
+    color: new Color({ hex: '#ff00ff' }),
     char: 'A',
     name: 'Chain Mail',
     canBePickedUp: true,
@@ -110,12 +120,15 @@ window.onload = () => {
     quality: Quality.POOR,
     propOptions: armorPropOptions1
   };
-  const chainMail = new Armor(armorOptions1)
+  const chainMail = new Armor(armorOptions1);
 
-  const g = new Game(gameMap, screens, canvasProps, ctx, player);
+  // END TEST DATA ////////////////////
+
+  const g = new Game(gameMap, screens, canvasProps, ctx, player, el);
   // Bind the current game to all screens
   g.screens.forEach((screen) => screen.setGame(g));
 
+  // TESSSSSSSSSSST DATA
   let pickup: Pickup = {
     type: InventoryItems.ARMOR,
     item: plateMail
@@ -128,5 +141,9 @@ window.onload = () => {
   };
   player.addToInventory(pickup);
   g.updatePlayerPos(player, player.pos);
+
+
+  // END TEST DATA
+
   g.activeScreen.render(g.ctx);
 };

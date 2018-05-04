@@ -1,3 +1,5 @@
+import { Message } from './Message/Message';
+
 const keyCodeToChar = {
   8: 'Backspace',
   9: 'Tab',
@@ -423,7 +425,7 @@ interface InputMap {
 }
 
 interface Handler {
-  (stringValue?: string): void;
+  (stringValue?: string): void | Message[];
 }
 
 export { mapKeyPressToActualCharacter, InputMap, keyCharToCode, keyCodeToChar };

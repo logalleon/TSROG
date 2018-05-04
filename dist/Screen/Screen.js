@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-var Message_1 = require("../Message");
+var Message_1 = require("../Message/Message");
 var ScreenNames;
 (function (ScreenNames) {
     ScreenNames["MAP"] = "map";
@@ -31,18 +31,16 @@ var Screen = /** @class */ (function () {
     };
     Screen.prototype.handleInput = function (keyValue) {
         if (this.inputs[keyValue]) {
-            this.inputs[keyValue].call(this, keyValue);
-            return { status: Message_1.Status.SUCCESS };
+            return this.inputs[keyValue].call(this, keyValue);
         }
         else {
-            return { status: Message_1.Status.FAILURE, message: Message_1.invalidInput(keyValue) };
+            return [Message_1.invalidInput(keyValue)];
         }
     };
     Screen.prototype.returnToMapScreen = function () {
         var game = this.game;
         var mapScreen = game.screens.filter(function (screen) { return screen.name === ScreenNames.MAP; })[0];
         game.activeScreen = mapScreen;
-        return { status: Message_1.Status.SUCCESS };
     };
     Screen.prototype.render = function (ctx) {
         return null;

@@ -1,5 +1,5 @@
 import Vector2 from './Vector';
-import Color from './Canvas/Color';
+import { Color } from './Canvas/Color';
 
 interface GameMapOptions {
   tiles: Tile[][]

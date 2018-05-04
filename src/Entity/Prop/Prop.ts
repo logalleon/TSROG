@@ -1,6 +1,6 @@
 import Entity from '../Entity';
 import Vector2 from '../../Vector';
-import Color from '../../Canvas/Color';
+import { Color } from '../../Canvas/Color';
 
 interface PropOptions {
   pos?: Vector2,

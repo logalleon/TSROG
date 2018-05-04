@@ -10,8 +10,10 @@ var InventoryScreen_1 = require("./Screen/InventoryScreen");
 var Vector_1 = require("./Vector");
 var Canvas_2 = require("./Canvas/Canvas");
 var Armor_1 = require("./Entity/Prop/Armor");
-var Prop_1 = require("./Entity/Prop/Prop");
+var Prop_data_1 = require("./Entity/Prop/Prop.data");
 var InventoryItemScreen_1 = require("./Screen/InventoryItemScreen");
+var CommandScreen_1 = require("./Screen/CommandScreen");
+var Color_1 = require("./Canvas/Color");
 var height = 240;
 var width = 600;
 window.onload = function () {
@@ -21,6 +23,8 @@ window.onload = function () {
         height: height,
         width: width
     };
+    var el = document.getElementById('messages');
+    // TEST DATA ///////////////////////////////////////
     var F = function () { return ({
         isPassable: true,
         isOccupied: false,
@@ -28,7 +32,7 @@ window.onload = function () {
         posX: 0,
         posY: 0,
         char: '.',
-        color: { hex: Canvas_2.fontOptions.fontColor }
+        color: new Color_1.Color({ hex: Canvas_2.fontOptions.fontColor })
     }); };
     var W = function () { return ({
         isPassable: false,
@@ -37,7 +41,7 @@ window.onload = function () {
         posX: 0,
         posY: 0,
         char: '\u2592',
-        color: { hex: '#CCB69B' }
+        color: new Color_1.Color({ hex: '#CCB69B' })
     }); };
     var gameMap = new GameMap_1.GameMap({
         tiles: [
@@ -49,6 +53,7 @@ window.onload = function () {
             [W(), W(), W(), W(), W(), W(), W()],
         ]
     });
+    // END TEST DATA
     var screens = [
         new MapScreen_1["default"](),
         new InventoryScreen_1["default"](),
@@ -59,14 +64,15 @@ window.onload = function () {
         new InventoryItemScreen_1["default"](Screen_1.ScreenNames.POTIONS, Player_1.InventoryItems.POTIONS),
         new InventoryItemScreen_1["default"](Screen_1.ScreenNames.RING, Player_1.InventoryItems.RINGS),
         new InventoryItemScreen_1["default"](Screen_1.ScreenNames.SCROLL, Player_1.InventoryItems.SCROLLS),
-        new InventoryItemScreen_1["default"](Screen_1.ScreenNames.WEAPON, Player_1.InventoryItems.WEAPONS)
+        new InventoryItemScreen_1["default"](Screen_1.ScreenNames.WEAPON, Player_1.InventoryItems.WEAPONS),
+        new CommandScreen_1["default"]()
     ];
-    // Adds a player
+    // Adds a player TEST DATAAAAAa
     var actorOptions = {
         pos: new Vector_1["default"](1, 1),
         char: '@',
         isActive: true,
-        color: { hex: '#ff3354' },
+        color: new Color_1.Color({ hex: '#ff3354' }),
         hp: 17,
         ac: 10,
         damage: '1d4',
@@ -79,7 +85,7 @@ window.onload = function () {
     // Some test equipment for the player
     var armorPropOptions = {
         isActive: true,
-        color: { hex: '#ff00ff' },
+        color: new Color_1.Color({ hex: '#ff00ff' }),
         char: 'A',
         name: 'Plate Mail',
         canBePickedUp: true,
@@ -88,13 +94,13 @@ window.onload = function () {
     var armorOptions = {
         modifier: 4,
         material: 'Iron',
-        quality: Prop_1.Quality.FAIR,
+        quality: Prop_data_1.Quality.FAIR,
         propOptions: armorPropOptions
     };
     var plateMail = new Armor_1.Armor(armorOptions);
     var armorPropOptions1 = {
         isActive: true,
-        color: { hex: '#ff00ff' },
+        color: new Color_1.Color({ hex: '#ff00ff' }),
         char: 'A',
         name: 'Chain Mail',
         canBePickedUp: true,
@@ -103,13 +109,15 @@ window.onload = function () {
     var armorOptions1 = {
         modifier: 2,
         material: 'Tin',
-        quality: Prop_1.Quality.POOR,
+        quality: Prop_data_1.Quality.POOR,
         propOptions: armorPropOptions1
     };
     var chainMail = new Armor_1.Armor(armorOptions1);
-    var g = new Game_1["default"](gameMap, screens, canvasProps, ctx, player);
+    // END TEST DATA ////////////////////
+    var g = new Game_1["default"](gameMap, screens, canvasProps, ctx, player, el);
     // Bind the current game to all screens
     g.screens.forEach(function (screen) { return screen.setGame(g); });
+    // TESSSSSSSSSSST DATA
     var pickup = {
         type: Player_1.InventoryItems.ARMOR,
         item: plateMail
@@ -122,5 +130,6 @@ window.onload = function () {
     };
     player.addToInventory(pickup);
     g.updatePlayerPos(player, player.pos);
+    // END TEST DATA
     g.activeScreen.render(g.ctx);
 };

@@ -44,6 +44,30 @@ exports.setupCanvas = setupCanvas;
 },{}],2:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+var Color = /** @class */ (function () {
+    function Color(options) {
+        for (var key in options) {
+            this[key] = options[key]; // idgaf
+        }
+    }
+    Color.prototype.val = function () {
+        console.log(this);
+        return this.hex || this.rgb || this.html;
+    };
+    return Color;
+}());
+exports.Color = Color;
+var Colors = {
+    RED: new Color({ html: 'red' }),
+    GREEN: new Color({ html: 'kellygreen' }),
+    VIOLET: new Color({ html: 'violet' }),
+    DEFAULT: new Color({ html: 'white' }) // fontOptions.fontColor??
+};
+exports.Colors = Colors;
+
+},{}],3:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
 var Dice_1 = require("../../Random/Dice");
 var Actor = /** @class */ (function () {
     function Actor(options) {
@@ -53,6 +77,9 @@ var Actor = /** @class */ (function () {
             this[key] = options[key];
         }
     }
+    Actor.prototype.act = function () {
+        return null;
+    };
     Actor.prototype.move = function (destination) {
         if (this.canMove) {
             this.pos = destination;
@@ -74,7 +101,7 @@ var Actor = /** @class */ (function () {
 }());
 exports.Actor = Actor;
 
-},{"../../Random/Dice":10}],3:[function(require,module,exports){
+},{"../../Random/Dice":12}],4:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -150,7 +177,7 @@ var Player = /** @class */ (function (_super) {
 InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
 exports.Player = Player;
 
-},{"./Actor":2}],4:[function(require,module,exports){
+},{"./Actor":3}],5:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -179,7 +206,7 @@ var Armor = /** @class */ (function (_super) {
 }(Prop_1.Prop));
 exports.Armor = Armor;
 
-},{"./Prop":5}],5:[function(require,module,exports){
+},{"./Prop":7}],6:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Quality;
@@ -194,6 +221,16 @@ var Quality;
     Quality["MYTHICAL"] = "mythical";
 })(Quality || (Quality = {}));
 exports.Quality = Quality;
+var EMaterialType;
+(function (EMaterialType) {
+})(EMaterialType || (EMaterialType = {}));
+var EMaterialSubtype;
+(function (EMaterialSubtype) {
+})(EMaterialSubtype || (EMaterialSubtype = {}));
+
+},{}],7:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
 var Prop = /** @class */ (function () {
     function Prop(options) {
         for (var key in options) {
@@ -204,12 +241,13 @@ var Prop = /** @class */ (function () {
 }());
 exports.Prop = Prop;
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Input_1 = require("./Input");
+var Message_1 = require("./Message/Message");
 var Game = /** @class */ (function () {
-    function Game(gameMap, screens, canvasProps, ctx, player) {
+    function Game(gameMap, screens, canvasProps, ctx, player, el) {
         this.player = player;
         this.gameMap = gameMap;
         this.screens = screens;
@@ -217,9 +255,17 @@ var Game = /** @class */ (function () {
         this.canvasProps = canvasProps;
         this.keyMap = {};
         this.ctx = ctx;
+        this.messenger = new Message_1.Messenger(el);
         window.onkeydown = this.handleInput.bind(this);
         window.onkeyup = this.handleInput.bind(this);
     }
+    /**
+     * Effectively, this is the game loop. Since everything is turn-based,
+     * the browser window waits for input and then responds accordingly.
+     * Sometimes the screen is changed, sometimes enemies move: it all
+     * depends on what the key input is from the user.
+     * @param e - event
+     */
     Game.prototype.handleInput = function (e) {
         e.preventDefault();
         var keyCode = e.keyCode, type = e.type;
@@ -231,7 +277,16 @@ var Game = /** @class */ (function () {
             if (!char) {
                 char = Input_1.keyCodeToChar[keyCode];
             }
-            this.activeScreen.handleInput(char);
+            // Handle the player input first. The player gets priority for everything
+            this.messenger.logMessages(this.activeScreen.handleInput(char));
+            /*
+            if (this.player.hasMoveInteracted && this.activeEnemies.length) {
+              this.messenger.logMessages(this.activeEnemies.forEach(enemy => enemy.act());
+            }
+            this.messenger.logMessages(this.player.update());
+            // some kill check in update
+            */
+            // Finally, render what's changed
             this.activeScreen.render(this.ctx);
         }
     };
@@ -253,7 +308,7 @@ var Game = /** @class */ (function () {
 }());
 exports["default"] = Game;
 
-},{"./Input":8}],7:[function(require,module,exports){
+},{"./Input":10,"./Message/Message":11}],9:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var GameMap = /** @class */ (function () {
@@ -274,7 +329,7 @@ var GameMap = /** @class */ (function () {
 }());
 exports.GameMap = GameMap;
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var keyCodeToChar = {
@@ -698,21 +753,60 @@ var mapKeyPressToActualCharacter = function (isShiftKey, characterCode) {
 };
 exports.mapKeyPressToActualCharacter = mapKeyPressToActualCharacter;
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+var Color_1 = require("../Canvas/Color");
+var Canvas_1 = require("../Canvas/Canvas");
 var Status;
 (function (Status) {
     Status[Status["SUCCESS"] = 0] = "SUCCESS";
     Status[Status["FAILURE"] = 1] = "FAILURE";
 })(Status || (Status = {}));
 exports.Status = Status;
-var invalidInput = function (keyValue) {
-    return "Unrecognized input '" + keyValue + "'.";
-};
+var invalidInput = function (keyValue) { return ({
+    text: "Unrecognized input '" + keyValue + "'.",
+    color: Color_1.Colors.RED
+}); };
 exports.invalidInput = invalidInput;
+var Messenger = /** @class */ (function () {
+    function Messenger(el) {
+        this.htmlWrapper = 'span';
+        this.el = el;
+        this.messages = [];
+    }
+    Messenger.prototype.logMessages = function (newMessages) {
+        var _this = this;
+        if (newMessages.length) {
+            if (newMessages.length + this.messages.length > this.maxMessages) {
+                this.messages = this.messages.slice(newMessages.length).concat(newMessages);
+            }
+            else {
+                this.messages = this.messages.concat(newMessages);
+            }
+            console.log(this.messages);
+            var html = [this.el.innerHTML].concat(this.messages.map(function (message) { return ("\n        <" + _this.htmlWrapper + " style='color: " + message.color.val() + "'>\n        " + message.text + "\n        </" + _this.htmlWrapper + ">\n      "); }));
+            console.log(html);
+            console.log(html.join().trim());
+            this.el.innerHTML = html.join('');
+        }
+    };
+    Messenger.prototype.showAllCurrentMessage = function () {
+        var _this = this;
+        var html = [];
+        if (!this.messages.length) {
+            html.push("\n        <" + this.htmlWrapper + " style='color: " + Canvas_1.fontOptions.fontColor + "'>\n        No messages to display.\n        </" + this.htmlWrapper + ">\n      ");
+        }
+        else {
+            html = this.messages.map(function (message) { return ("\n        <" + _this.htmlWrapper + " style='color: " + message.color.val() + "'>\n        " + message.text + "\n        </" + _this.htmlWrapper + ">\n      "); });
+        }
+        this.el.innerHTML = html.join('');
+    };
+    return Messenger;
+}());
+exports.Messenger = Messenger;
 
-},{}],10:[function(require,module,exports){
+},{"../Canvas/Canvas":1,"../Canvas/Color":2}],12:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var StandardDice;
@@ -731,7 +825,76 @@ var rollDice = function (dice) {
 };
 exports.rollDice = rollDice;
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var Screen_1 = require("./Screen");
+var Canvas_1 = require("../Canvas/Canvas");
+var Player_1 = require("../Entity/Actor/Player");
+var MapScreen_1 = require("./MapScreen");
+var CommandScreen = /** @class */ (function (_super) {
+    __extends(CommandScreen, _super);
+    function CommandScreen() {
+        var _this = _super.call(this) || this;
+        _this.name = Screen_1.ScreenNames.COMMANDS;
+        return _this;
+    }
+    CommandScreen.prototype.render = function (ctx) {
+        var canvasProps = this.game.canvasProps;
+        Canvas_1.clearCanvas(ctx, canvasProps);
+        this.renderTitle(ctx);
+        this.renderMovement(ctx);
+        Canvas_1.renderSpaceToContinue(ctx, canvasProps);
+    };
+    CommandScreen.prototype.renderTitle = function (ctx) {
+        var title = "" + this.name[0].toUpperCase() + this.name.slice(1);
+        ctx.fillStyle = Canvas_1.fontOptions.fontColor;
+        ctx.textAlign = 'center';
+        ctx.fillText(title, this.game.canvasProps.width / 2, Canvas_1.padding);
+    };
+    CommandScreen.prototype.renderMovement = function (ctx) {
+        ctx.textAlign = 'center';
+        var text = MapScreen_1.MapScreenInputs.MOVE_UP_LEFT + " " + MapScreen_1.MapScreenInputs.MOVE_UP + " " + MapScreen_1.MapScreenInputs.MOVE_UP_RIGHT;
+        ctx.fillText(text, Canvas_1.padding * 2.5, Canvas_1.padding);
+        text = "\\|/\n";
+        ctx.fillText(text, Canvas_1.padding * 2.5, Canvas_1.padding + Canvas_1.fontOptions.fontSize * 1.5);
+        text = MapScreen_1.MapScreenInputs.MOVE_LEFT + "- -" + MapScreen_1.MapScreenInputs.MOVE_RIGHT;
+        ctx.fillText(text, Canvas_1.padding * 2.5, Canvas_1.padding + Canvas_1.fontOptions.fontSize * 2.5);
+        text = "/|\\";
+        ctx.fillText(text, Canvas_1.padding * 2.5, Canvas_1.padding + Canvas_1.fontOptions.fontSize * 3.5);
+        text = MapScreen_1.MapScreenInputs.MOVE_DOWN_LEFT + " " + MapScreen_1.MapScreenInputs.MOVE_DOWN + " " + MapScreen_1.MapScreenInputs.MOVE_DOWN_RIGHT;
+        ctx.fillText(text, Canvas_1.padding * 2.5, Canvas_1.padding + Canvas_1.fontOptions.fontSize * 4.5);
+    };
+    CommandScreen.prototype.renderPlayerInventory = function (ctx) {
+        var player = this.game.player;
+        var padding = Canvas_1.fontOptions.fontSize * 2;
+        var keyCode = 65;
+        var i = 0;
+        ctx.textAlign = Canvas_1.fontOptions.defaultFontAlignment;
+        ctx.fillStyle = Canvas_1.fontOptions.fontColor;
+        for (var key in Player_1.InventoryItems) {
+            player[Player_1.InventoryItems[key]].forEach(function (item) {
+                ctx.fillText(String.fromCharCode(keyCode) + ") " + item.name, padding, Canvas_1.fontOptions.fontSize * i + padding);
+                i++;
+                keyCode++;
+            });
+        }
+    };
+    return CommandScreen;
+}(Screen_1.Screen));
+exports["default"] = CommandScreen;
+
+},{"../Canvas/Canvas":1,"../Entity/Actor/Player":4,"./MapScreen":16,"./Screen":17}],14:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -786,7 +949,7 @@ var InventoryItemScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryItemScreen;
 
-},{"../Canvas/Canvas":1,"./Screen":14}],12:[function(require,module,exports){
+},{"../Canvas/Canvas":1,"./Screen":17}],15:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -834,7 +997,7 @@ var InventoryScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Canvas":1,"../Entity/Actor/Player":3,"./Screen":14}],13:[function(require,module,exports){
+},{"../Canvas/Canvas":1,"../Entity/Actor/Player":4,"./Screen":17}],16:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -850,45 +1013,69 @@ exports.__esModule = true;
 var Screen_1 = require("./Screen");
 var Canvas_1 = require("../Canvas/Canvas");
 var Vector_1 = require("../Vector");
+var Color_1 = require("../Canvas/Color");
+var MapScreenInputs;
+(function (MapScreenInputs) {
+    MapScreenInputs["INVENTORY"] = "I";
+    MapScreenInputs["AMULET"] = "t";
+    MapScreenInputs["ARMOR"] = "u";
+    MapScreenInputs["FOOD"] = "o";
+    MapScreenInputs["KEYS"] = "y";
+    MapScreenInputs["POTIONS"] = "p";
+    MapScreenInputs["RING"] = "n";
+    MapScreenInputs["SCROLL"] = "l";
+    MapScreenInputs["WEAPONS"] = "k";
+    MapScreenInputs["COMMANDS"] = "?";
+    MapScreenInputs["UNEQUIP"] = "U";
+    MapScreenInputs["MESSAGES"] = "M";
+    MapScreenInputs["HELP"] = "/";
+    MapScreenInputs["MOVE_UP"] = "w";
+    MapScreenInputs["MOVE_LEFT"] = "a";
+    MapScreenInputs["MOVE_DOWN"] = "s";
+    MapScreenInputs["MOVE_RIGHT"] = "d";
+    MapScreenInputs["MOVE_UP_LEFT"] = "q";
+    MapScreenInputs["MOVE_UP_RIGHT"] = "e";
+    MapScreenInputs["MOVE_DOWN_LEFT"] = "z";
+    MapScreenInputs["MOVE_DOWN_RIGHT"] = "c";
+})(MapScreenInputs || (MapScreenInputs = {}));
+exports.MapScreenInputs = MapScreenInputs;
 var MapScreen = /** @class */ (function (_super) {
     __extends(MapScreen, _super);
     function MapScreen() {
         var _this = _super.call(this) || this;
         _this.textSpacing = new Vector_1["default"](.9, 1.5);
         _this.name = Screen_1.ScreenNames.MAP;
-        _this.inputs = {
-            'I': _this.showInventoryScreen,
-            't': _this.showAmuletScreen,
-            'u': _this.showArmorScreen,
-            'o': _this.showFoodScreen,
-            'y': _this.showKeyItems,
-            'p': _this.showPotionScreen,
-            'n': _this.showRingScreen,
-            'l': _this.showScrollScreen,
-            'k': _this.showWeaponScreen,
-            '?': _this.showCommandScreen,
-            'U': _this.showUnequipScreen,
-            'M': _this.showMessageScreen,
-            '/': _this.showHelpScreen,
-            'w': _this.attemptMovement.bind(_this),
-            'a': _this.attemptMovement.bind(_this),
-            's': _this.attemptMovement.bind(_this),
-            'd': _this.attemptMovement.bind(_this),
-            'q': _this.attemptMovement.bind(_this),
-            'e': _this.attemptMovement.bind(_this),
-            'z': _this.attemptMovement.bind(_this),
-            'c': _this.attemptMovement.bind(_this)
-        };
+        _this.inputs = (_a = {},
+            _a[MapScreenInputs.INVENTORY] = _this.showInventoryScreen,
+            _a[MapScreenInputs.AMULET] = _this.showAmuletScreen,
+            _a[MapScreenInputs.ARMOR] = _this.showArmorScreen,
+            _a[MapScreenInputs.FOOD] = _this.showFoodScreen,
+            _a[MapScreenInputs.KEYS] = _this.showKeyItems,
+            _a[MapScreenInputs.POTIONS] = _this.showPotionScreen,
+            _a[MapScreenInputs.RING] = _this.showRingScreen,
+            _a[MapScreenInputs.SCROLL] = _this.showScrollScreen,
+            _a[MapScreenInputs.WEAPONS] = _this.showWeaponScreen,
+            _a[MapScreenInputs.COMMANDS] = _this.showCommandScreen,
+            _a[MapScreenInputs.UNEQUIP] = _this.showUnequipScreen,
+            _a[MapScreenInputs.MESSAGES] = _this.showMessageScreen,
+            _a[MapScreenInputs.HELP] = _this.showHelpScreen,
+            _a[MapScreenInputs.MOVE_UP] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_LEFT] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_DOWN] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_RIGHT] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_UP_LEFT] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_UP_RIGHT] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_DOWN_LEFT] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_DOWN_RIGHT] = _this.attemptMovement.bind(_this),
+            _a);
         return _this;
+        var _a;
     }
     MapScreen.prototype.render = function (ctx) {
         var _a = this.game, gameMap = _a.gameMap, canvasProps = _a.canvasProps;
         var tiles = gameMap.tiles;
         Canvas_1.clearCanvas(ctx, canvasProps);
-        ctx.fillStyle = Canvas_1.fontOptions.fontColor;
-        ctx.textAlign = Canvas_1.fontOptions.defaultFontAlignment;
-        var text = 'This is the main map screen.';
-        ctx.fillText(text, 10, 30);
+        this.game.messenger.logMessages([{ text: 'This is the map screen', color: Color_1.Colors.DEFAULT }]);
         this.renderTiles(tiles, ctx, canvasProps);
     };
     MapScreen.prototype.renderTiles = function (tiles, ctx, canvasProps) {
@@ -964,6 +1151,7 @@ var MapScreen = /** @class */ (function (_super) {
                 }
                 break;
         }
+        return null;
     };
     MapScreen.prototype.showHelpScreen = function () {
         var helpScreen = this.game.screens.filter(function (screen) { return screen.name === Screen_1.ScreenNames.HELP; })[0];
@@ -1021,10 +1209,10 @@ var MapScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = MapScreen;
 
-},{"../Canvas/Canvas":1,"../Vector":15,"./Screen":14}],14:[function(require,module,exports){
+},{"../Canvas/Canvas":1,"../Canvas/Color":2,"../Vector":18,"./Screen":17}],17:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-var Message_1 = require("../Message");
+var Message_1 = require("../Message/Message");
 var ScreenNames;
 (function (ScreenNames) {
     ScreenNames["MAP"] = "map";
@@ -1055,18 +1243,16 @@ var Screen = /** @class */ (function () {
     };
     Screen.prototype.handleInput = function (keyValue) {
         if (this.inputs[keyValue]) {
-            this.inputs[keyValue].call(this, keyValue);
-            return { status: Message_1.Status.SUCCESS };
+            return this.inputs[keyValue].call(this, keyValue);
         }
         else {
-            return { status: Message_1.Status.FAILURE, message: Message_1.invalidInput(keyValue) };
+            return [Message_1.invalidInput(keyValue)];
         }
     };
     Screen.prototype.returnToMapScreen = function () {
         var game = this.game;
         var mapScreen = game.screens.filter(function (screen) { return screen.name === ScreenNames.MAP; })[0];
         game.activeScreen = mapScreen;
-        return { status: Message_1.Status.SUCCESS };
     };
     Screen.prototype.render = function (ctx) {
         return null;
@@ -1075,7 +1261,7 @@ var Screen = /** @class */ (function () {
 }());
 exports.Screen = Screen;
 
-},{"../Message":9}],15:[function(require,module,exports){
+},{"../Message/Message":11}],18:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Vector2 = /** @class */ (function () {
@@ -1094,7 +1280,7 @@ var Vector2 = /** @class */ (function () {
 }());
 exports["default"] = Vector2;
 
-},{}],16:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("./Game");
@@ -1107,8 +1293,10 @@ var InventoryScreen_1 = require("./Screen/InventoryScreen");
 var Vector_1 = require("./Vector");
 var Canvas_2 = require("./Canvas/Canvas");
 var Armor_1 = require("./Entity/Prop/Armor");
-var Prop_1 = require("./Entity/Prop/Prop");
+var Prop_data_1 = require("./Entity/Prop/Prop.data");
 var InventoryItemScreen_1 = require("./Screen/InventoryItemScreen");
+var CommandScreen_1 = require("./Screen/CommandScreen");
+var Color_1 = require("./Canvas/Color");
 var height = 240;
 var width = 600;
 window.onload = function () {
@@ -1118,6 +1306,8 @@ window.onload = function () {
         height: height,
         width: width
     };
+    var el = document.getElementById('messages');
+    // TEST DATA ///////////////////////////////////////
     var F = function () { return ({
         isPassable: true,
         isOccupied: false,
@@ -1125,7 +1315,7 @@ window.onload = function () {
         posX: 0,
         posY: 0,
         char: '.',
-        color: { hex: Canvas_2.fontOptions.fontColor }
+        color: new Color_1.Color({ hex: Canvas_2.fontOptions.fontColor })
     }); };
     var W = function () { return ({
         isPassable: false,
@@ -1134,7 +1324,7 @@ window.onload = function () {
         posX: 0,
         posY: 0,
         char: '\u2592',
-        color: { hex: '#CCB69B' }
+        color: new Color_1.Color({ hex: '#CCB69B' })
     }); };
     var gameMap = new GameMap_1.GameMap({
         tiles: [
@@ -1146,6 +1336,7 @@ window.onload = function () {
             [W(), W(), W(), W(), W(), W(), W()],
         ]
     });
+    // END TEST DATA
     var screens = [
         new MapScreen_1["default"](),
         new InventoryScreen_1["default"](),
@@ -1156,14 +1347,15 @@ window.onload = function () {
         new InventoryItemScreen_1["default"](Screen_1.ScreenNames.POTIONS, Player_1.InventoryItems.POTIONS),
         new InventoryItemScreen_1["default"](Screen_1.ScreenNames.RING, Player_1.InventoryItems.RINGS),
         new InventoryItemScreen_1["default"](Screen_1.ScreenNames.SCROLL, Player_1.InventoryItems.SCROLLS),
-        new InventoryItemScreen_1["default"](Screen_1.ScreenNames.WEAPON, Player_1.InventoryItems.WEAPONS)
+        new InventoryItemScreen_1["default"](Screen_1.ScreenNames.WEAPON, Player_1.InventoryItems.WEAPONS),
+        new CommandScreen_1["default"]()
     ];
-    // Adds a player
+    // Adds a player TEST DATAAAAAa
     var actorOptions = {
         pos: new Vector_1["default"](1, 1),
         char: '@',
         isActive: true,
-        color: { hex: '#ff3354' },
+        color: new Color_1.Color({ hex: '#ff3354' }),
         hp: 17,
         ac: 10,
         damage: '1d4',
@@ -1176,7 +1368,7 @@ window.onload = function () {
     // Some test equipment for the player
     var armorPropOptions = {
         isActive: true,
-        color: { hex: '#ff00ff' },
+        color: new Color_1.Color({ hex: '#ff00ff' }),
         char: 'A',
         name: 'Plate Mail',
         canBePickedUp: true,
@@ -1185,13 +1377,13 @@ window.onload = function () {
     var armorOptions = {
         modifier: 4,
         material: 'Iron',
-        quality: Prop_1.Quality.FAIR,
+        quality: Prop_data_1.Quality.FAIR,
         propOptions: armorPropOptions
     };
     var plateMail = new Armor_1.Armor(armorOptions);
     var armorPropOptions1 = {
         isActive: true,
-        color: { hex: '#ff00ff' },
+        color: new Color_1.Color({ hex: '#ff00ff' }),
         char: 'A',
         name: 'Chain Mail',
         canBePickedUp: true,
@@ -1200,13 +1392,15 @@ window.onload = function () {
     var armorOptions1 = {
         modifier: 2,
         material: 'Tin',
-        quality: Prop_1.Quality.POOR,
+        quality: Prop_data_1.Quality.POOR,
         propOptions: armorPropOptions1
     };
     var chainMail = new Armor_1.Armor(armorOptions1);
-    var g = new Game_1["default"](gameMap, screens, canvasProps, ctx, player);
+    // END TEST DATA ////////////////////
+    var g = new Game_1["default"](gameMap, screens, canvasProps, ctx, player, el);
     // Bind the current game to all screens
     g.screens.forEach(function (screen) { return screen.setGame(g); });
+    // TESSSSSSSSSSST DATA
     var pickup = {
         type: Player_1.InventoryItems.ARMOR,
         item: plateMail
@@ -1219,7 +1413,8 @@ window.onload = function () {
     };
     player.addToInventory(pickup);
     g.updatePlayerPos(player, player.pos);
+    // END TEST DATA
     g.activeScreen.render(g.ctx);
 };
 
-},{"./Canvas/Canvas":1,"./Entity/Actor/Player":3,"./Entity/Prop/Armor":4,"./Entity/Prop/Prop":5,"./Game":6,"./GameMap":7,"./Screen/InventoryItemScreen":11,"./Screen/InventoryScreen":12,"./Screen/MapScreen":13,"./Screen/Screen":14,"./Vector":15}]},{},[16]);
+},{"./Canvas/Canvas":1,"./Canvas/Color":2,"./Entity/Actor/Player":4,"./Entity/Prop/Armor":5,"./Entity/Prop/Prop.data":6,"./Game":8,"./GameMap":9,"./Screen/CommandScreen":13,"./Screen/InventoryItemScreen":14,"./Screen/InventoryScreen":15,"./Screen/MapScreen":16,"./Screen/Screen":17,"./Vector":18}]},{},[19]);

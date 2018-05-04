@@ -1,4 +1,5 @@
-import { Prop, PropOptions, Quality } from './Prop';
+import { Prop, PropOptions } from './Prop';
+import { Quality } from './Prop.data';
 
 interface ArmorOptions {
   modifier: number,

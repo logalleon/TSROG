@@ -31,3 +31,5 @@ enum EMaterialType {
 enum EMaterialSubtype {
 
 }
+
+export { Quality };

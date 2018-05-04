@@ -1,6 +1,6 @@
 import { InputMap } from '../Input';
 import Game from '../Game';
-import { ActionResponse, Status, invalidInput } from '../Message';
+import { ActionResponse, Status, invalidInput, Message } from '../Message/Message';
 
 enum ScreenNames {
   MAP = 'map',
@@ -24,9 +24,9 @@ interface IScreen {
   game: Game,
   inputs: InputMap,
   setGame(game: Game): void,
-  handleInput(keyValue: string): ActionResponse,
+  handleInput(keyValue: string): Message[],
   render(ctx: CanvasRenderingContext2D): void,
-  returnToMapScreen(): ActionResponse
+  returnToMapScreen(): void
 }
 
 class Screen implements IScreen {
@@ -40,27 +40,25 @@ class Screen implements IScreen {
   }
 
   constructor () {
-    this.inputs = Object.assign({}, this.inputs, this.spaceReturnToMap);
+    this.inputs = (<any>Object).assign({}, this.inputs, this.spaceReturnToMap);
   }
 
   setGame (game: Game): void {
     this.game = game;
   }
 
-  handleInput (keyValue: string): ActionResponse {
+  handleInput (keyValue: string): Message[] {
     if (this.inputs[keyValue]) {
-      this.inputs[keyValue].call(this, keyValue);
-      return { status: Status.SUCCESS };
+      return this.inputs[keyValue].call(this, keyValue);
     } else {
-      return { status: Status.FAILURE, message: invalidInput(keyValue) };
+      return [invalidInput(keyValue)];
     }
   }
 
-  returnToMapScreen (): ActionResponse {
+  returnToMapScreen (): void {
     const { game } = this;
     const [mapScreen] = game.screens.filter(screen => screen.name === ScreenNames.MAP);
     game.activeScreen = mapScreen;
-    return { status: Status.SUCCESS };
   }
 
   render (ctx: CanvasRenderingContext2D): void {

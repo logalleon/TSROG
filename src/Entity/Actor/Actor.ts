@@ -1,6 +1,7 @@
 import Entity from '../Entity';
 import Vector2 from '../../Vector';
-import Color from '../../Canvas/Color';
+import { Color } from '../../Canvas/Color';
+import { Message } from '../../Message/Message';
 import { rollDice, StandardDice } from '../../Random/Dice';
 
 interface ActorOptions {
@@ -36,6 +37,10 @@ class Actor implements Entity {
     for (let key in options) {
       this[key] = options[key];
     }
+  }
+
+  act (): Message[] | null {
+    return null;
   }
 
   move (destination: Vector2) {

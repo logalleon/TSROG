@@ -4,6 +4,7 @@ import { mapKeyPressToActualCharacter, keyCharToCode, keyCodeToChar } from './In
 import { CanvasProps } from './Canvas/Canvas';
 import { Player } from './Entity/Actor/Player';
 import Vector2 from './Vector';
+import { Messenger } from './Message/Message';
 
 class Game {
 
@@ -19,7 +20,9 @@ class Game {
 
   public player: Player;
 
-  constructor (gameMap: GameMap, screens: Screen[], canvasProps: CanvasProps, ctx: CanvasRenderingContext2D, player: Player) {
+  public messenger: Messenger;
+
+  constructor (gameMap: GameMap, screens: Screen[], canvasProps: CanvasProps, ctx: CanvasRenderingContext2D, player: Player, el: HTMLElement) {
     this.player = player;
     this.gameMap = gameMap;
     this.screens = screens;
@@ -27,10 +30,18 @@ class Game {
     this.canvasProps = canvasProps;
     this.keyMap = {};
     this.ctx = ctx;
+    this.messenger = new Messenger(el);
     window.onkeydown = this.handleInput.bind(this);
     window.onkeyup = this.handleInput.bind(this);
   }
 
+  /**
+   * Effectively, this is the game loop. Since everything is turn-based,
+   * the browser window waits for input and then responds accordingly.
+   * Sometimes the screen is changed, sometimes enemies move: it all 
+   * depends on what the key input is from the user.
+   * @param e - event
+   */
   handleInput(e: KeyboardEvent): void {
     e.preventDefault();
     const { keyCode, type } = e;
@@ -42,7 +53,18 @@ class Game {
       if (!char) {
         char = keyCodeToChar[keyCode];
       }
-      this.activeScreen.handleInput(char);
+      // Handle the player input first. The player gets priority for everything
+      this.messenger.logMessages(this.activeScreen.handleInput(char));
+
+      /*
+      if (this.player.hasMoveInteracted && this.activeEnemies.length) {
+        this.messenger.logMessages(this.activeEnemies.forEach(enemy => enemy.act());
+      }
+      this.messenger.logMessages(this.player.update());
+      // some kill check in update
+      */
+
+      // Finally, render what's changed
       this.activeScreen.render(this.ctx);
     }
   }

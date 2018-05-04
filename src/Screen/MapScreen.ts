@@ -4,6 +4,32 @@ import { InputMap } from '../Input';
 import { clearCanvas, fontOptions, CanvasProps } from '../Canvas/Canvas';
 import { Tile, GameMap } from '../GameMap';
 import Vector2 from '../Vector';
+import { Message } from '../Message/Message';
+import { Colors } from '../Canvas/Color';
+
+enum MapScreenInputs {
+  INVENTORY = 'I',
+  AMULET = 't',
+  ARMOR = 'u',
+  FOOD = 'o',
+  KEYS = 'y',
+  POTIONS = 'p',
+  RING = 'n',
+  SCROLL = 'l',
+  WEAPONS = 'k',
+  COMMANDS = '?',
+  UNEQUIP = 'U',
+  MESSAGES = 'M',
+  HELP = '/',
+  MOVE_UP = 'w',
+  MOVE_LEFT = 'a',
+  MOVE_DOWN = 's',
+  MOVE_RIGHT = 'd',
+  MOVE_UP_LEFT = 'q',
+  MOVE_UP_RIGHT = 'e',
+  MOVE_DOWN_LEFT = 'z',
+  MOVE_DOWN_RIGHT = 'c'
+}
 
 class MapScreen extends Screen {
 
@@ -12,27 +38,27 @@ class MapScreen extends Screen {
   public name: ScreenNames = ScreenNames.MAP;
   public game: Game;
   public inputs: InputMap = {
-    'I': this.showInventoryScreen,
-    't': this.showAmuletScreen,
-    'u': this.showArmorScreen,
-    'o': this.showFoodScreen,
-    'y': this.showKeyItems,
-    'p': this.showPotionScreen,
-    'n': this.showRingScreen,
-    'l': this.showScrollScreen,
-    'k': this.showWeaponScreen,
-    '?': this.showCommandScreen,
-    'U': this.showUnequipScreen,
-    'M': this.showMessageScreen,
-    '/': this.showHelpScreen,
-    'w': this.attemptMovement.bind(this),
-    'a': this.attemptMovement.bind(this),
-    's': this.attemptMovement.bind(this),
-    'd': this.attemptMovement.bind(this),
-    'q': this.attemptMovement.bind(this),
-    'e': this.attemptMovement.bind(this),
-    'z': this.attemptMovement.bind(this),
-    'c': this.attemptMovement.bind(this)
+    [MapScreenInputs.INVENTORY]: this.showInventoryScreen,
+    [MapScreenInputs.AMULET]: this.showAmuletScreen,
+    [MapScreenInputs.ARMOR]: this.showArmorScreen,
+    [MapScreenInputs.FOOD]: this.showFoodScreen,
+    [MapScreenInputs.KEYS]: this.showKeyItems,
+    [MapScreenInputs.POTIONS]: this.showPotionScreen,
+    [MapScreenInputs.RING]: this.showRingScreen,
+    [MapScreenInputs.SCROLL]: this.showScrollScreen,
+    [MapScreenInputs.WEAPONS]: this.showWeaponScreen,
+    [MapScreenInputs.COMMANDS]: this.showCommandScreen,
+    [MapScreenInputs.UNEQUIP]: this.showUnequipScreen,
+    [MapScreenInputs.MESSAGES]: this.showMessageScreen,
+    [MapScreenInputs.HELP]: this.showHelpScreen,
+    [MapScreenInputs.MOVE_UP]: this.attemptMovement.bind(this),
+    [MapScreenInputs.MOVE_LEFT]: this.attemptMovement.bind(this),
+    [MapScreenInputs.MOVE_DOWN]: this.attemptMovement.bind(this),
+    [MapScreenInputs.MOVE_RIGHT]: this.attemptMovement.bind(this),
+    [MapScreenInputs.MOVE_UP_LEFT]: this.attemptMovement.bind(this),
+    [MapScreenInputs.MOVE_UP_RIGHT]: this.attemptMovement.bind(this),
+    [MapScreenInputs.MOVE_DOWN_LEFT]: this.attemptMovement.bind(this),
+    [MapScreenInputs.MOVE_DOWN_RIGHT]: this.attemptMovement.bind(this)
   }
 
   constructor() {
@@ -43,10 +69,7 @@ class MapScreen extends Screen {
     const { gameMap, canvasProps } = this.game;
     const { tiles } = gameMap;
     clearCanvas(ctx, canvasProps);
-    ctx.fillStyle = fontOptions.fontColor;
-    ctx.textAlign = fontOptions.defaultFontAlignment;
-    const text = 'This is the main map screen.';
-    ctx.fillText(text, 10, 30);
+    this.game.messenger.logMessages([{ text: 'This is the map screen', color: Colors.DEFAULT }]);
     this.renderTiles(tiles, ctx, canvasProps);
   }
 
@@ -77,7 +100,7 @@ class MapScreen extends Screen {
     );
   }
 
-  attemptMovement(keyValue: string) {
+  attemptMovement(keyValue: string): void | Message[] {
     const { player, gameMap } = this.game;
     const { pos } = player;
     const { tiles } = gameMap;
@@ -132,72 +155,75 @@ class MapScreen extends Screen {
         }
         break;
     }
+    return null;
   }
 
-  showHelpScreen (): void {
+  showHelpScreen (): void | Message[] {
     const [helpScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.HELP);
     this.game.activeScreen = helpScreen;
   }
 
-  showUnequipScreen (): void {
+  showUnequipScreen (): void | Message[] {
     const [unequipScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.UNEQUIP);
     this.game.activeScreen = unequipScreen;
   }
 
-  showMessageScreen (): void {
+  showMessageScreen (): void | Message[] {
     const [messageScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.MESSAGES);
     this.game.activeScreen = messageScreen;
   }
 
-  showCommandScreen (): void {
+  showCommandScreen (): void | Message[] {
     const [commandScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.COMMANDS);
     this.game.activeScreen = commandScreen;
   }
 
-  showInventoryScreen (): void {
+  showInventoryScreen (): void | Message[] {
     const [inventoryScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.INVENTORY);
     this.game.activeScreen = inventoryScreen;
   }
 
-  showAmuletScreen (): void {
+  showAmuletScreen (): void | Message[] {
     const [amuletScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.AMULET);
     this.game.activeScreen = amuletScreen;
   }
 
-  showArmorScreen (): void {
+  showArmorScreen (): void | Message[] {
     const [armorScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.ARMOR);
     this.game.activeScreen = armorScreen;
   }
 
-  showFoodScreen (): void {
+  showFoodScreen (): void | Message[] {
     const [foodScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.FOOD);
     this.game.activeScreen = foodScreen;
   }
 
-  showKeyItems (): void {
+  showKeyItems (): void | Message[] {
     const [keyItemScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.KEYS);
     this.game.activeScreen = keyItemScreen;
   }
 
-  showPotionScreen (): void {
+  showPotionScreen (): void | Message[] {
     const [potionScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.POTIONS);
     this.game.activeScreen = potionScreen;
   }
 
-  showRingScreen (): void {
+  showRingScreen (): void | Message[] {
     const [ringScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.RING);
     this.game.activeScreen = ringScreen;
   }
 
-  showScrollScreen (): void {
+  showScrollScreen (): void | Message[] {
     const [scrollScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.SCROLL);
     this.game.activeScreen = scrollScreen;
   }
 
-  showWeaponScreen (): void {
+  showWeaponScreen (): void | Message[] {
     const [weaponScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.WEAPON);
     this.game.activeScreen = weaponScreen;
   }
 
 }
 export default MapScreen;
+
+export { MapScreenInputs }

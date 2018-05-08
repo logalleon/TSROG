@@ -1,7 +1,18 @@
-app := $(index.js)
+.PHONY: build tsc clean
 
-build: $(app)
+app := ./index.js
+tmp := ./tmp
+src := ./src
+srcFiles := $(shell find src/ -type f -name '*.ts')
 
-$(app): $(wildcard ./src/*.ts)
-	tsc ./src/index.ts -m commonjs --outDir ./dist/ && \
-	browserify -e ./dist/ -o $(app)
+build: index.js
+
+index.js: $(tmp)
+	browserify -e $(tmp) -o index.js
+
+$(tmp): $(wildcard $(srcFiles))
+	rm -rf $(tmp) && \
+	tsc $(src)/index.ts -m commonjs --outDir $(tmp)
+
+clean:
+	rm -rf $(tmp)

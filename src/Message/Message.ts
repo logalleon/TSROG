@@ -70,9 +70,6 @@ class Messenger {
     }
     this.el.innerHTML = html.join('');
   }
-
-
-
 }
 
 export { Status, ActionResponse, invalidInput, Messenger, Message }

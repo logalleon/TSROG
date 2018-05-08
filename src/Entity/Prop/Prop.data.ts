@@ -16,7 +16,7 @@ interface Material {
 
 interface MaterialType {
   name: EMaterialType,
-  description?: string,
+  description?: string
 }
 
 interface MaterialSubtype {
@@ -25,7 +25,12 @@ interface MaterialSubtype {
 }
 
 enum EMaterialType {
-
+  METAL,
+  WOOD,
+  STONE,
+  BONE,
+  LEATHER,
+  CLOTH
 }
 
 enum EMaterialSubtype {

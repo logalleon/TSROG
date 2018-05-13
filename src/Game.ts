@@ -46,7 +46,11 @@ class Game {
     e.preventDefault();
     const { keyCode, type } = e;
     this.keyMap[keyCode] = type === 'keydown';
-    if (type === 'keydown') {
+    // Ignore the Shift key, which is just a key modifier
+    if (type === 'keydown' && keyCodeToChar[keyCode] !== 'Shift') {
+      // Clear the current message window
+      this.messenger.clearMessages();
+      // Get the char value of the current key
       let char = mapKeyPressToActualCharacter(Boolean(this.keyMap[keyCharToCode['Shift']]), keyCode);
       // Not an uppercase-able character returns and empty string
       char = char.trim();

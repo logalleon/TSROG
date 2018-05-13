@@ -61,6 +61,7 @@ var Colors = {
     RED: new Color({ html: 'red' }),
     GREEN: new Color({ html: 'kellygreen' }),
     VIOLET: new Color({ html: 'violet' }),
+    WHITE: new Color({ html: 'white' }),
     DEFAULT: new Color({ html: 'white' }) // fontOptions.fontColor??
 };
 exports.Colors = Colors;
@@ -276,7 +277,11 @@ var Game = /** @class */ (function () {
         e.preventDefault();
         var keyCode = e.keyCode, type = e.type;
         this.keyMap[keyCode] = type === 'keydown';
-        if (type === 'keydown') {
+        // Ignore the Shift key, which is just a key modifier
+        if (type === 'keydown' && Input_1.keyCodeToChar[keyCode] !== 'Shift') {
+            // Clear the current message window
+            this.messenger.clearMessages();
+            // Get the char value of the current key
             var char = Input_1.mapKeyPressToActualCharacter(Boolean(this.keyMap[Input_1.keyCharToCode['Shift']]), keyCode);
             // Not an uppercase-able character returns and empty string
             char = char.trim();
@@ -777,25 +782,26 @@ var invalidInput = function (keyValue) { return ({
 exports.invalidInput = invalidInput;
 var Messenger = /** @class */ (function () {
     function Messenger(el) {
-        this.htmlWrapper = 'span';
+        this.htmlWrapper = 'p';
         this.el = el;
         this.messages = [];
     }
     Messenger.prototype.logMessages = function (newMessages) {
         var _this = this;
-        if (newMessages.length) {
+        if (newMessages && newMessages.length) {
+            /* I don't know if limiting max messages saved is a good idea
             if (newMessages.length + this.messages.length > this.maxMessages) {
-                this.messages = this.messages.slice(newMessages.length).concat(newMessages);
-            }
-            else {
-                this.messages = this.messages.concat(newMessages);
-            }
-            console.log(this.messages);
-            var html = [this.el.innerHTML].concat(this.messages.map(function (message) { return ("\n        <" + _this.htmlWrapper + " style='color: " + message.color.val() + "'>\n        " + message.text + "\n        </" + _this.htmlWrapper + ">\n      "); }));
-            console.log(html);
-            console.log(html.join().trim());
+              this.messages = this.messages.slice(newMessages.length).concat(newMessages);
+            } else {
+              this.messages = this.messages.concat(newMessages);
+            } */
+            this.messages = this.messages.concat(newMessages);
+            var html = [this.el.innerHTML].concat(newMessages.map(function (message) { return ("\n        <" + _this.htmlWrapper + " style='color: " + message.color.val() + "'>\n        " + message.text + "\n        </" + _this.htmlWrapper + ">\n      "); }));
             this.el.innerHTML = html.join('');
         }
+    };
+    Messenger.prototype.clearMessages = function () {
+        this.el.innerHTML = '';
     };
     Messenger.prototype.showAllCurrentMessage = function () {
         var _this = this;
@@ -915,6 +921,7 @@ var __extends = (this && this.__extends) || (function () {
 exports.__esModule = true;
 var Screen_1 = require("./Screen");
 var Canvas_1 = require("../Canvas/Canvas");
+var Color_1 = require("../Canvas/Color");
 var InventoryItemScreen = /** @class */ (function (_super) {
     __extends(InventoryItemScreen, _super);
     function InventoryItemScreen(name, item) {
@@ -927,7 +934,7 @@ var InventoryItemScreen = /** @class */ (function (_super) {
         var canvasProps = this.game.canvasProps;
         Canvas_1.clearCanvas(ctx, canvasProps);
         this.renderTitle(ctx);
-        this.renderInventoryItems(ctx);
+        this.renderInventoryItems();
         Canvas_1.renderSpaceToContinue(ctx, canvasProps);
     };
     InventoryItemScreen.prototype.renderTitle = function (ctx) {
@@ -936,26 +943,25 @@ var InventoryItemScreen = /** @class */ (function (_super) {
         ctx.textAlign = 'center';
         ctx.fillText(title, this.game.canvasProps.width / 2, Canvas_1.padding);
     };
-    InventoryItemScreen.prototype.renderInventoryItems = function (ctx) {
+    InventoryItemScreen.prototype.renderInventoryItems = function () {
         var player = this.game.player;
-        var padding = Canvas_1.fontOptions.fontSize * 2;
         var keyCode = 65;
         var i = 0;
-        ctx.textAlign = Canvas_1.fontOptions.defaultFontAlignment;
-        ctx.fillStyle = Canvas_1.fontOptions.fontColor;
-        console.log(player);
-        console.log(this.item);
-        player[this.item].forEach(function (item) {
-            ctx.fillText(String.fromCharCode(keyCode) + ") " + item.name, padding, Canvas_1.fontOptions.fontSize * i + padding);
+        this.game.messenger.clearMessages();
+        this.game.messenger.logMessages(player[this.item].map(function (item) {
             i++;
             keyCode++;
-        });
+            return {
+                text: String.fromCharCode(keyCode) + ") " + item.name,
+                color: Color_1.Colors.DEFAULT
+            };
+        }));
     };
     return InventoryItemScreen;
 }(Screen_1.Screen));
 exports["default"] = InventoryItemScreen;
 
-},{"../Canvas/Canvas":1,"./Screen":17}],15:[function(require,module,exports){
+},{"../Canvas/Canvas":1,"../Canvas/Color":2,"./Screen":17}],15:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -971,6 +977,7 @@ exports.__esModule = true;
 var Screen_1 = require("./Screen");
 var Canvas_1 = require("../Canvas/Canvas");
 var Player_1 = require("../Entity/Actor/Player");
+var Color_1 = require("../Canvas/Color");
 var InventoryScreen = /** @class */ (function (_super) {
     __extends(InventoryScreen, _super);
     function InventoryScreen() {
@@ -981,29 +988,30 @@ var InventoryScreen = /** @class */ (function (_super) {
     InventoryScreen.prototype.render = function (ctx) {
         var canvasProps = this.game.canvasProps;
         Canvas_1.clearCanvas(ctx, canvasProps);
-        this.renderPlayerInventory(ctx);
+        this.renderPlayerInventory();
         Canvas_1.renderSpaceToContinue(ctx, canvasProps);
     };
-    InventoryScreen.prototype.renderPlayerInventory = function (ctx) {
+    InventoryScreen.prototype.renderPlayerInventory = function () {
         var player = this.game.player;
-        var padding = Canvas_1.fontOptions.fontSize * 2;
         var keyCode = 65;
         var i = 0;
-        ctx.textAlign = Canvas_1.fontOptions.defaultFontAlignment;
-        ctx.fillStyle = Canvas_1.fontOptions.fontColor;
+        this.game.messenger.clearMessages();
         for (var key in Player_1.InventoryItems) {
-            player[Player_1.InventoryItems[key]].forEach(function (item) {
-                ctx.fillText(String.fromCharCode(keyCode) + ") " + item.name, padding, Canvas_1.fontOptions.fontSize * i + padding);
+            this.game.messenger.logMessages(player[Player_1.InventoryItems[key]].map(function (item) {
                 i++;
                 keyCode++;
-            });
+                return {
+                    text: String.fromCharCode(keyCode) + ") " + item.name,
+                    color: Color_1.Colors.WHITE
+                };
+            }));
         }
     };
     return InventoryScreen;
 }(Screen_1.Screen));
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Canvas":1,"../Entity/Actor/Player":4,"./Screen":17}],16:[function(require,module,exports){
+},{"../Canvas/Canvas":1,"../Canvas/Color":2,"../Entity/Actor/Player":4,"./Screen":17}],16:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -1054,13 +1062,13 @@ var MapScreen = /** @class */ (function (_super) {
         _this.inputs = (_a = {},
             _a[MapScreenInputs.INVENTORY] = _this.showInventoryScreen,
             _a[MapScreenInputs.AMULET] = _this.showAmuletScreen,
-            _a[MapScreenInputs.ARMOR] = _this.showArmorScreen,
-            _a[MapScreenInputs.FOOD] = _this.showFoodScreen,
-            _a[MapScreenInputs.KEYS] = _this.showKeyItems,
-            _a[MapScreenInputs.POTIONS] = _this.showPotionScreen,
-            _a[MapScreenInputs.RING] = _this.showRingScreen,
-            _a[MapScreenInputs.SCROLL] = _this.showScrollScreen,
-            _a[MapScreenInputs.WEAPONS] = _this.showWeaponScreen,
+            _a[MapScreenInputs.ARMOR] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.ARMOR),
+            _a[MapScreenInputs.FOOD] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.FOOD),
+            _a[MapScreenInputs.KEYS] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.KEYS),
+            _a[MapScreenInputs.POTIONS] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.POTIONS),
+            _a[MapScreenInputs.RING] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.RING),
+            _a[MapScreenInputs.SCROLL] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.SCROLL),
+            _a[MapScreenInputs.WEAPONS] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.WEAPON),
             _a[MapScreenInputs.COMMANDS] = _this.showCommandScreen,
             _a[MapScreenInputs.UNEQUIP] = _this.showUnequipScreen,
             _a[MapScreenInputs.MESSAGES] = _this.showMessageScreen,
@@ -1179,37 +1187,9 @@ var MapScreen = /** @class */ (function (_super) {
         var inventoryScreen = this.game.screens.filter(function (screen) { return screen.name === Screen_1.ScreenNames.INVENTORY; })[0];
         this.game.activeScreen = inventoryScreen;
     };
-    MapScreen.prototype.showAmuletScreen = function () {
-        var amuletScreen = this.game.screens.filter(function (screen) { return screen.name === Screen_1.ScreenNames.AMULET; })[0];
-        this.game.activeScreen = amuletScreen;
-    };
-    MapScreen.prototype.showArmorScreen = function () {
-        var armorScreen = this.game.screens.filter(function (screen) { return screen.name === Screen_1.ScreenNames.ARMOR; })[0];
-        this.game.activeScreen = armorScreen;
-    };
-    MapScreen.prototype.showFoodScreen = function () {
-        var foodScreen = this.game.screens.filter(function (screen) { return screen.name === Screen_1.ScreenNames.FOOD; })[0];
-        this.game.activeScreen = foodScreen;
-    };
-    MapScreen.prototype.showKeyItems = function () {
-        var keyItemScreen = this.game.screens.filter(function (screen) { return screen.name === Screen_1.ScreenNames.KEYS; })[0];
-        this.game.activeScreen = keyItemScreen;
-    };
-    MapScreen.prototype.showPotionScreen = function () {
-        var potionScreen = this.game.screens.filter(function (screen) { return screen.name === Screen_1.ScreenNames.POTIONS; })[0];
-        this.game.activeScreen = potionScreen;
-    };
-    MapScreen.prototype.showRingScreen = function () {
-        var ringScreen = this.game.screens.filter(function (screen) { return screen.name === Screen_1.ScreenNames.RING; })[0];
-        this.game.activeScreen = ringScreen;
-    };
-    MapScreen.prototype.showScrollScreen = function () {
-        var scrollScreen = this.game.screens.filter(function (screen) { return screen.name === Screen_1.ScreenNames.SCROLL; })[0];
-        this.game.activeScreen = scrollScreen;
-    };
-    MapScreen.prototype.showWeaponScreen = function () {
-        var weaponScreen = this.game.screens.filter(function (screen) { return screen.name === Screen_1.ScreenNames.WEAPON; })[0];
-        this.game.activeScreen = weaponScreen;
+    MapScreen.prototype.showInventoryItemScreen = function (inventoryItem) {
+        var nextScreen = this.game.screens.filter(function (screen) { return screen.name === inventoryItem; })[0];
+        this.game.activeScreen = nextScreen;
     };
     return MapScreen;
 }(Screen_1.Screen));

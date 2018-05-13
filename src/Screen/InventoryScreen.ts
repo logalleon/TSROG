@@ -4,6 +4,8 @@ import { InputMap } from '../Input';
 import { clearCanvas, renderSpaceToContinue, fontOptions } from '../Canvas/Canvas'
 import { Player, InventoryItems } from '../Entity/Actor/Player';
 import { Prop } from '../Entity/Prop/Prop';
+import { Message } from '../Message/Message';
+import { Colors } from '../Canvas/Color';
 
 class InventoryScreen extends Screen {
 
@@ -18,27 +20,26 @@ class InventoryScreen extends Screen {
   render(ctx: CanvasRenderingContext2D) {
     const { canvasProps } = this.game;
     clearCanvas(ctx, canvasProps);
-    this.renderPlayerInventory(ctx);
+    this.renderPlayerInventory();
     renderSpaceToContinue(ctx, canvasProps);
   }
 
-  renderPlayerInventory (ctx: CanvasRenderingContext2D) {
+  renderPlayerInventory () {
     const { player } = this.game;
-    const padding = fontOptions.fontSize * 2;
     let keyCode = 65;
     let i = 0;
-    ctx.textAlign = fontOptions.defaultFontAlignment;
-    ctx.fillStyle = fontOptions.fontColor;
+    this.game.messenger.clearMessages();
     for (let key in InventoryItems) {
-      player[InventoryItems[key]].forEach((item: Prop) => {
-        ctx.fillText(
-          `${String.fromCharCode(keyCode)}) ${item.name}`,
-          padding,
-          fontOptions.fontSize * i + padding
-        );
-        i++;
-        keyCode++;
-      });
+      this.game.messenger.logMessages(
+        player[InventoryItems[key]].map((item: Prop): Message => {
+          i++;
+          keyCode++;
+          return {
+            text: `${String.fromCharCode(keyCode)}) ${item.name}`,
+            color: Colors.WHITE
+          };
+        })
+      );
     }
   }
 

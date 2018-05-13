@@ -26,7 +26,7 @@ class Messenger {
   public el: HTMLElement;
   public messages: Message[];
   
-  private htmlWrapper = 'span';
+  private htmlWrapper = 'p';
   private maxMessages: number;
 
   constructor (el: HTMLElement) {
@@ -35,22 +35,25 @@ class Messenger {
   }
 
   logMessages (newMessages: Message[]) {
-    if (newMessages.length) {
+    if (newMessages && newMessages.length) {
+      /* I don't know if limiting max messages saved is a good idea
       if (newMessages.length + this.messages.length > this.maxMessages) {
         this.messages = this.messages.slice(newMessages.length).concat(newMessages);
       } else {
         this.messages = this.messages.concat(newMessages);
-      }
-      console.log(this.messages);
-      const html = [this.el.innerHTML].concat(this.messages.map((message) => (`
+      } */
+      this.messages = this.messages.concat(newMessages);
+      const html = [this.el.innerHTML].concat(newMessages.map((message) => (`
         <${this.htmlWrapper} style='color: ${message.color.val()}'>
         ${message.text}
         </${this.htmlWrapper}>
       `)));
-      console.log(html);
-      console.log(html.join().trim())
       this.el.innerHTML = html.join('');
     }
+  }
+
+  clearMessages () {
+    this.el.innerHTML = '';
   }
 
   showAllCurrentMessage () {

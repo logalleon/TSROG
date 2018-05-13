@@ -30,6 +30,7 @@ const Colors = {
   RED: new Color({ html: 'red' }),
   GREEN: new Color({ html: 'kellygreen' }),
   VIOLET: new Color({ html: 'violet' }),
+  WHITE: new Color({ html: 'white' }),
   DEFAULT: new Color({ html: 'white' }) // fontOptions.fontColor??
 };
 

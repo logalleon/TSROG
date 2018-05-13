@@ -1,9 +1,11 @@
 import { Screen, ScreenNames } from './Screen';
 import Game from '../Game';
-import { InputMap } from '../Input';
+import { InputMap, keyCodeToChar } from '../Input';
 import { clearCanvas, renderSpaceToContinue, fontOptions, padding } from '../Canvas/Canvas'
 import { Player, InventoryItems } from '../Entity/Actor/Player';
 import { Prop } from '../Entity/Prop/Prop';
+import { Colors } from '../Canvas/Color';
+import { Message } from '../Message/Message';
 
 class InventoryItemScreen extends Screen {
 
@@ -22,7 +24,7 @@ class InventoryItemScreen extends Screen {
     const { canvasProps } = this.game;
     clearCanvas(ctx, canvasProps);
     this.renderTitle(ctx);
-    this.renderInventoryItems(ctx);
+    this.renderInventoryItems();
     renderSpaceToContinue(ctx, canvasProps);
   }
 
@@ -33,24 +35,21 @@ class InventoryItemScreen extends Screen {
     ctx.fillText(title, this.game.canvasProps.width / 2, padding);
   }
 
-  renderInventoryItems (ctx: CanvasRenderingContext2D) {
+  renderInventoryItems () {
     const { player } = this.game;
-    const padding = fontOptions.fontSize * 2;
     let keyCode = 65;
     let i = 0;
-    ctx.textAlign = fontOptions.defaultFontAlignment;
-    ctx.fillStyle = fontOptions.fontColor;
-    console.log(player);
-    console.log(this.item);
-    player[this.item].forEach((item: Prop) => {
-      ctx.fillText(
-        `${String.fromCharCode(keyCode)}) ${item.name}`,
-        padding,
-        fontOptions.fontSize * i + padding
-      );
-      i++;
-      keyCode++;
-    });
+    this.game.messenger.clearMessages();
+    this.game.messenger.logMessages(
+      player[this.item].map((item: Prop): Message => {
+        i++;
+        keyCode++;
+        return {
+          text: `${String.fromCharCode(keyCode)}) ${item.name}`,
+          color: Colors.DEFAULT
+        };
+      })
+    );
   }
 
 }

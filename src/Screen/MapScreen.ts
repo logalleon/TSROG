@@ -40,13 +40,13 @@ class MapScreen extends Screen {
   public inputs: InputMap = {
     [MapScreenInputs.INVENTORY]: this.showInventoryScreen,
     [MapScreenInputs.AMULET]: this.showAmuletScreen,
-    [MapScreenInputs.ARMOR]: this.showArmorScreen,
-    [MapScreenInputs.FOOD]: this.showFoodScreen,
-    [MapScreenInputs.KEYS]: this.showKeyItems,
-    [MapScreenInputs.POTIONS]: this.showPotionScreen,
-    [MapScreenInputs.RING]: this.showRingScreen,
-    [MapScreenInputs.SCROLL]: this.showScrollScreen,
-    [MapScreenInputs.WEAPONS]: this.showWeaponScreen,
+    [MapScreenInputs.ARMOR]: this.showInventoryItemScreen.bind(this, ScreenNames.ARMOR),
+    [MapScreenInputs.FOOD]: this.showInventoryItemScreen.bind(this, ScreenNames.FOOD),
+    [MapScreenInputs.KEYS]: this.showInventoryItemScreen.bind(this, ScreenNames.KEYS),
+    [MapScreenInputs.POTIONS]: this.showInventoryItemScreen.bind(this, ScreenNames.POTIONS),
+    [MapScreenInputs.RING]: this.showInventoryItemScreen.bind(this, ScreenNames.RING),
+    [MapScreenInputs.SCROLL]: this.showInventoryItemScreen.bind(this, ScreenNames.SCROLL),
+    [MapScreenInputs.WEAPONS]: this.showInventoryItemScreen.bind(this, ScreenNames.WEAPON),
     [MapScreenInputs.COMMANDS]: this.showCommandScreen,
     [MapScreenInputs.UNEQUIP]: this.showUnequipScreen,
     [MapScreenInputs.MESSAGES]: this.showMessageScreen,
@@ -183,44 +183,9 @@ class MapScreen extends Screen {
     this.game.activeScreen = inventoryScreen;
   }
 
-  showAmuletScreen (): void | Message[] {
-    const [amuletScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.AMULET);
-    this.game.activeScreen = amuletScreen;
-  }
-
-  showArmorScreen (): void | Message[] {
-    const [armorScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.ARMOR);
-    this.game.activeScreen = armorScreen;
-  }
-
-  showFoodScreen (): void | Message[] {
-    const [foodScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.FOOD);
-    this.game.activeScreen = foodScreen;
-  }
-
-  showKeyItems (): void | Message[] {
-    const [keyItemScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.KEYS);
-    this.game.activeScreen = keyItemScreen;
-  }
-
-  showPotionScreen (): void | Message[] {
-    const [potionScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.POTIONS);
-    this.game.activeScreen = potionScreen;
-  }
-
-  showRingScreen (): void | Message[] {
-    const [ringScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.RING);
-    this.game.activeScreen = ringScreen;
-  }
-
-  showScrollScreen (): void | Message[] {
-    const [scrollScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.SCROLL);
-    this.game.activeScreen = scrollScreen;
-  }
-
-  showWeaponScreen (): void | Message[] {
-    const [weaponScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.WEAPON);
-    this.game.activeScreen = weaponScreen;
+  showInventoryItemScreen (inventoryItem: string): void | Message[] {
+    const [nextScreen] = this.game.screens.filter(screen => screen.name === inventoryItem);
+    this.game.activeScreen = nextScreen;
   }
 
 }

@@ -24,13 +24,15 @@ interface Message {
 class Messenger {
 
   public el: HTMLElement;
+  public bottomEl: HTMLElement;
   public messages: Message[];
   
   private htmlWrapper = 'p';
   private maxMessages: number;
 
-  constructor (el: HTMLElement) {
+  constructor (el: HTMLElement, bottomEl: HTMLElement) {
     this.el = el;
+    this.bottomEl = bottomEl;
     this.messages = [];
   }
 
@@ -56,6 +58,16 @@ class Messenger {
     this.el.innerHTML = '';
   }
 
+  clearBottomMessages () {
+    this.bottomEl.innerHTML = '';
+  }
+
+  logBottomMessage (message: Message) {
+    console.log(message);
+    this.bottomEl.style.color = message.color.val();
+    this.bottomEl.innerText = message.text;
+  }
+
   showAllCurrentMessage () {
     let html = [];
     if (!this.messages.length) {
@@ -72,6 +84,14 @@ class Messenger {
       `));
     }
     this.el.innerHTML = html.join('');
+  }
+
+  renderSpaceToContinue (): void {
+    this.clearBottomMessages();
+    this.logBottomMessage({
+      text: `Press [SPACE] to exit.`,
+      color: Colors.DEFAULT
+    });
   }
 }
 

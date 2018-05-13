@@ -1,7 +1,7 @@
 import { Screen, ScreenNames } from './Screen';
 import Game from '../Game';
 import { InputMap } from '../Input';
-import { clearCanvas, renderSpaceToContinue, fontOptions, padding } from '../Canvas/Canvas'
+import { clearCanvas, fontOptions, padding } from '../Canvas/Canvas'
 import { Player, InventoryItems } from '../Entity/Actor/Player';
 import { Prop } from '../Entity/Prop/Prop';
 import { MapScreenInputs } from './MapScreen';
@@ -17,11 +17,11 @@ class CommandScreen extends Screen {
   }
 
   render(ctx: CanvasRenderingContext2D) {
-    const { canvasProps } = this.game;
+    const { canvasProps, messenger } = this.game;
     clearCanvas(ctx, canvasProps);
     this.renderTitle(ctx);
     this.renderMovement(ctx);
-    renderSpaceToContinue(ctx, canvasProps);
+    messenger.renderSpaceToContinue();
   }
 
   renderTitle(ctx: CanvasRenderingContext2D) {

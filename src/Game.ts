@@ -22,7 +22,15 @@ class Game {
 
   public messenger: Messenger;
 
-  constructor (gameMap: GameMap, screens: Screen[], canvasProps: CanvasProps, ctx: CanvasRenderingContext2D, player: Player, el: HTMLElement) {
+  constructor (
+      gameMap: GameMap,
+      screens: Screen[],
+      canvasProps: CanvasProps,
+      ctx: CanvasRenderingContext2D,
+      player: Player,
+      el: HTMLElement,
+      bottomEl: HTMLElement
+    ) {
     this.player = player;
     this.gameMap = gameMap;
     this.screens = screens;
@@ -30,7 +38,7 @@ class Game {
     this.canvasProps = canvasProps;
     this.keyMap = {};
     this.ctx = ctx;
-    this.messenger = new Messenger(el);
+    this.messenger = new Messenger(el, bottomEl);
     window.onkeydown = this.handleInput.bind(this);
     window.onkeyup = this.handleInput.bind(this);
   }

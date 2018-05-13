@@ -26,6 +26,7 @@ window.onload = () => {
     width
   };
   const el = document.getElementById('messages');
+  const bottomEl = document.getElementById('bottomMessage');
 
   // TEST DATA ///////////////////////////////////////
   const F = () => ({
@@ -124,7 +125,7 @@ window.onload = () => {
 
   // END TEST DATA ////////////////////
 
-  const g = new Game(gameMap, screens, canvasProps, ctx, player, el);
+  const g = new Game(gameMap, screens, canvasProps, ctx, player, el, bottomEl);
   // Bind the current game to all screens
   g.screens.forEach((screen) => screen.setGame(g));
 

@@ -39,7 +39,7 @@ class MapScreen extends Screen {
   public game: Game;
   public inputs: InputMap = {
     [MapScreenInputs.INVENTORY]: this.showInventoryScreen,
-    [MapScreenInputs.AMULET]: this.showAmuletScreen,
+    [MapScreenInputs.AMULET]: this.showInventoryItemScreen.bind(this, ScreenNames.AMULET),
     [MapScreenInputs.ARMOR]: this.showInventoryItemScreen.bind(this, ScreenNames.ARMOR),
     [MapScreenInputs.FOOD]: this.showInventoryItemScreen.bind(this, ScreenNames.FOOD),
     [MapScreenInputs.KEYS]: this.showInventoryItemScreen.bind(this, ScreenNames.KEYS),
@@ -66,10 +66,15 @@ class MapScreen extends Screen {
   }
 
   render(ctx: CanvasRenderingContext2D) {
-    const { gameMap, canvasProps } = this.game;
+    const { gameMap, canvasProps, messenger } = this.game;
     const { tiles } = gameMap;
     clearCanvas(ctx, canvasProps);
-    this.game.messenger.logMessages([{ text: 'This is the map screen', color: Colors.DEFAULT }]);
+    messenger.logMessages([{ text: 'This is the map screen', color: Colors.DEFAULT }]);
+    messenger.clearBottomMessages();
+    messenger.logBottomMessage({
+      color: Colors.DEFAULT,
+      text: `Press '?' for command list.`
+    });
     this.renderTiles(tiles, ctx, canvasProps);
   }
 

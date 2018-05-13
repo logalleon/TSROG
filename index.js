@@ -1,4 +1,4 @@
-(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var fontSize = 14;
@@ -18,14 +18,6 @@ var clearCanvas = function (ctx, canvasProps) {
     ctx.fill();
 };
 exports.clearCanvas = clearCanvas;
-var renderSpaceToContinue = function (ctx, canvasProps) {
-    var message = 'Press [SPACE] to continue';
-    ctx.fillStyle = fontOptions.fontColor;
-    ctx.textAlign = 'center';
-    ctx.fillText(message, canvasProps.width / 2, canvasProps.height - padding);
-    ctx.textAlign = fontOptions.defaultFontAlignment;
-};
-exports.renderSpaceToContinue = renderSpaceToContinue;
 var setupCanvas = function (canvas, height, width) {
     canvas.style.height = height + "px";
     canvas.style.width = width + "px";
@@ -254,7 +246,7 @@ exports.__esModule = true;
 var Input_1 = require("./Input");
 var Message_1 = require("./Message/Message");
 var Game = /** @class */ (function () {
-    function Game(gameMap, screens, canvasProps, ctx, player, el) {
+    function Game(gameMap, screens, canvasProps, ctx, player, el, bottomEl) {
         this.player = player;
         this.gameMap = gameMap;
         this.screens = screens;
@@ -262,7 +254,7 @@ var Game = /** @class */ (function () {
         this.canvasProps = canvasProps;
         this.keyMap = {};
         this.ctx = ctx;
-        this.messenger = new Message_1.Messenger(el);
+        this.messenger = new Message_1.Messenger(el, bottomEl);
         window.onkeydown = this.handleInput.bind(this);
         window.onkeyup = this.handleInput.bind(this);
     }
@@ -781,9 +773,10 @@ var invalidInput = function (keyValue) { return ({
 }); };
 exports.invalidInput = invalidInput;
 var Messenger = /** @class */ (function () {
-    function Messenger(el) {
+    function Messenger(el, bottomEl) {
         this.htmlWrapper = 'p';
         this.el = el;
+        this.bottomEl = bottomEl;
         this.messages = [];
     }
     Messenger.prototype.logMessages = function (newMessages) {
@@ -803,6 +796,14 @@ var Messenger = /** @class */ (function () {
     Messenger.prototype.clearMessages = function () {
         this.el.innerHTML = '';
     };
+    Messenger.prototype.clearBottomMessages = function () {
+        this.bottomEl.innerHTML = '';
+    };
+    Messenger.prototype.logBottomMessage = function (message) {
+        console.log(message);
+        this.bottomEl.style.color = message.color.val();
+        this.bottomEl.innerText = message.text;
+    };
     Messenger.prototype.showAllCurrentMessage = function () {
         var _this = this;
         var html = [];
@@ -813,6 +814,13 @@ var Messenger = /** @class */ (function () {
             html = this.messages.map(function (message) { return ("\n        <" + _this.htmlWrapper + " style='color: " + message.color.val() + "'>\n        " + message.text + "\n        </" + _this.htmlWrapper + ">\n      "); });
         }
         this.el.innerHTML = html.join('');
+    };
+    Messenger.prototype.renderSpaceToContinue = function () {
+        this.clearBottomMessages();
+        this.logBottomMessage({
+            text: "Press [SPACE] to exit.",
+            color: Color_1.Colors.DEFAULT
+        });
     };
     return Messenger;
 }());
@@ -862,11 +870,11 @@ var CommandScreen = /** @class */ (function (_super) {
         return _this;
     }
     CommandScreen.prototype.render = function (ctx) {
-        var canvasProps = this.game.canvasProps;
+        var _a = this.game, canvasProps = _a.canvasProps, messenger = _a.messenger;
         Canvas_1.clearCanvas(ctx, canvasProps);
         this.renderTitle(ctx);
         this.renderMovement(ctx);
-        Canvas_1.renderSpaceToContinue(ctx, canvasProps);
+        messenger.renderSpaceToContinue();
     };
     CommandScreen.prototype.renderTitle = function (ctx) {
         var title = "" + this.name[0].toUpperCase() + this.name.slice(1);
@@ -931,11 +939,11 @@ var InventoryItemScreen = /** @class */ (function (_super) {
         return _this;
     }
     InventoryItemScreen.prototype.render = function (ctx) {
-        var canvasProps = this.game.canvasProps;
+        var _a = this.game, canvasProps = _a.canvasProps, messenger = _a.messenger;
         Canvas_1.clearCanvas(ctx, canvasProps);
         this.renderTitle(ctx);
         this.renderInventoryItems();
-        Canvas_1.renderSpaceToContinue(ctx, canvasProps);
+        messenger.renderSpaceToContinue();
     };
     InventoryItemScreen.prototype.renderTitle = function (ctx) {
         var title = "" + this.item[0].toUpperCase() + this.item.slice(1);
@@ -986,10 +994,10 @@ var InventoryScreen = /** @class */ (function (_super) {
         return _this;
     }
     InventoryScreen.prototype.render = function (ctx) {
-        var canvasProps = this.game.canvasProps;
+        var _a = this.game, canvasProps = _a.canvasProps, messenger = _a.messenger;
         Canvas_1.clearCanvas(ctx, canvasProps);
         this.renderPlayerInventory();
-        Canvas_1.renderSpaceToContinue(ctx, canvasProps);
+        messenger.renderSpaceToContinue();
     };
     InventoryScreen.prototype.renderPlayerInventory = function () {
         var player = this.game.player;
@@ -1061,7 +1069,7 @@ var MapScreen = /** @class */ (function (_super) {
         _this.name = Screen_1.ScreenNames.MAP;
         _this.inputs = (_a = {},
             _a[MapScreenInputs.INVENTORY] = _this.showInventoryScreen,
-            _a[MapScreenInputs.AMULET] = _this.showAmuletScreen,
+            _a[MapScreenInputs.AMULET] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.AMULET),
             _a[MapScreenInputs.ARMOR] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.ARMOR),
             _a[MapScreenInputs.FOOD] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.FOOD),
             _a[MapScreenInputs.KEYS] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.KEYS),
@@ -1086,10 +1094,15 @@ var MapScreen = /** @class */ (function (_super) {
         var _a;
     }
     MapScreen.prototype.render = function (ctx) {
-        var _a = this.game, gameMap = _a.gameMap, canvasProps = _a.canvasProps;
+        var _a = this.game, gameMap = _a.gameMap, canvasProps = _a.canvasProps, messenger = _a.messenger;
         var tiles = gameMap.tiles;
         Canvas_1.clearCanvas(ctx, canvasProps);
-        this.game.messenger.logMessages([{ text: 'This is the map screen', color: Color_1.Colors.DEFAULT }]);
+        messenger.logMessages([{ text: 'This is the map screen', color: Color_1.Colors.DEFAULT }]);
+        messenger.clearBottomMessages();
+        messenger.logBottomMessage({
+            color: Color_1.Colors.DEFAULT,
+            text: "Press '?' for command list."
+        });
         this.renderTiles(tiles, ctx, canvasProps);
     };
     MapScreen.prototype.renderTiles = function (tiles, ctx, canvasProps) {
@@ -1293,6 +1306,7 @@ window.onload = function () {
         width: width
     };
     var el = document.getElementById('messages');
+    var bottomEl = document.getElementById('bottomMessage');
     // TEST DATA ///////////////////////////////////////
     var F = function () { return ({
         isPassable: true,
@@ -1383,7 +1397,7 @@ window.onload = function () {
     };
     var chainMail = new Armor_1.Armor(armorOptions1);
     // END TEST DATA ////////////////////
-    var g = new Game_1["default"](gameMap, screens, canvasProps, ctx, player, el);
+    var g = new Game_1["default"](gameMap, screens, canvasProps, ctx, player, el, bottomEl);
     // Bind the current game to all screens
     g.screens.forEach(function (screen) { return screen.setGame(g); });
     // TESSSSSSSSSSST DATA

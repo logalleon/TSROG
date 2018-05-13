@@ -1,7 +1,7 @@
 import { Screen, ScreenNames } from './Screen';
 import Game from '../Game';
 import { InputMap } from '../Input';
-import { clearCanvas, renderSpaceToContinue, fontOptions } from '../Canvas/Canvas'
+import { clearCanvas, fontOptions } from '../Canvas/Canvas'
 import { Player, InventoryItems } from '../Entity/Actor/Player';
 import { Prop } from '../Entity/Prop/Prop';
 import { Message } from '../Message/Message';
@@ -18,10 +18,10 @@ class InventoryScreen extends Screen {
   }
 
   render(ctx: CanvasRenderingContext2D) {
-    const { canvasProps } = this.game;
+    const { canvasProps, messenger } = this.game;
     clearCanvas(ctx, canvasProps);
     this.renderPlayerInventory();
-    renderSpaceToContinue(ctx, canvasProps);
+    messenger.renderSpaceToContinue();
   }
 
   renderPlayerInventory () {

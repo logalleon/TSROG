@@ -26,14 +26,6 @@ const clearCanvas = (ctx: CanvasRenderingContext2D, canvasProps: CanvasProps): v
   ctx.fill();
 }
 
-const renderSpaceToContinue = (ctx: CanvasRenderingContext2D, canvasProps: CanvasProps): void => {
-  const message = 'Press [SPACE] to continue'
-  ctx.fillStyle = fontOptions.fontColor;
-  ctx.textAlign = 'center';
-  ctx.fillText(message, canvasProps.width / 2, canvasProps.height - padding);
-  ctx.textAlign = fontOptions.defaultFontAlignment;
-}
-
 const setupCanvas = (canvas: HTMLCanvasElement, height: number, width: number): CanvasRenderingContext2D => {
 
   canvas.style.height = `${height}px`;
@@ -52,4 +44,4 @@ const setupCanvas = (canvas: HTMLCanvasElement, height: number, width: number): 
   return ctx;
 }
 
-export { CanvasProps, clearCanvas, renderSpaceToContinue, fontOptions, setupCanvas, padding };
+export { CanvasProps, clearCanvas, fontOptions, setupCanvas, padding };

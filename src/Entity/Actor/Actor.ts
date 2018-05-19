@@ -44,9 +44,7 @@ class Actor implements Entity {
   }
 
   move (destination: Vector2) {
-    if (this.canMove) {
-      this.pos = destination;
-    }
+    this.pos = destination;
   }
 
   attemptAttack (target: Actor): boolean {

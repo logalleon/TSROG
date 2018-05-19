@@ -8,6 +8,7 @@ import { Ring } from '../Prop/Ring';
 import { Scroll } from '../Prop/Scroll';
 import { Weapon } from '../Prop/Weapon';
 import { Prop } from '../Prop/Prop';
+import { Message } from '../../Message/Message';
 
 enum InventoryItems {
   AMULETS = 'amulets',
@@ -52,6 +53,8 @@ interface EquippedItemAccessor {
 
 class Player extends Actor {
 
+  public hasMoveInteracted: boolean = false;
+
   public [InventoryItems.AMULETS]: Amulet[];
   public [InventoryItems.ARMOR]: Armor[];
   public [InventoryItems.FOOD]: Food[];
@@ -80,6 +83,16 @@ class Player extends Actor {
     }
   }
 
+  /**
+   * This runs at the end of the game update loop, so do things like
+   * check if the player is alive, check disease status, check leveling,
+   * reset any flags
+   */
+  update (): Message[] {
+    this.hasMoveInteracted = false;
+    return [];
+  }
+
   addToInventory (pickup: Pickup) {
     this[pickup.type] = [].concat(this[pickup.type], pickup.item);
   }
@@ -93,6 +106,15 @@ class Player extends Actor {
       this.equipped[slot] = this[accessor.type][accessor.index];
       return true;
     }
+  }
+
+  /**
+   * @override
+   * @param destination
+   */
+  move (destination: Vector2) {
+    this.pos = destination;
+    this.hasMoveInteracted = true;
   }
 
 }

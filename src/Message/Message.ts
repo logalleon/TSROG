@@ -28,7 +28,13 @@ class Messenger {
   public messages: Message[];
   
   private htmlWrapper = 'p';
+  private colorSegmentWrapper = 'span';
   private maxMessages: number;
+
+  private colorStartDelimiter = '<<';
+  private colorSegmentStartDelimiter = '>';
+  private colorSegmentEndDelimiter = '>>';
+  private colorKeyValuePairDelimiter = ':';
 
   constructor (el: HTMLElement, bottomEl: HTMLElement) {
     this.el = el;
@@ -47,7 +53,7 @@ class Messenger {
       this.messages = this.messages.concat(newMessages);
       const html = [this.el.innerHTML].concat(newMessages.map((message) => (`
         <${this.htmlWrapper} style='color: ${message.color.val()}'>
-        ${message.text}
+          ${this.formatText(message.text)}
         </${this.htmlWrapper}>
       `)));
       this.el.innerHTML = html.join('');
@@ -63,9 +69,33 @@ class Messenger {
   }
 
   logBottomMessage (message: Message) {
-    console.log(message);
     this.bottomEl.style.color = message.color.val();
-    this.bottomEl.innerText = message.text;
+    this.bottomEl.innerText = this.formatText(message.text);
+  }
+
+  formatText (text: string): string {
+    if (text.indexOf(this.colorStartDelimiter) !== -1) {
+      while (text.indexOf(this.colorStartDelimiter) !== -1) {
+        const [key, value] = text.slice(
+          text.indexOf(this.colorStartDelimiter) + this.colorStartDelimiter.length,
+          text.indexOf(this.colorSegmentStartDelimiter)
+        ).split(this.colorKeyValuePairDelimiter);
+        const color: Color = new Color({ [key]: value });
+        let segment = text.slice(
+          text.indexOf(this.colorSegmentStartDelimiter) + this.colorSegmentStartDelimiter.length,
+          text.indexOf(this.colorSegmentEndDelimiter)
+        );
+        segment = `
+          <${this.colorSegmentWrapper} style='color: ${color.val()}'>
+            ${segment}
+          </${this.colorSegmentWrapper}>
+        `;
+        let start = text.slice(0, text.indexOf(this.colorStartDelimiter));
+        let tail = text.slice(text.indexOf(this.colorSegmentEndDelimiter) + this.colorSegmentEndDelimiter.length);
+        text = `${start}${segment}${tail}`;
+      }
+    }
+    return text;
   }
 
   showAllCurrentMessage () {
@@ -79,7 +109,7 @@ class Messenger {
     } else {
       html = this.messages.map((message) => (`
         <${this.htmlWrapper} style='color: ${message.color.val()}'>
-        ${message.text}
+        ${this.formatText(message.text)}
         </${this.htmlWrapper}>
       `));
     }

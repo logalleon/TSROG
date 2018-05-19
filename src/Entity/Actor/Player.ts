@@ -133,7 +133,7 @@ class Player extends Actor {
     if (weapon) {
       return <Message>{
         color: Colors.DEFAULT,
-        text: 'null'
+        text: `You strike the ${target.formattedName()} with your ${weapon.getFormattedName()} for <<hex:#ff0000>${damage}>> damage!`
       }
     } else {
       return <Message>{

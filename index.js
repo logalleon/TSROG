@@ -17162,7 +17162,9 @@ var Colors = {
     GREEN: new Color({ html: 'kellygreen' }),
     VIOLET: new Color({ html: 'violet' }),
     WHITE: new Color({ html: 'white' }),
-    DEFAULT: new Color({ html: 'white' }) // fontOptions.fontColor??
+    DEFAULT: new Color({ html: 'white' }),
+    ORANGE: new Color({ html: 'orange' }),
+    SLATEBLUE: new Color({ html: 'slate blue' })
 };
 exports.Colors = Colors;
 
@@ -17200,7 +17202,7 @@ var Actor = /** @class */ (function () {
 }());
 exports.Actor = Actor;
 
-},{"../../Random/Dice":14}],5:[function(require,module,exports){
+},{"../../Random/Dice":15}],5:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -17248,7 +17250,7 @@ var Enemy = /** @class */ (function (_super) {
     Enemy.prototype.formattedName = function () {
         var _a = this.enemyType, descriptor = _a.descriptor, variant = _a.variant;
         var name = this.name;
-        return descriptor + " " + variant + " " + name;
+        return descriptor + " " + (variant ? variant + ' ' : '') + name;
     };
     return Enemy;
 }(Actor_1.Actor));
@@ -17357,7 +17359,7 @@ var Player = /** @class */ (function (_super) {
         if (weapon) {
             return {
                 color: Color_1.Colors.DEFAULT,
-                text: 'null'
+                text: "You strike the " + target.formattedName() + " with your " + weapon.getFormattedName() + " for <<hex:#ff0000>" + damage + ">> damage!"
             };
         }
         else {
@@ -17450,6 +17452,44 @@ exports.Prop = Prop;
 
 },{}],10:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var Prop_1 = require("./Prop");
+var Weapon = /** @class */ (function (_super) {
+    __extends(Weapon, _super);
+    function Weapon(options) {
+        var _this = _super.call(this, options.propOptions) || this;
+        _this.bonus = 0;
+        for (var key in options) {
+            if (key !== 'propOptions') {
+                _this[key] = options[key];
+            }
+        }
+        return _this;
+    }
+    Weapon.prototype.getDamage = function () {
+        return this.damage + "+" + this.bonus;
+    };
+    Weapon.prototype.getFormattedName = function () {
+        var _a = this, name = _a.name, material = _a.material;
+        var modifier = this.weaponType.modifier;
+        return modifier + " " + material + " " + name.toLowerCase();
+    };
+    return Weapon;
+}(Prop_1.Prop));
+exports.Weapon = Weapon;
+
+},{"./Prop":9}],11:[function(require,module,exports){
+"use strict";
 exports.__esModule = true;
 var Input_1 = require("./Input");
 var Message_1 = require("./Message/Message");
@@ -17540,7 +17580,7 @@ var Game = /** @class */ (function () {
 }());
 exports["default"] = Game;
 
-},{"./Input":12,"./Message/Message":13}],11:[function(require,module,exports){
+},{"./Input":13,"./Message/Message":14}],12:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var GameMap = /** @class */ (function () {
@@ -17561,7 +17601,7 @@ var GameMap = /** @class */ (function () {
 }());
 exports.GameMap = GameMap;
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var keyCodeToChar = {
@@ -17985,7 +18025,7 @@ var mapKeyPressToActualCharacter = function (isShiftKey, characterCode) {
 };
 exports.mapKeyPressToActualCharacter = mapKeyPressToActualCharacter;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Color_1 = require("../Canvas/Color");
@@ -18004,6 +18044,11 @@ exports.invalidInput = invalidInput;
 var Messenger = /** @class */ (function () {
     function Messenger(el, bottomEl) {
         this.htmlWrapper = 'p';
+        this.colorSegmentWrapper = 'span';
+        this.colorStartDelimiter = '<<';
+        this.colorSegmentStartDelimiter = '>';
+        this.colorSegmentEndDelimiter = '>>';
+        this.colorKeyValuePairDelimiter = ':';
         this.el = el;
         this.bottomEl = bottomEl;
         this.messages = [];
@@ -18018,7 +18063,7 @@ var Messenger = /** @class */ (function () {
               this.messages = this.messages.concat(newMessages);
             } */
             this.messages = this.messages.concat(newMessages);
-            var html = [this.el.innerHTML].concat(newMessages.map(function (message) { return ("\n        <" + _this.htmlWrapper + " style='color: " + message.color.val() + "'>\n        " + message.text + "\n        </" + _this.htmlWrapper + ">\n      "); }));
+            var html = [this.el.innerHTML].concat(newMessages.map(function (message) { return ("\n        <" + _this.htmlWrapper + " style='color: " + message.color.val() + "'>\n          " + _this.formatText(message.text) + "\n        </" + _this.htmlWrapper + ">\n      "); }));
             this.el.innerHTML = html.join('');
         }
     };
@@ -18029,9 +18074,23 @@ var Messenger = /** @class */ (function () {
         this.bottomEl.innerHTML = '';
     };
     Messenger.prototype.logBottomMessage = function (message) {
-        console.log(message);
         this.bottomEl.style.color = message.color.val();
-        this.bottomEl.innerText = message.text;
+        this.bottomEl.innerText = this.formatText(message.text);
+    };
+    Messenger.prototype.formatText = function (text) {
+        if (text.indexOf(this.colorStartDelimiter) !== -1) {
+            while (text.indexOf(this.colorStartDelimiter) !== -1) {
+                var _a = text.slice(text.indexOf(this.colorStartDelimiter) + this.colorStartDelimiter.length, text.indexOf(this.colorSegmentStartDelimiter)).split(this.colorKeyValuePairDelimiter), key = _a[0], value = _a[1];
+                var color = new Color_1.Color((_b = {}, _b[key] = value, _b));
+                var segment = text.slice(text.indexOf(this.colorSegmentStartDelimiter) + this.colorSegmentStartDelimiter.length, text.indexOf(this.colorSegmentEndDelimiter));
+                segment = "\n          <" + this.colorSegmentWrapper + " style='color: " + color.val() + "'>\n            " + segment + "\n          </" + this.colorSegmentWrapper + ">\n        ";
+                var start = text.slice(0, text.indexOf(this.colorStartDelimiter));
+                var tail = text.slice(text.indexOf(this.colorSegmentEndDelimiter) + this.colorSegmentEndDelimiter.length);
+                text = "" + start + segment + tail;
+            }
+        }
+        return text;
+        var _b;
     };
     Messenger.prototype.showAllCurrentMessage = function () {
         var _this = this;
@@ -18040,7 +18099,7 @@ var Messenger = /** @class */ (function () {
             html.push("\n        <" + this.htmlWrapper + " style='color: " + Canvas_1.fontOptions.fontColor + "'>\n        No messages to display.\n        </" + this.htmlWrapper + ">\n      ");
         }
         else {
-            html = this.messages.map(function (message) { return ("\n        <" + _this.htmlWrapper + " style='color: " + message.color.val() + "'>\n        " + message.text + "\n        </" + _this.htmlWrapper + ">\n      "); });
+            html = this.messages.map(function (message) { return ("\n        <" + _this.htmlWrapper + " style='color: " + message.color.val() + "'>\n        " + _this.formatText(message.text) + "\n        </" + _this.htmlWrapper + ">\n      "); });
         }
         this.el.innerHTML = html.join('');
     };
@@ -18055,7 +18114,7 @@ var Messenger = /** @class */ (function () {
 }());
 exports.Messenger = Messenger;
 
-},{"../Canvas/Canvas":2,"../Canvas/Color":3}],14:[function(require,module,exports){
+},{"../Canvas/Canvas":2,"../Canvas/Color":3}],15:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var StandardDice;
@@ -18083,7 +18142,7 @@ var rollDice = function (dice) {
 };
 exports.rollDice = rollDice;
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -18147,7 +18206,7 @@ var CommandScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = CommandScreen;
 
-},{"../Canvas/Canvas":2,"../Canvas/Color":3,"../Entity/Actor/Player":6,"./MapScreen":18,"./Screen":19,"lodash":1}],16:[function(require,module,exports){
+},{"../Canvas/Canvas":2,"../Canvas/Color":3,"../Entity/Actor/Player":6,"./MapScreen":19,"./Screen":20,"lodash":1}],17:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -18185,23 +18244,25 @@ var InventoryItemScreen = /** @class */ (function (_super) {
     };
     InventoryItemScreen.prototype.renderInventoryItems = function () {
         var player = this.game.player;
+        // Start with A
         var keyCode = 65;
         var i = 0;
         this.game.messenger.clearMessages();
         this.game.messenger.logMessages(player[this.item].map(function (item) {
-            i++;
-            keyCode++;
-            return {
+            var message = {
                 text: String.fromCharCode(keyCode) + ") " + item.name,
                 color: Color_1.Colors.DEFAULT
             };
+            i++;
+            keyCode++;
+            return message;
         }));
     };
     return InventoryItemScreen;
 }(Screen_1.Screen));
 exports["default"] = InventoryItemScreen;
 
-},{"../Canvas/Canvas":2,"../Canvas/Color":3,"./Screen":19}],17:[function(require,module,exports){
+},{"../Canvas/Canvas":2,"../Canvas/Color":3,"./Screen":20}],18:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -18238,12 +18299,13 @@ var InventoryScreen = /** @class */ (function (_super) {
         this.game.messenger.clearMessages();
         for (var key in Player_1.InventoryItems) {
             this.game.messenger.logMessages(player[Player_1.InventoryItems[key]].map(function (item) {
-                i++;
-                keyCode++;
-                return {
+                var message = {
                     text: String.fromCharCode(keyCode) + ") " + item.name,
                     color: Color_1.Colors.WHITE
                 };
+                i++;
+                keyCode++;
+                return message;
             }));
         }
     };
@@ -18251,7 +18313,7 @@ var InventoryScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Canvas":2,"../Canvas/Color":3,"../Entity/Actor/Player":6,"./Screen":19}],18:[function(require,module,exports){
+},{"../Canvas/Canvas":2,"../Canvas/Color":3,"../Entity/Actor/Player":6,"./Screen":20}],19:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -18445,7 +18507,7 @@ var MapScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = MapScreen;
 
-},{"../Canvas/Canvas":2,"../Canvas/Color":3,"../Vector":20,"./Screen":19}],19:[function(require,module,exports){
+},{"../Canvas/Canvas":2,"../Canvas/Color":3,"../Vector":21,"./Screen":20}],20:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Message_1 = require("../Message/Message");
@@ -18497,7 +18559,7 @@ var Screen = /** @class */ (function () {
 }());
 exports.Screen = Screen;
 
-},{"../Message/Message":13}],20:[function(require,module,exports){
+},{"../Message/Message":14}],21:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Vector2 = /** @class */ (function () {
@@ -18516,7 +18578,7 @@ var Vector2 = /** @class */ (function () {
 }());
 exports["default"] = Vector2;
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("./Game");
@@ -18529,11 +18591,13 @@ var InventoryScreen_1 = require("./Screen/InventoryScreen");
 var Vector_1 = require("./Vector");
 var Canvas_2 = require("./Canvas/Canvas");
 var Armor_1 = require("./Entity/Prop/Armor");
+var Weapon_1 = require("./Entity/Prop/Weapon");
 var Prop_data_1 = require("./Entity/Prop/Prop.data");
 var InventoryItemScreen_1 = require("./Screen/InventoryItemScreen");
 var CommandScreen_1 = require("./Screen/CommandScreen");
 var Color_1 = require("./Canvas/Color");
 var Enemy_1 = require("./Entity/Actor/Enemy");
+var Dice_1 = require("./Random/Dice");
 var height = 240;
 var width = 600;
 window.onload = function () {
@@ -18634,6 +18698,26 @@ window.onload = function () {
         propOptions: armorPropOptions1
     };
     var chainMail = new Armor_1.Armor(armorOptions1);
+    var weaponPropOptions = {
+        isActive: true,
+        color: new Color_1.Color({ hex: '#0033bb' }),
+        char: 'S',
+        name: 'Short Sword',
+        canBePickedUp: true,
+        description: 'A short sword'
+    };
+    var weaponType = {
+        category: 'sword',
+        modifier: 'simple'
+    };
+    var weaponOptions = {
+        damage: Dice_1.StandardDice.d6,
+        material: 'iron',
+        quality: Prop_data_1.Quality.FAIR,
+        weaponType: weaponType,
+        propOptions: weaponPropOptions
+    };
+    var sword = new Weapon_1.Weapon(weaponOptions);
     // END TEST DATA ////////////////////
     var g = new Game_1["default"](gameMap, screens, canvasProps, ctx, player, el, bottomEl);
     // Bind the current game to all screens
@@ -18650,12 +18734,18 @@ window.onload = function () {
         item: chainMail
     };
     player.addToInventory(pickup);
+    pickup = {
+        type: Player_1.InventoryItems.WEAPONS,
+        item: sword
+    };
+    player.addToInventory(pickup);
+    player.attemptToEquip({ index: 0, type: Player_1.InventoryItems.WEAPONS }, Player_1.EquipmentSlots.WEAPON);
     g.updatePlayerPos(player, player.pos);
     var aops = {
         pos: new Vector_1["default"](2, 1),
         isActive: true,
         color: new Color_1.Color({ hex: '#3300ff' }),
-        hp: 5,
+        hp: 12,
         ac: 10,
         char: 'L',
         damage: '1d6',
@@ -18681,4 +18771,4 @@ window.onload = function () {
     window.game = g;
 };
 
-},{"./Canvas/Canvas":2,"./Canvas/Color":3,"./Entity/Actor/Enemy":5,"./Entity/Actor/Player":6,"./Entity/Prop/Armor":7,"./Entity/Prop/Prop.data":8,"./Game":10,"./GameMap":11,"./Screen/CommandScreen":15,"./Screen/InventoryItemScreen":16,"./Screen/InventoryScreen":17,"./Screen/MapScreen":18,"./Screen/Screen":19,"./Vector":20}]},{},[21]);
+},{"./Canvas/Canvas":2,"./Canvas/Color":3,"./Entity/Actor/Enemy":5,"./Entity/Actor/Player":6,"./Entity/Prop/Armor":7,"./Entity/Prop/Prop.data":8,"./Entity/Prop/Weapon":10,"./Game":11,"./GameMap":12,"./Random/Dice":15,"./Screen/CommandScreen":16,"./Screen/InventoryItemScreen":17,"./Screen/InventoryScreen":18,"./Screen/MapScreen":19,"./Screen/Screen":20,"./Vector":21}]},{},[22]);

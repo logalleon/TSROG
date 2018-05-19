@@ -52,7 +52,7 @@ class Enemy extends Actor {
   formattedName (): string {
     const { descriptor, variant } = this.enemyType;
     const { name } = this;
-    return `${descriptor} ${variant} ${name}`;
+    return `${descriptor} ${variant ? variant + ' ' : ''}${name}`;
   }
 
 }

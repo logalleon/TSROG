@@ -30,7 +30,9 @@ const Colors = {
   GREEN: new Color({ html: 'kellygreen' }),
   VIOLET: new Color({ html: 'violet' }),
   WHITE: new Color({ html: 'white' }),
-  DEFAULT: new Color({ html: 'white' }) // fontOptions.fontColor??
+  DEFAULT: new Color({ html: 'white' }), // fontOptions.fontColor??
+  ORANGE: new Color({ html: 'orange' }),
+  SLATEBLUE: new Color({ html: 'slate blue' })
 };
 
 export { IColor, Color, Colors };

@@ -32,12 +32,13 @@ class InventoryScreen extends Screen {
     for (let key in InventoryItems) {
       this.game.messenger.logMessages(
         player[InventoryItems[key]].map((item: Prop): Message => {
-          i++;
-          keyCode++;
-          return {
+          const message: Message = {
             text: `${String.fromCharCode(keyCode)}) ${item.name}`,
             color: Colors.WHITE
           };
+          i++;
+          keyCode++;
+          return message;
         })
       );
     }

@@ -10,12 +10,14 @@ import Vector2 from './Vector';
 import { fontOptions } from './Canvas/Canvas';
 import { ActorOptions } from './Entity/Actor/Actor';
 import { Armor, ArmorOptions } from './Entity/Prop/Armor';
+import { Weapon, WeaponOptions, WeaponType } from './Entity/Prop/Weapon';
 import { PropOptions } from './Entity/Prop/Prop';
 import { Quality } from './Entity/Prop/Prop.data';
 import InventoryItemScreen from './Screen/InventoryItemScreen';
 import CommandScreen from './Screen/CommandScreen';
 import { Color, Colors } from './Canvas/Color';
 import { Enemy, IEnemyType, EnemyOptions } from './Entity/Actor/Enemy';
+import { StandardDice } from './Random/Dice';
 
 const height = 240;
 const width = 600;
@@ -124,6 +126,31 @@ window.onload = () => {
   };
   const chainMail = new Armor(armorOptions1);
 
+  const weaponPropOptions: PropOptions = {
+    isActive: true,
+    color: new Color({ hex: '#0033bb' }),
+    char: 'S',
+    name: 'Short Sword',
+    canBePickedUp: true,
+    description: 'A short sword'
+  }
+
+  const weaponType: WeaponType = {
+    category: 'sword',
+    modifier: 'simple'
+  }
+
+  const weaponOptions: WeaponOptions = {
+    damage: StandardDice.d6,
+    material: 'iron',
+    quality: Quality.FAIR,
+    weaponType,
+    propOptions: weaponPropOptions
+  };
+
+  const sword = new Weapon(weaponOptions);
+
+
   // END TEST DATA ////////////////////
 
   const g = new Game(gameMap, screens, canvasProps, ctx, player, el, bottomEl);
@@ -142,13 +169,19 @@ window.onload = () => {
     item: chainMail
   };
   player.addToInventory(pickup);
+  pickup = {
+    type: InventoryItems.WEAPONS,
+    item: sword
+  };
+  player.addToInventory(pickup);
+  player.attemptToEquip({ index: 0, type: InventoryItems.WEAPONS }, EquipmentSlots.WEAPON);
   g.updatePlayerPos(player, player.pos);
 
   const aops: ActorOptions = {
     pos: new Vector2(2, 1),
     isActive: true,
     color: new Color({ hex: '#3300ff'}),
-    hp: 5,
+    hp: 12,
     ac: 10,
     char: 'L',
     damage: '1d6',

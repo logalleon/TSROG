@@ -1,7 +1,9 @@
+import { startCase } from 'lodash';
 import { Screen, ScreenNames } from './Screen';
 import Game from '../Game';
 import { InputMap } from '../Input';
-import { clearCanvas, fontOptions, padding } from '../Canvas/Canvas'
+import { clearCanvas, fontOptions, padding } from '../Canvas/Canvas';
+import { Colors } from '../Canvas/Color';
 import { Player, InventoryItems } from '../Entity/Actor/Player';
 import { Prop } from '../Entity/Prop/Prop';
 import { MapScreenInputs } from './MapScreen';
@@ -18,9 +20,7 @@ class CommandScreen extends Screen {
 
   render(ctx: CanvasRenderingContext2D) {
     const { canvasProps, messenger } = this.game;
-    clearCanvas(ctx, canvasProps);
-    this.renderTitle(ctx);
-    this.renderMovement(ctx);
+    this.renderMovement();
     messenger.renderSpaceToContinue();
   }
 
@@ -31,18 +31,20 @@ class CommandScreen extends Screen {
     ctx.fillText(title, this.game.canvasProps.width / 2, padding);
   }
 
-  renderMovement (ctx: CanvasRenderingContext2D) {
-    ctx.textAlign = 'center';
-    let text = `${MapScreenInputs.MOVE_UP_LEFT} ${MapScreenInputs.MOVE_UP} ${MapScreenInputs.MOVE_UP_RIGHT}`;
-    ctx.fillText(text, padding * 2.5, padding);
-    text = `\\|/\n`;
-    ctx.fillText(text, padding * 2.5, padding + fontOptions.fontSize * 1.5);
-    text = `${MapScreenInputs.MOVE_LEFT}- -${MapScreenInputs.MOVE_RIGHT}`;
-    ctx.fillText(text, padding * 2.5, padding + fontOptions.fontSize * 2.5);
-    text = `/|\\`;
-    ctx.fillText(text, padding * 2.5, padding + fontOptions.fontSize * 3.5);
-    text = `${MapScreenInputs.MOVE_DOWN_LEFT} ${MapScreenInputs.MOVE_DOWN} ${MapScreenInputs.MOVE_DOWN_RIGHT}`;
-    ctx.fillText(text, padding * 2.5, padding + fontOptions.fontSize * 4.5);
+  renderMovement (): void {
+    const { messenger } = this.game;
+    const text = `
+      ${startCase(this.name)}<br/>
+      ${MapScreenInputs.MOVE_UP_LEFT} ${MapScreenInputs.MOVE_UP} ${MapScreenInputs.MOVE_UP_RIGHT}<br/>
+      &nbsp;\\|/<br/>
+      ${MapScreenInputs.MOVE_LEFT}- -${MapScreenInputs.MOVE_RIGHT}<br/>
+      &nbsp;/|\\<br/>
+      ${MapScreenInputs.MOVE_DOWN_LEFT} ${MapScreenInputs.MOVE_DOWN} ${MapScreenInputs.MOVE_DOWN_RIGHT}<br/>
+    `;
+    messenger.logMessages([{
+      color: Colors.DEFAULT,
+      text,
+    }]);
   }
 
   renderPlayerInventory (ctx: CanvasRenderingContext2D) {

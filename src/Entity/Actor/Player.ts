@@ -9,6 +9,8 @@ import { Scroll } from '../Prop/Scroll';
 import { Weapon } from '../Prop/Weapon';
 import { Prop } from '../Prop/Prop';
 import { Message } from '../../Message/Message';
+import { Enemy } from './Enemy';
+import { Colors } from '../../Canvas/Color';
 
 enum InventoryItems {
   AMULETS = 'amulets',
@@ -110,11 +112,42 @@ class Player extends Actor {
 
   /**
    * @override
-   * @param destination
+   * @param destination {Vector2}
    */
   move (destination: Vector2) {
     this.pos = destination;
     this.hasMoveInteracted = true;
+  }
+
+  /**
+   * @override
+   * @param target {Actor}
+   */
+  attemptAttack (target: Actor): boolean {
+    this.hasMoveInteracted = true;
+    return super.attemptAttack(target);
+  }
+
+  formatSuccessfulAttack (damage: number, target: Enemy): Message {
+    const weapon = this.equipped[EquipmentSlots.WEAPON];
+    if (weapon) {
+      return <Message>{
+        color: Colors.DEFAULT,
+        text: 'null'
+      }
+    } else {
+      return <Message>{
+        text: `You strike the ${target.formattedName()} for your bare hands for ${damage} damage!`,
+        color: Colors.DEFAULT
+      };
+    }
+  }
+
+  formatUnsuccessfulAttack (target: Enemy): Message {
+    return <Message>{
+      color: Colors.DEFAULT,
+      text: `You attempt to attack the ${target.formattedName()} but it evades your blows!`
+    }
   }
 
 }

@@ -20,7 +20,6 @@ class Color implements IColor {
   }
 
   val (): string {
-    console.log(this);
     return this.hex || this.rgb || this.html;
   }
 

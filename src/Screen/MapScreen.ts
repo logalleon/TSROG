@@ -69,7 +69,6 @@ class MapScreen extends Screen {
     const { gameMap, canvasProps, messenger } = this.game;
     const { tiles } = gameMap;
     clearCanvas(ctx, canvasProps);
-    messenger.logMessages([{ text: 'This is the map screen', color: Colors.DEFAULT }]);
     messenger.clearBottomMessages();
     messenger.logBottomMessage({
       color: Colors.DEFAULT,
@@ -152,19 +151,13 @@ class MapScreen extends Screen {
             target = occupiers[i];
             if (player.attemptAttack(target)) {
               const damage = player.attack(target);
-              messages.push(<Message>{
-                color: Colors.VIOLET,
-                text: `You attack the L for ${damage} damage!`
-              });
+              messages.push(player.formatSuccessfulAttack(damage, target));
             } else {
-              messages.push(<Message>{
-                color: Colors.DEFAULT,
-                text: 'You attempt to attack the L but fail'
-              });
+              messages.push(player.formatUnsuccessfulAttack(target));
             }
           }
         }
-        this.game.messenger.logMessages(messages);
+        return messages;
       } else {
         console.log('Something is not right here. Check your logic, ya dingus.');
       }

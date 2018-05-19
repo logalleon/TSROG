@@ -14,8 +14,8 @@ import { PropOptions } from './Entity/Prop/Prop';
 import { Quality } from './Entity/Prop/Prop.data';
 import InventoryItemScreen from './Screen/InventoryItemScreen';
 import CommandScreen from './Screen/CommandScreen';
-import { Color } from './Canvas/Color';
-import { Enemy } from './Entity/Actor/Enemy';
+import { Color, Colors } from './Canvas/Color';
+import { Enemy, IEnemyType, EnemyOptions } from './Entity/Actor/Enemy';
 
 const height = 240;
 const width = 600;
@@ -145,7 +145,7 @@ window.onload = () => {
   g.updatePlayerPos(player, player.pos);
 
   const aops: ActorOptions = {
-    pos: new Vector2(2, 4),
+    pos: new Vector2(2, 1),
     isActive: true,
     color: new Color({ hex: '#3300ff'}),
     hp: 5,
@@ -155,14 +155,25 @@ window.onload = () => {
     cth: 5
   };
 
-  const e = new Enemy(aops);
+  const enemyType: IEnemyType = {
+    creatureType: 'Lizard',
+    variant: null,
+    descriptor: 'Icy'
+  };
+
+  const enemyOpts: EnemyOptions = {
+    actorOptions: aops,
+    name: 'Salamander',
+    enemyType
+  };
+
+  const e = new Enemy(enemyOpts);
+  e.isActive = true;
+  g.activeEnemies.push(e);
   g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
   g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];
 
-  
-
-  // END TEST DATA
-
   g.activeScreen.render(g.ctx);
+  g.messenger.logMessages([{ text: 'This is the map screen', color: Colors.DEFAULT }]);
   window.game = g;
 };

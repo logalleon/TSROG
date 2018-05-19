@@ -17152,7 +17152,6 @@ var Color = /** @class */ (function () {
         }
     }
     Color.prototype.val = function () {
-        console.log(this);
         return this.hex || this.rgb || this.html;
     };
     return Color;
@@ -17215,19 +17214,47 @@ var __extends = (this && this.__extends) || (function () {
 })();
 exports.__esModule = true;
 var Actor_1 = require("./Actor");
+var Color_1 = require("../../Canvas/Color");
 var Enemy = /** @class */ (function (_super) {
     __extends(Enemy, _super);
     function Enemy(options) {
-        var _this = _super.call(this, options) || this;
+        var _this = _super.call(this, options.actorOptions) || this;
         _this.isInteractive = true;
         _this.isEnemy = true;
+        for (var key in options) {
+            if (key !== 'actorOptions') {
+                _this[key] = options[key];
+            }
+        }
         return _this;
     }
+    Enemy.prototype.act = function () {
+        return [{
+                color: Color_1.Colors.DEFAULT,
+                text: "The " + this.formattedName() + " does nothing."
+            }];
+    };
+    Enemy.prototype.update = function () {
+        if (this.isDead()) {
+            return [{
+                    color: Color_1.Colors.RED,
+                    text: "The " + this.formattedName() + " has perished."
+                }];
+        }
+        else {
+            return null;
+        }
+    };
+    Enemy.prototype.formattedName = function () {
+        var _a = this.enemyType, descriptor = _a.descriptor, variant = _a.variant;
+        var name = this.name;
+        return descriptor + " " + variant + " " + name;
+    };
     return Enemy;
 }(Actor_1.Actor));
 exports.Enemy = Enemy;
 
-},{"./Actor":4}],6:[function(require,module,exports){
+},{"../../Canvas/Color":3,"./Actor":4}],6:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -17241,6 +17268,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 exports.__esModule = true;
 var Actor_1 = require("./Actor");
+var Color_1 = require("../../Canvas/Color");
 var InventoryItems;
 (function (InventoryItems) {
     InventoryItems["AMULETS"] = "amulets";
@@ -17310,18 +17338,47 @@ var Player = /** @class */ (function (_super) {
     };
     /**
      * @override
-     * @param destination
+     * @param destination {Vector2}
      */
     Player.prototype.move = function (destination) {
         this.pos = destination;
         this.hasMoveInteracted = true;
+    };
+    /**
+     * @override
+     * @param target {Actor}
+     */
+    Player.prototype.attemptAttack = function (target) {
+        this.hasMoveInteracted = true;
+        return _super.prototype.attemptAttack.call(this, target);
+    };
+    Player.prototype.formatSuccessfulAttack = function (damage, target) {
+        var weapon = this.equipped[EquipmentSlots.WEAPON];
+        if (weapon) {
+            return {
+                color: Color_1.Colors.DEFAULT,
+                text: 'null'
+            };
+        }
+        else {
+            return {
+                text: "You strike the " + target.formattedName() + " for your bare hands for " + damage + " damage!",
+                color: Color_1.Colors.DEFAULT
+            };
+        }
+    };
+    Player.prototype.formatUnsuccessfulAttack = function (target) {
+        return {
+            color: Color_1.Colors.DEFAULT,
+            text: "You attempt to attack the " + target.formattedName() + " but it evades your blows!"
+        };
     };
     return Player;
 }(Actor_1.Actor));
 InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
 exports.Player = Player;
 
-},{"./Actor":4}],7:[function(require,module,exports){
+},{"../../Canvas/Color":3,"./Actor":4}],7:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -17420,11 +17477,10 @@ var Game = /** @class */ (function () {
     Game.prototype.handleInput = function (e) {
         e.preventDefault();
         var keyCode = e.keyCode, type = e.type;
+        var player = this.player;
         this.keyMap[keyCode] = type === 'keydown';
         // Ignore the Shift key, which is just a key modifier
         if (type === 'keydown' && Input_1.keyCodeToChar[keyCode] !== 'Shift') {
-            // Clear the current message window
-            this.messenger.clearMessages();
             // Get the char value of the current key
             var char = Input_1.mapKeyPressToActualCharacter(Boolean(this.keyMap[Input_1.keyCharToCode['Shift']]), keyCode);
             // Not an uppercase-able character returns and empty string
@@ -17433,19 +17489,29 @@ var Game = /** @class */ (function () {
                 char = Input_1.keyCodeToChar[keyCode];
             }
             // Handle the player input first. The player gets priority for everything
-            var messages = this.activeScreen.handleInput(char);
+            var inputMessages = this.activeScreen.handleInput(char);
+            var messages = Array.isArray(inputMessages) ? inputMessages : [];
+            console.log('input Message', inputMessages, messages);
+            console.log(player.hasMoveInteracted, this.activeEnemies.length);
             /**
              * If the player has either moved or interacted with an interactable object,
              * then enemies all get a turn to attack the player. This flag isn't set for certain
              * actions that the play takes, such as inspecting a nearby tile, which essentially
              * a free action.
              */
-            if (this.player.hasMoveInteracted && this.activeEnemies.length) {
-                //this.messenger.logMessages(this.activeEnemies.forEach(enemy => enemy.act());
-                //messages = messages.concat[this.activeEnemies.forEach(enemy => enemy.update());
+            if (player.hasMoveInteracted && this.activeEnemies.length) {
+                var enemyActions = this.activeEnemies.map(function (enemy) { return enemy.act(); }).reduce(function (actions, action) { return actions.concat(action); });
+                var enemyUpdates = this.activeEnemies.map(function (enemy) { return enemy.update(); }).reduce(function (updates, update) { return updates.concat(update); });
+                console.log('before', messages);
+                messages = messages.concat(Array.isArray(enemyActions) ? enemyActions : [], Array.isArray(enemyUpdates) ? enemyUpdates : []);
+                console.log('m', messages);
             }
             // See player.update description
-            this.messenger.logMessages(messages.concat(this.player.update()));
+            var playerMessages = player.update();
+            // Clear the current message window
+            this.messenger.clearMessages();
+            console.log(messages);
+            this.messenger.logMessages(messages.concat(Array.isArray(playerMessages) ? playerMessages : []));
             // Finally, render what's changed
             this.activeScreen.render(this.ctx);
         }
@@ -18263,7 +18329,6 @@ var MapScreen = /** @class */ (function (_super) {
         var _a = this.game, gameMap = _a.gameMap, canvasProps = _a.canvasProps, messenger = _a.messenger;
         var tiles = gameMap.tiles;
         Canvas_1.clearCanvas(ctx, canvasProps);
-        messenger.logMessages([{ text: 'This is the map screen', color: Color_1.Colors.DEFAULT }]);
         messenger.clearBottomMessages();
         messenger.logBottomMessage({
             color: Color_1.Colors.DEFAULT,
@@ -18337,20 +18402,14 @@ var MapScreen = /** @class */ (function (_super) {
                         target = occupiers[i];
                         if (player.attemptAttack(target)) {
                             var damage = player.attack(target);
-                            messages.push({
-                                color: Color_1.Colors.VIOLET,
-                                text: "You attack the L for " + damage + " damage!"
-                            });
+                            messages.push(player.formatSuccessfulAttack(damage, target));
                         }
                         else {
-                            messages.push({
-                                color: Color_1.Colors.DEFAULT,
-                                text: 'You attempt to attack the L but fail'
-                            });
+                            messages.push(player.formatUnsuccessfulAttack(target));
                         }
                     }
                 }
-                this.game.messenger.logMessages(messages);
+                return messages;
             }
             else {
                 console.log('Something is not right here. Check your logic, ya dingus.');
@@ -18593,7 +18652,7 @@ window.onload = function () {
     player.addToInventory(pickup);
     g.updatePlayerPos(player, player.pos);
     var aops = {
-        pos: new Vector_1["default"](2, 4),
+        pos: new Vector_1["default"](2, 1),
         isActive: true,
         color: new Color_1.Color({ hex: '#3300ff' }),
         hp: 5,
@@ -18602,11 +18661,23 @@ window.onload = function () {
         damage: '1d6',
         cth: 5
     };
-    var e = new Enemy_1.Enemy(aops);
+    var enemyType = {
+        creatureType: 'Lizard',
+        variant: null,
+        descriptor: 'Icy'
+    };
+    var enemyOpts = {
+        actorOptions: aops,
+        name: 'Salamander',
+        enemyType: enemyType
+    };
+    var e = new Enemy_1.Enemy(enemyOpts);
+    e.isActive = true;
+    g.activeEnemies.push(e);
     g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
     g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];
-    // END TEST DATA
     g.activeScreen.render(g.ctx);
+    g.messenger.logMessages([{ text: 'This is the map screen', color: Color_1.Colors.DEFAULT }]);
     window.game = g;
 };
 

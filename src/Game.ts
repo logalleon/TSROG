@@ -55,11 +55,10 @@ class Game {
   handleInput(e: KeyboardEvent): void {
     e.preventDefault();
     const { keyCode, type } = e;
+    const { player } = this;
     this.keyMap[keyCode] = type === 'keydown';
     // Ignore the Shift key, which is just a key modifier
     if (type === 'keydown' && keyCodeToChar[keyCode] !== 'Shift') {
-      // Clear the current message window
-      this.messenger.clearMessages();
       // Get the char value of the current key
       let char = mapKeyPressToActualCharacter(Boolean(this.keyMap[keyCharToCode['Shift']]), keyCode);
       // Not an uppercase-able character returns and empty string
@@ -68,7 +67,10 @@ class Game {
         char = keyCodeToChar[keyCode];
       }
       // Handle the player input first. The player gets priority for everything
-      let messages: Message[] = this.activeScreen.handleInput(char);
+      const inputMessages = this.activeScreen.handleInput(char);
+      let messages: Message[] = Array.isArray(inputMessages) ? inputMessages : [];
+      console.log('input Message', inputMessages, messages);
+      console.log(player.hasMoveInteracted, this.activeEnemies.length);
 
       /**
        * If the player has either moved or interacted with an interactable object,
@@ -76,13 +78,23 @@ class Game {
        * actions that the play takes, such as inspecting a nearby tile, which essentially
        * a free action.
        */
-      if (this.player.hasMoveInteracted && this.activeEnemies.length) {
-        //this.messenger.logMessages(this.activeEnemies.forEach(enemy => enemy.act());
-        //messages = messages.concat[this.activeEnemies.forEach(enemy => enemy.update());
+      if (player.hasMoveInteracted && this.activeEnemies.length) {
+        const enemyActions = this.activeEnemies.map(enemy => enemy.act()).reduce((actions, action) => actions.concat(action));
+        const enemyUpdates = this.activeEnemies.map(enemy => enemy.update()).reduce((updates, update) => updates.concat(update));
+        console.log('before', messages);
+        messages = messages.concat(
+          Array.isArray(enemyActions) ? enemyActions : [],
+          Array.isArray(enemyUpdates) ? enemyUpdates : []
+        );
+        console.log('m', messages);
       }
 
       // See player.update description
-      this.messenger.logMessages(messages.concat(this.player.update()));
+      const playerMessages = player.update();
+      // Clear the current message window
+      this.messenger.clearMessages();
+      console.log(messages);
+      this.messenger.logMessages(messages.concat(Array.isArray(playerMessages) ? playerMessages : []));
 
       // Finally, render what's changed
       this.activeScreen.render(this.ctx);

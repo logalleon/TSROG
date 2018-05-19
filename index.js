@@ -82,9 +82,7 @@ var Actor = /** @class */ (function () {
         return null;
     };
     Actor.prototype.move = function (destination) {
-        if (this.canMove) {
-            this.pos = destination;
-        }
+        this.pos = destination;
     };
     Actor.prototype.attemptAttack = function (target) {
         var dice = Dice_1.StandardDice.d20 + "+" + this.cth;
@@ -102,7 +100,33 @@ var Actor = /** @class */ (function () {
 }());
 exports.Actor = Actor;
 
-},{"../../Random/Dice":12}],4:[function(require,module,exports){
+},{"../../Random/Dice":13}],4:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var Actor_1 = require("./Actor");
+var Enemy = /** @class */ (function (_super) {
+    __extends(Enemy, _super);
+    function Enemy(options) {
+        var _this = _super.call(this, options) || this;
+        _this.isInteractive = true;
+        _this.isEnemy = true;
+        return _this;
+    }
+    return Enemy;
+}(Actor_1.Actor));
+exports.Enemy = Enemy;
+
+},{"./Actor":3}],5:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -141,6 +165,7 @@ var Player = /** @class */ (function (_super) {
     __extends(Player, _super);
     function Player(options) {
         var _this = _super.call(this, options.actorOptions) || this;
+        _this.hasMoveInteracted = false;
         _this.equipped = (_a = {},
             _a[EquipmentSlots.NECK] = null,
             _a[EquipmentSlots.ARMOR] = null,
@@ -159,6 +184,15 @@ var Player = /** @class */ (function (_super) {
         return _this;
         var _a;
     }
+    /**
+     * This runs at the end of the game update loop, so do things like
+     * check if the player is alive, check disease status, check leveling,
+     * reset any flags
+     */
+    Player.prototype.update = function () {
+        this.hasMoveInteracted = false;
+        return [];
+    };
     Player.prototype.addToInventory = function (pickup) {
         this[pickup.type] = [].concat(this[pickup.type], pickup.item);
     };
@@ -173,12 +207,20 @@ var Player = /** @class */ (function (_super) {
             return true;
         }
     };
+    /**
+     * @override
+     * @param destination
+     */
+    Player.prototype.move = function (destination) {
+        this.pos = destination;
+        this.hasMoveInteracted = true;
+    };
     return Player;
 }(Actor_1.Actor));
 InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
 exports.Player = Player;
 
-},{"./Actor":3}],5:[function(require,module,exports){
+},{"./Actor":3}],6:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -207,7 +249,7 @@ var Armor = /** @class */ (function (_super) {
 }(Prop_1.Prop));
 exports.Armor = Armor;
 
-},{"./Prop":7}],6:[function(require,module,exports){
+},{"./Prop":8}],7:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Quality;
@@ -235,7 +277,7 @@ var EMaterialSubtype;
 (function (EMaterialSubtype) {
 })(EMaterialSubtype || (EMaterialSubtype = {}));
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Prop = /** @class */ (function () {
@@ -248,13 +290,14 @@ var Prop = /** @class */ (function () {
 }());
 exports.Prop = Prop;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Input_1 = require("./Input");
 var Message_1 = require("./Message/Message");
 var Game = /** @class */ (function () {
     function Game(gameMap, screens, canvasProps, ctx, player, el) {
+        this.activeEnemies = []; // @TODO
         this.player = player;
         this.gameMap = gameMap;
         this.screens = screens;
@@ -289,14 +332,19 @@ var Game = /** @class */ (function () {
                 char = Input_1.keyCodeToChar[keyCode];
             }
             // Handle the player input first. The player gets priority for everything
-            this.messenger.logMessages(this.activeScreen.handleInput(char));
-            /*
+            var messages = this.activeScreen.handleInput(char);
+            /**
+             * If the player has either moved or interacted with an interactable object,
+             * then enemies all get a turn to attack the player. This flag isn't set for certain
+             * actions that the play takes, such as inspecting a nearby tile, which essentially
+             * a free action.
+             */
             if (this.player.hasMoveInteracted && this.activeEnemies.length) {
-              this.messenger.logMessages(this.activeEnemies.forEach(enemy => enemy.act());
+                //this.messenger.logMessages(this.activeEnemies.forEach(enemy => enemy.act());
+                //messages = messages.concat[this.activeEnemies.forEach(enemy => enemy.update());
             }
-            this.messenger.logMessages(this.player.update());
-            // some kill check in update
-            */
+            // See player.update description
+            this.messenger.logMessages(messages.concat(this.player.update()));
             // Finally, render what's changed
             this.activeScreen.render(this.ctx);
         }
@@ -305,21 +353,27 @@ var Game = /** @class */ (function () {
         var tiles = this.gameMap.tiles;
         var _a = player.pos, x = _a.x, y = _a.y;
         var nextX = nextPos.x, nextY = nextPos.y;
-        var row = tiles[y];
-        var item = row[x];
-        item.occupier = null;
-        item.isOccupied = false;
-        row = tiles[nextY];
-        item = row[nextX];
-        item.occupier = player;
-        item.isOccupied = true;
-        player.pos = nextPos;
+        // This is a reference to the row and the items themselves - don't forget they're essentially pointers
+        var p_row = tiles[y];
+        var p_item = p_row[x];
+        // @TODO This isn't right. Clearing out the occupiers will mess up what's in that tile
+        // especially when Tile becomes a class
+        p_item.occupiers = [];
+        p_item.isOccupied = false;
+        // Select the next row and tiles
+        p_row = tiles[nextY];
+        p_item = p_row[nextX];
+        p_item.occupiers = [player];
+        p_item.isOccupied = true;
+        // @TODO revisit above
+        this.gameMap.tiles = tiles;
+        player.move(nextPos);
     };
     return Game;
 }());
 exports["default"] = Game;
 
-},{"./Input":10,"./Message/Message":11}],9:[function(require,module,exports){
+},{"./Input":11,"./Message/Message":12}],10:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var GameMap = /** @class */ (function () {
@@ -340,7 +394,7 @@ var GameMap = /** @class */ (function () {
 }());
 exports.GameMap = GameMap;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var keyCodeToChar = {
@@ -764,7 +818,7 @@ var mapKeyPressToActualCharacter = function (isShiftKey, characterCode) {
 };
 exports.mapKeyPressToActualCharacter = mapKeyPressToActualCharacter;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Color_1 = require("../Canvas/Color");
@@ -818,7 +872,7 @@ var Messenger = /** @class */ (function () {
 }());
 exports.Messenger = Messenger;
 
-},{"../Canvas/Canvas":1,"../Canvas/Color":2}],12:[function(require,module,exports){
+},{"../Canvas/Canvas":1,"../Canvas/Color":2}],13:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var StandardDice;
@@ -832,12 +886,21 @@ var StandardDice;
     StandardDice["d20"] = "d20";
 })(StandardDice || (StandardDice = {}));
 exports.StandardDice = StandardDice;
+var randomInt = function (min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; };
+exports.randomInt = randomInt;
 var rollDice = function (dice) {
-    return 1;
+    var roll = 0;
+    var _a = dice.split('+'), die = _a[0], bonus = _a[1];
+    var _b = die.split('d'), iterations = _b[0], range = _b[1];
+    console.log(die, bonus, iterations, range);
+    for (var i = 0; i < (iterations ? Number(iterations) : 1); i++) {
+        roll += randomInt(1, range);
+    }
+    return roll + (bonus ? Number(bonus) : 0);
 };
 exports.rollDice = rollDice;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -906,7 +969,7 @@ var CommandScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = CommandScreen;
 
-},{"../Canvas/Canvas":1,"../Entity/Actor/Player":4,"./MapScreen":16,"./Screen":17}],14:[function(require,module,exports){
+},{"../Canvas/Canvas":1,"../Entity/Actor/Player":5,"./MapScreen":17,"./Screen":18}],15:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -961,7 +1024,7 @@ var InventoryItemScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryItemScreen;
 
-},{"../Canvas/Canvas":1,"../Canvas/Color":2,"./Screen":17}],15:[function(require,module,exports){
+},{"../Canvas/Canvas":1,"../Canvas/Color":2,"./Screen":18}],16:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -1011,7 +1074,7 @@ var InventoryScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Canvas":1,"../Canvas/Color":2,"../Entity/Actor/Player":4,"./Screen":17}],16:[function(require,module,exports){
+},{"../Canvas/Canvas":1,"../Canvas/Color":2,"../Entity/Actor/Player":5,"./Screen":18}],17:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -1061,7 +1124,7 @@ var MapScreen = /** @class */ (function (_super) {
         _this.name = Screen_1.ScreenNames.MAP;
         _this.inputs = (_a = {},
             _a[MapScreenInputs.INVENTORY] = _this.showInventoryScreen,
-            _a[MapScreenInputs.AMULET] = _this.showAmuletScreen,
+            _a[MapScreenInputs.AMULET] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.AMULET),
             _a[MapScreenInputs.ARMOR] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.ARMOR),
             _a[MapScreenInputs.FOOD] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.FOOD),
             _a[MapScreenInputs.KEYS] = _this.showInventoryItemScreen.bind(_this, Screen_1.ScreenNames.KEYS),
@@ -1073,14 +1136,14 @@ var MapScreen = /** @class */ (function (_super) {
             _a[MapScreenInputs.UNEQUIP] = _this.showUnequipScreen,
             _a[MapScreenInputs.MESSAGES] = _this.showMessageScreen,
             _a[MapScreenInputs.HELP] = _this.showHelpScreen,
-            _a[MapScreenInputs.MOVE_UP] = _this.attemptMovement.bind(_this),
-            _a[MapScreenInputs.MOVE_LEFT] = _this.attemptMovement.bind(_this),
-            _a[MapScreenInputs.MOVE_DOWN] = _this.attemptMovement.bind(_this),
-            _a[MapScreenInputs.MOVE_RIGHT] = _this.attemptMovement.bind(_this),
-            _a[MapScreenInputs.MOVE_UP_LEFT] = _this.attemptMovement.bind(_this),
-            _a[MapScreenInputs.MOVE_UP_RIGHT] = _this.attemptMovement.bind(_this),
-            _a[MapScreenInputs.MOVE_DOWN_LEFT] = _this.attemptMovement.bind(_this),
-            _a[MapScreenInputs.MOVE_DOWN_RIGHT] = _this.attemptMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_UP] = _this.attemptPlayerMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_LEFT] = _this.attemptPlayerMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_DOWN] = _this.attemptPlayerMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_RIGHT] = _this.attemptPlayerMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_UP_LEFT] = _this.attemptPlayerMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_UP_RIGHT] = _this.attemptPlayerMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_DOWN_LEFT] = _this.attemptPlayerMovement.bind(_this),
+            _a[MapScreenInputs.MOVE_DOWN_RIGHT] = _this.attemptPlayerMovement.bind(_this),
             _a);
         return _this;
         var _a;
@@ -1100,7 +1163,7 @@ var MapScreen = /** @class */ (function (_super) {
             for (var col = 0; col < tiles[row].length; col++) {
                 var tile = tiles[row][col];
                 var _a = tile.isOccupied ?
-                    tile.occupier : tile, char = _a.char, color = _a.color;
+                    tile.occupiers[0] : tile, char = _a.char, color = _a.color; // @TODO update to show the most important occupier to display, maybe with z values
                 ctx.fillStyle = color.hex || color.rgb;
                 ctx.fillText(char, (col * fontSize * this.textSpacing.x) + offset.x, (row * fontSize * this.textSpacing.y) + offset.y);
             }
@@ -1110,7 +1173,7 @@ var MapScreen = /** @class */ (function (_super) {
         // This centers the map on the canvas
         return new Vector_1["default"]((canvasProps.width / 2) - (gameMap.width / 2 * fontSize), (canvasProps.height / 2) - (gameMap.height / 2 * fontSize));
     };
-    MapScreen.prototype.attemptMovement = function (keyValue) {
+    MapScreen.prototype.attemptPlayerMovement = function (keyValue) {
         var _a = this.game, player = _a.player, gameMap = _a.gameMap;
         var pos = player.pos;
         var tiles = gameMap.tiles;
@@ -1118,52 +1181,64 @@ var MapScreen = /** @class */ (function (_super) {
         switch (keyValue) {
             case 'w':
                 nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](0, -1));
-                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-                    this.game.updatePlayerPos(player, nextPos);
-                }
                 break;
             case 'a':
                 nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](-1, 0));
-                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-                    this.game.updatePlayerPos(player, nextPos);
-                }
                 break;
             case 's':
                 nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](0, 1));
-                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-                    this.game.updatePlayerPos(player, nextPos);
-                }
                 break;
             case 'd':
                 nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](1, 0));
-                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-                    this.game.updatePlayerPos(player, nextPos);
-                }
                 break;
             case 'q':
                 nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](-1, -1));
-                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-                    this.game.updatePlayerPos(player, nextPos);
-                }
                 break;
             case 'e':
                 nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](1, -1));
-                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-                    this.game.updatePlayerPos(player, nextPos);
-                }
                 break;
             case 'z':
                 nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](-1, 1));
-                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-                    this.game.updatePlayerPos(player, nextPos);
-                }
                 break;
             case 'c':
                 nextPos = Vector_1["default"].apply(pos, new Vector_1["default"](1, 1));
-                if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-                    this.game.updatePlayerPos(player, nextPos);
-                }
                 break;
+        }
+        // Quickest checks first!
+        if (player.canMove && gameMap.inBounds(gameMap.width, gameMap.height, nextPos)) {
+            var _b = tiles[nextPos.y][nextPos.x], isPassable = _b.isPassable, isOccupied = _b.isOccupied, occupiers = _b.occupiers;
+            if (isPassable && !isOccupied) {
+                this.game.updatePlayerPos(player, nextPos);
+            }
+            else if (isOccupied) {
+                var target = void 0;
+                var messages = [];
+                // Find the first enemy in the space
+                // @TODO there really shouldn't be more than one enemy in a single space
+                // There might be something like an enemy and some items on the floor, debris, or a trap
+                for (var i = 0; i < occupiers.length; i++) {
+                    if (occupiers[i].isInteractive && occupiers[i].isEnemy) {
+                        target = occupiers[i];
+                        if (player.attemptAttack(target)) {
+                            var damage = player.attack(target);
+                            messages.push({
+                                color: Color_1.Colors.VIOLET,
+                                text: "You attack the L for " + damage + " damage!"
+                            });
+                        }
+                        else {
+                            messages.push({
+                                color: Color_1.Colors.DEFAULT,
+                                text: 'You attempt to attack the L but fail'
+                            });
+                        }
+                    }
+                }
+                this.game.messenger.logMessages(messages);
+            }
+            else {
+                console.log('Something is not right here. Check your logic, ya dingus.');
+            }
         }
         return null;
     };
@@ -1195,7 +1270,7 @@ var MapScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = MapScreen;
 
-},{"../Canvas/Canvas":1,"../Canvas/Color":2,"../Vector":18,"./Screen":17}],17:[function(require,module,exports){
+},{"../Canvas/Canvas":1,"../Canvas/Color":2,"../Vector":19,"./Screen":18}],18:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Message_1 = require("../Message/Message");
@@ -1247,7 +1322,7 @@ var Screen = /** @class */ (function () {
 }());
 exports.Screen = Screen;
 
-},{"../Message/Message":11}],18:[function(require,module,exports){
+},{"../Message/Message":12}],19:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Vector2 = /** @class */ (function () {
@@ -1266,7 +1341,7 @@ var Vector2 = /** @class */ (function () {
 }());
 exports["default"] = Vector2;
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("./Game");
@@ -1283,6 +1358,7 @@ var Prop_data_1 = require("./Entity/Prop/Prop.data");
 var InventoryItemScreen_1 = require("./Screen/InventoryItemScreen");
 var CommandScreen_1 = require("./Screen/CommandScreen");
 var Color_1 = require("./Canvas/Color");
+var Enemy_1 = require("./Entity/Actor/Enemy");
 var height = 240;
 var width = 600;
 window.onload = function () {
@@ -1399,8 +1475,22 @@ window.onload = function () {
     };
     player.addToInventory(pickup);
     g.updatePlayerPos(player, player.pos);
+    var aops = {
+        pos: new Vector_1["default"](2, 4),
+        isActive: true,
+        color: new Color_1.Color({ hex: '#3300ff' }),
+        hp: 5,
+        ac: 10,
+        char: 'L',
+        damage: '1d6',
+        cth: 5
+    };
+    var e = new Enemy_1.Enemy(aops);
+    g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
+    g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];
     // END TEST DATA
     g.activeScreen.render(g.ctx);
+    window.game = g;
 };
 
-},{"./Canvas/Canvas":1,"./Canvas/Color":2,"./Entity/Actor/Player":4,"./Entity/Prop/Armor":5,"./Entity/Prop/Prop.data":6,"./Game":8,"./GameMap":9,"./Screen/CommandScreen":13,"./Screen/InventoryItemScreen":14,"./Screen/InventoryScreen":15,"./Screen/MapScreen":16,"./Screen/Screen":17,"./Vector":18}]},{},[19]);
+},{"./Canvas/Canvas":1,"./Canvas/Color":2,"./Entity/Actor/Enemy":4,"./Entity/Actor/Player":5,"./Entity/Prop/Armor":6,"./Entity/Prop/Prop.data":7,"./Game":9,"./GameMap":10,"./Screen/CommandScreen":14,"./Screen/InventoryItemScreen":15,"./Screen/InventoryScreen":16,"./Screen/MapScreen":17,"./Screen/Screen":18,"./Vector":19}]},{},[20]);

@@ -39,7 +39,7 @@ class MapScreen extends Screen {
   public game: Game;
   public inputs: InputMap = {
     [MapScreenInputs.INVENTORY]: this.showInventoryScreen,
-    [MapScreenInputs.AMULET]: this.showAmuletScreen,
+    [MapScreenInputs.AMULET]: this.showInventoryItemScreen.bind(this, ScreenNames.AMULET),
     [MapScreenInputs.ARMOR]: this.showInventoryItemScreen.bind(this, ScreenNames.ARMOR),
     [MapScreenInputs.FOOD]: this.showInventoryItemScreen.bind(this, ScreenNames.FOOD),
     [MapScreenInputs.KEYS]: this.showInventoryItemScreen.bind(this, ScreenNames.KEYS),
@@ -51,14 +51,14 @@ class MapScreen extends Screen {
     [MapScreenInputs.UNEQUIP]: this.showUnequipScreen,
     [MapScreenInputs.MESSAGES]: this.showMessageScreen,
     [MapScreenInputs.HELP]: this.showHelpScreen,
-    [MapScreenInputs.MOVE_UP]: this.attemptMovement.bind(this),
-    [MapScreenInputs.MOVE_LEFT]: this.attemptMovement.bind(this),
-    [MapScreenInputs.MOVE_DOWN]: this.attemptMovement.bind(this),
-    [MapScreenInputs.MOVE_RIGHT]: this.attemptMovement.bind(this),
-    [MapScreenInputs.MOVE_UP_LEFT]: this.attemptMovement.bind(this),
-    [MapScreenInputs.MOVE_UP_RIGHT]: this.attemptMovement.bind(this),
-    [MapScreenInputs.MOVE_DOWN_LEFT]: this.attemptMovement.bind(this),
-    [MapScreenInputs.MOVE_DOWN_RIGHT]: this.attemptMovement.bind(this)
+    [MapScreenInputs.MOVE_UP]: this.attemptPlayerMovement.bind(this),
+    [MapScreenInputs.MOVE_LEFT]: this.attemptPlayerMovement.bind(this),
+    [MapScreenInputs.MOVE_DOWN]: this.attemptPlayerMovement.bind(this),
+    [MapScreenInputs.MOVE_RIGHT]: this.attemptPlayerMovement.bind(this),
+    [MapScreenInputs.MOVE_UP_LEFT]: this.attemptPlayerMovement.bind(this),
+    [MapScreenInputs.MOVE_UP_RIGHT]: this.attemptPlayerMovement.bind(this),
+    [MapScreenInputs.MOVE_DOWN_LEFT]: this.attemptPlayerMovement.bind(this),
+    [MapScreenInputs.MOVE_DOWN_RIGHT]: this.attemptPlayerMovement.bind(this)
   }
 
   constructor() {
@@ -81,7 +81,7 @@ class MapScreen extends Screen {
       for (let col = 0; col < tiles[row].length; col++) {
         const tile = tiles[row][col];
         const { char, color } = tile.isOccupied ?
-          tile.occupier : tile;
+          tile.occupiers[0] : tile; // @TODO update to show the most important occupier to display, maybe with z values
         ctx.fillStyle = color.hex || color.rgb;
         ctx.fillText(
           char,
@@ -100,7 +100,7 @@ class MapScreen extends Screen {
     );
   }
 
-  attemptMovement(keyValue: string): void | Message[] {
+  attemptPlayerMovement(keyValue: string): void | Message[] {
     const { player, gameMap } = this.game;
     const { pos } = player;
     const { tiles } = gameMap;
@@ -108,52 +108,61 @@ class MapScreen extends Screen {
     switch (keyValue) {
       case 'w':
         nextPos = Vector2.apply(pos, new Vector2(0, -1));
-        if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-          this.game.updatePlayerPos(player, nextPos);
-        }
         break;
       case 'a':
         nextPos = Vector2.apply(pos, new Vector2(-1, 0));
-        if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-          this.game.updatePlayerPos(player, nextPos);
-        }
         break;
       case 's':
         nextPos = Vector2.apply(pos, new Vector2(0, 1));
-        if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-          this.game.updatePlayerPos(player, nextPos);
-        }
         break;
       case 'd':
         nextPos = Vector2.apply(pos, new Vector2(1, 0));
-        if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-          this.game.updatePlayerPos(player, nextPos);
-        }
         break;
       case 'q':
         nextPos = Vector2.apply(pos, new Vector2(-1, -1));
-        if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-          this.game.updatePlayerPos(player, nextPos);
-        }
         break;
       case 'e':
         nextPos = Vector2.apply(pos, new Vector2(1, -1));
-        if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-          this.game.updatePlayerPos(player, nextPos);
-        }
         break;
       case 'z':
         nextPos = Vector2.apply(pos, new Vector2(-1, 1));
-        if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-          this.game.updatePlayerPos(player, nextPos);
-        }
         break;
       case 'c':
         nextPos = Vector2.apply(pos, new Vector2(1, 1));
-        if (gameMap.inBounds(gameMap.width, gameMap.height, nextPos) && tiles[nextPos.y][nextPos.x].isPassable) {
-          this.game.updatePlayerPos(player, nextPos);
-        }
         break;
+    }
+    // Quickest checks first!
+    if (player.canMove && gameMap.inBounds(gameMap.width, gameMap.height, nextPos)) {
+      const { isPassable, isOccupied, occupiers } = tiles[nextPos.y][nextPos.x];
+      if (isPassable && !isOccupied) {
+        this.game.updatePlayerPos(player, nextPos);
+      } else if (isOccupied) {
+        let target;
+        let messages: Message[] = [];
+        // Find the first enemy in the space
+        // @TODO there really shouldn't be more than one enemy in a single space
+        // There might be something like an enemy and some items on the floor, debris, or a trap
+        for (let i = 0; i < occupiers.length; i++) {
+          if (occupiers[i].isInteractive && occupiers[i].isEnemy) {
+            target = occupiers[i];
+            if (player.attemptAttack(target)) {
+              const damage = player.attack(target);
+              messages.push(<Message>{
+                color: Colors.VIOLET,
+                text: `You attack the L for ${damage} damage!`
+              });
+            } else {
+              messages.push(<Message>{
+                color: Colors.DEFAULT,
+                text: 'You attempt to attack the L but fail'
+              });
+            }
+          }
+        }
+        this.game.messenger.logMessages(messages);
+      } else {
+        console.log('Something is not right here. Check your logic, ya dingus.');
+      }
     }
     return null;
   }

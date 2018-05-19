@@ -15,6 +15,7 @@ import { Quality } from './Entity/Prop/Prop.data';
 import InventoryItemScreen from './Screen/InventoryItemScreen';
 import CommandScreen from './Screen/CommandScreen';
 import { Color } from './Canvas/Color';
+import { Enemy } from './Entity/Actor/Enemy';
 
 const height = 240;
 const width = 600;
@@ -142,8 +143,25 @@ window.onload = () => {
   player.addToInventory(pickup);
   g.updatePlayerPos(player, player.pos);
 
+  const aops: ActorOptions = {
+    pos: new Vector2(2, 4),
+    isActive: true,
+    color: new Color({ hex: '#3300ff'}),
+    hp: 5,
+    ac: 10,
+    char: 'L',
+    damage: '1d6',
+    cth: 5
+  };
+
+  const e = new Enemy(aops);
+  g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
+  g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];
+
+  
 
   // END TEST DATA
 
   g.activeScreen.render(g.ctx);
+  window.game = g;
 };

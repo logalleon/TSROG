@@ -5,6 +5,7 @@ interface GameMapOptions {
   tiles: Tile[][]
 }
 
+// @TODO this should probably be a class where the tile can add, remove, and check the status of occupiers
 interface Tile {
   isPassable: boolean,
   isOccupied: boolean,
@@ -13,7 +14,7 @@ interface Tile {
   posY: number,
   char: string,
   color: Color
-  occupier?: any
+  occupiers?: any[]
 }
 
 class GameMap {

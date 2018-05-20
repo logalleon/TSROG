@@ -38,6 +38,15 @@ class GameMap {
       v.y < height;
   }
 
+  removeDeadOccupants (pos: Vector2): void {
+    const { x, y } = pos;
+    let { occupiers } = this.tiles[y][x];
+    // Bring out the dead
+    occupiers = occupiers.filter(occupier => !occupier.isDead());
+    this.tiles[y][x].occupiers = occupiers;
+    this.tiles[y][x].isOccupied = Boolean(occupiers.length);
+  }
+
 }
 
 

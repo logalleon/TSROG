@@ -1,6 +1,10 @@
 import { Actor, ActorOptions } from './Actor';
-import { Message } from '../../Message/Message';
+import { Message, Messenger } from '../../Message/Message';
 import { Colors } from '../../Canvas/Color';
+
+const { colorize } = Messenger;
+
+const MASSIVE_DAMAGE_THRESHOLD: number = .30;
 
 interface EnemyOptions {
   actorOptions: ActorOptions,
@@ -22,6 +26,8 @@ class Enemy extends Actor {
   public name: string;
   public enemyType: IEnemyType;
 
+  public massiveDamageThreshold: number;
+
   constructor (options: EnemyOptions) {
     super(options.actorOptions);
     for (let key in options) {
@@ -29,17 +35,20 @@ class Enemy extends Actor {
         this[key] = options[key];
       }
     }
+    this.massiveDamageThreshold = Math.ceil(this.hp * MASSIVE_DAMAGE_THRESHOLD);
   }
 
   act (): Message[] | null {
     return [<Message>{
       color: Colors.DEFAULT,
-      text: `The ${this.formattedName()} does nothing.`
+      text: colorize(`The ${this.formattedName()} does nothing.`, Colors.RED)
     }];
   }
 
   update (): Message[] | null {
     if (this.isDead()) {
+      // Set the flag for this object to be removed from game.activeEnemies
+      this.isActive = false;
       return [<Message>{
         color: Colors.RED,
         text: `The ${this.formattedName()} has perished.`

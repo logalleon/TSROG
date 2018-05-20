@@ -13,12 +13,11 @@ interface ActionResponse {
 
 const invalidInput = (keyValue: string): Message => ({
   text: `Unrecognized input '${keyValue}'.`,
-  color: Colors.RED
 });
 
 interface Message {
   text: string,
-  color: Color
+  color?: Color
 }
 
 class Messenger {
@@ -28,7 +27,7 @@ class Messenger {
   public messages: Message[];
   
   private htmlWrapper = 'p';
-  private colorSegmentWrapper = 'span';
+  public static colorSegmentWrapper = 'span';
   private maxMessages: number;
 
   private colorStartDelimiter = '<<';
@@ -52,8 +51,8 @@ class Messenger {
       } */
       this.messages = this.messages.concat(newMessages);
       const html = [this.el.innerHTML].concat(newMessages.map((message) => (`
-        <${this.htmlWrapper} style='color: ${message.color.val()}'>
-          ${this.formatText(message.text)}
+        <${this.htmlWrapper}>
+          ${Messenger.colorize(message.text, Colors.DEFAULT)}
         </${this.htmlWrapper}>
       `)));
       this.el.innerHTML = html.join('');
@@ -73,6 +72,14 @@ class Messenger {
     this.bottomEl.innerText = this.formatText(message.text);
   }
 
+  static colorize (text: string, color: Color) {
+    return `
+      <${Messenger.colorSegmentWrapper} style='color: ${color.val()}'>
+        ${text}
+      </${Messenger.colorSegmentWrapper}>
+    `;
+  }
+
   formatText (text: string): string {
     if (text.indexOf(this.colorStartDelimiter) !== -1) {
       while (text.indexOf(this.colorStartDelimiter) !== -1) {
@@ -86,9 +93,9 @@ class Messenger {
           text.indexOf(this.colorSegmentEndDelimiter)
         );
         segment = `
-          <${this.colorSegmentWrapper} style='color: ${color.val()}'>
+          <${Messenger.colorSegmentWrapper} style='color: ${color.val()}'>
             ${segment}
-          </${this.colorSegmentWrapper}>
+          </${Messenger.colorSegmentWrapper}>
         `;
         let start = text.slice(0, text.indexOf(this.colorStartDelimiter));
         let tail = text.slice(text.indexOf(this.colorSegmentEndDelimiter) + this.colorSegmentEndDelimiter.length);
@@ -125,4 +132,4 @@ class Messenger {
   }
 }
 
-export { Status, ActionResponse, invalidInput, Messenger, Message }
+export { Status, ActionResponse, invalidInput, Messenger, Message, }

@@ -17159,12 +17159,15 @@ var Color = /** @class */ (function () {
 exports.Color = Color;
 var Colors = {
     RED: new Color({ html: 'red' }),
-    GREEN: new Color({ html: 'kellygreen' }),
+    GREEN: new Color({ html: 'green' }),
     VIOLET: new Color({ html: 'violet' }),
     WHITE: new Color({ html: 'white' }),
     DEFAULT: new Color({ html: 'white' }),
     ORANGE: new Color({ html: 'orange' }),
-    SLATEBLUE: new Color({ html: 'slate blue' })
+    SLATEBLUE: new Color({ html: 'slateblue' }),
+    DAMAGE_DEFAULT: new Color({ html: 'tomato' }),
+    DAMAGE_MASSIVE: new Color({ html: 'fuchsia' }),
+    TARGET_DEFAULT: new Color({ html: 'khaki' })
 };
 exports.Colors = Colors;
 
@@ -17216,7 +17219,10 @@ var __extends = (this && this.__extends) || (function () {
 })();
 exports.__esModule = true;
 var Actor_1 = require("./Actor");
+var Message_1 = require("../../Message/Message");
 var Color_1 = require("../../Canvas/Color");
+var colorize = Message_1.Messenger.colorize;
+var MASSIVE_DAMAGE_THRESHOLD = .30;
 var Enemy = /** @class */ (function (_super) {
     __extends(Enemy, _super);
     function Enemy(options) {
@@ -17228,16 +17234,19 @@ var Enemy = /** @class */ (function (_super) {
                 _this[key] = options[key];
             }
         }
+        _this.massiveDamageThreshold = Math.ceil(_this.hp * MASSIVE_DAMAGE_THRESHOLD);
         return _this;
     }
     Enemy.prototype.act = function () {
         return [{
                 color: Color_1.Colors.DEFAULT,
-                text: "The " + this.formattedName() + " does nothing."
+                text: colorize("The " + this.formattedName() + " does nothing.", Color_1.Colors.RED)
             }];
     };
     Enemy.prototype.update = function () {
         if (this.isDead()) {
+            // Set the flag for this object to be removed from game.activeEnemies
+            this.isActive = false;
             return [{
                     color: Color_1.Colors.RED,
                     text: "The " + this.formattedName() + " has perished."
@@ -17256,7 +17265,7 @@ var Enemy = /** @class */ (function (_super) {
 }(Actor_1.Actor));
 exports.Enemy = Enemy;
 
-},{"../../Canvas/Color":3,"./Actor":4}],6:[function(require,module,exports){
+},{"../../Canvas/Color":3,"../../Message/Message":14,"./Actor":4}],6:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -17270,7 +17279,9 @@ var __extends = (this && this.__extends) || (function () {
 })();
 exports.__esModule = true;
 var Actor_1 = require("./Actor");
+var Message_1 = require("../../Message/Message");
 var Color_1 = require("../../Canvas/Color");
+var colorize = Message_1.Messenger.colorize;
 var InventoryItems;
 (function (InventoryItems) {
     InventoryItems["AMULETS"] = "amulets";
@@ -17354,12 +17365,14 @@ var Player = /** @class */ (function (_super) {
         this.hasMoveInteracted = true;
         return _super.prototype.attemptAttack.call(this, target);
     };
-    Player.prototype.formatSuccessfulAttack = function (damage, target) {
+    Player.prototype.formatSuccessfulAttack = function (damage, target, isCritical) {
         var weapon = this.equipped[EquipmentSlots.WEAPON];
+        var isMassiveDamage = damage >= target.massiveDamageThreshold;
         if (weapon) {
             return {
                 color: Color_1.Colors.DEFAULT,
-                text: "You strike the " + target.formattedName() + " with your " + weapon.getFormattedName() + " for <<hex:#ff0000>" + damage + ">> damage!"
+                text: "You strike the\n        " + colorize(target.formattedName(), Color_1.Colors.TARGET_DEFAULT) + " with your \n        " + weapon.getFormattedName() + " for \n        " + colorize(String(damage), isMassiveDamage ? Color_1.Colors.DAMAGE_MASSIVE :
+                    Color_1.Colors.DAMAGE_DEFAULT) + " damage!"
             };
         }
         else {
@@ -17380,7 +17393,7 @@ var Player = /** @class */ (function (_super) {
 InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
 exports.Player = Player;
 
-},{"../../Canvas/Color":3,"./Actor":4}],7:[function(require,module,exports){
+},{"../../Canvas/Color":3,"../../Message/Message":14,"./Actor":4}],7:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -17542,16 +17555,15 @@ var Game = /** @class */ (function () {
             if (player.hasMoveInteracted && this.activeEnemies.length) {
                 var enemyActions = this.activeEnemies.map(function (enemy) { return enemy.act(); }).reduce(function (actions, action) { return actions.concat(action); });
                 var enemyUpdates = this.activeEnemies.map(function (enemy) { return enemy.update(); }).reduce(function (updates, update) { return updates.concat(update); });
-                console.log('before', messages);
                 messages = messages.concat(Array.isArray(enemyActions) ? enemyActions : [], Array.isArray(enemyUpdates) ? enemyUpdates : []);
-                console.log('m', messages);
             }
             // See player.update description
             var playerMessages = player.update();
             // Clear the current message window
             this.messenger.clearMessages();
-            console.log(messages);
             this.messenger.logMessages(messages.concat(Array.isArray(playerMessages) ? playerMessages : []));
+            // Update internals of the game
+            this.update();
             // Finally, render what's changed
             this.activeScreen.render(this.ctx);
         }
@@ -17576,6 +17588,17 @@ var Game = /** @class */ (function () {
         this.gameMap.tiles = tiles;
         player.move(nextPos);
     };
+    Game.prototype.update = function () {
+        this.activeEnemies = this.activeEnemies.filter(this.corpsify.bind(this));
+    };
+    Game.prototype.corpsify = function (enemy) {
+        if (enemy.isDead()) {
+            this.gameMap.removeDeadOccupants(enemy.pos);
+            // @TODO generate a bloody mess to inspect
+        }
+        console.log(enemy);
+        return enemy.isActive;
+    };
     return Game;
 }());
 exports["default"] = Game;
@@ -17596,6 +17619,14 @@ var GameMap = /** @class */ (function () {
             v.y >= 0 &&
             v.x < width &&
             v.y < height;
+    };
+    GameMap.prototype.removeDeadOccupants = function (pos) {
+        var x = pos.x, y = pos.y;
+        var occupiers = this.tiles[y][x].occupiers;
+        // Bring out the dead
+        occupiers = occupiers.filter(function (occupier) { return !occupier.isDead(); });
+        this.tiles[y][x].occupiers = occupiers;
+        this.tiles[y][x].isOccupied = Boolean(occupiers.length);
     };
     return GameMap;
 }());
@@ -18037,14 +18068,12 @@ var Status;
 })(Status || (Status = {}));
 exports.Status = Status;
 var invalidInput = function (keyValue) { return ({
-    text: "Unrecognized input '" + keyValue + "'.",
-    color: Color_1.Colors.RED
+    text: "Unrecognized input '" + keyValue + "'."
 }); };
 exports.invalidInput = invalidInput;
 var Messenger = /** @class */ (function () {
     function Messenger(el, bottomEl) {
         this.htmlWrapper = 'p';
-        this.colorSegmentWrapper = 'span';
         this.colorStartDelimiter = '<<';
         this.colorSegmentStartDelimiter = '>';
         this.colorSegmentEndDelimiter = '>>';
@@ -18063,7 +18092,7 @@ var Messenger = /** @class */ (function () {
               this.messages = this.messages.concat(newMessages);
             } */
             this.messages = this.messages.concat(newMessages);
-            var html = [this.el.innerHTML].concat(newMessages.map(function (message) { return ("\n        <" + _this.htmlWrapper + " style='color: " + message.color.val() + "'>\n          " + _this.formatText(message.text) + "\n        </" + _this.htmlWrapper + ">\n      "); }));
+            var html = [this.el.innerHTML].concat(newMessages.map(function (message) { return ("\n        <" + _this.htmlWrapper + ">\n          " + Messenger.colorize(message.text, Color_1.Colors.DEFAULT) + "\n        </" + _this.htmlWrapper + ">\n      "); }));
             this.el.innerHTML = html.join('');
         }
     };
@@ -18077,13 +18106,16 @@ var Messenger = /** @class */ (function () {
         this.bottomEl.style.color = message.color.val();
         this.bottomEl.innerText = this.formatText(message.text);
     };
+    Messenger.colorize = function (text, color) {
+        return "\n      <" + Messenger.colorSegmentWrapper + " style='color: " + color.val() + "'>\n        " + text + "\n      </" + Messenger.colorSegmentWrapper + ">\n    ";
+    };
     Messenger.prototype.formatText = function (text) {
         if (text.indexOf(this.colorStartDelimiter) !== -1) {
             while (text.indexOf(this.colorStartDelimiter) !== -1) {
                 var _a = text.slice(text.indexOf(this.colorStartDelimiter) + this.colorStartDelimiter.length, text.indexOf(this.colorSegmentStartDelimiter)).split(this.colorKeyValuePairDelimiter), key = _a[0], value = _a[1];
                 var color = new Color_1.Color((_b = {}, _b[key] = value, _b));
                 var segment = text.slice(text.indexOf(this.colorSegmentStartDelimiter) + this.colorSegmentStartDelimiter.length, text.indexOf(this.colorSegmentEndDelimiter));
-                segment = "\n          <" + this.colorSegmentWrapper + " style='color: " + color.val() + "'>\n            " + segment + "\n          </" + this.colorSegmentWrapper + ">\n        ";
+                segment = "\n          <" + Messenger.colorSegmentWrapper + " style='color: " + color.val() + "'>\n            " + segment + "\n          </" + Messenger.colorSegmentWrapper + ">\n        ";
                 var start = text.slice(0, text.indexOf(this.colorStartDelimiter));
                 var tail = text.slice(text.indexOf(this.colorSegmentEndDelimiter) + this.colorSegmentEndDelimiter.length);
                 text = "" + start + segment + tail;
@@ -18110,6 +18142,7 @@ var Messenger = /** @class */ (function () {
             color: Color_1.Colors.DEFAULT
         });
     };
+    Messenger.colorSegmentWrapper = 'span';
     return Messenger;
 }());
 exports.Messenger = Messenger;
@@ -18745,7 +18778,7 @@ window.onload = function () {
         pos: new Vector_1["default"](2, 1),
         isActive: true,
         color: new Color_1.Color({ hex: '#3300ff' }),
-        hp: 12,
+        hp: 6,
         ac: 10,
         char: 'L',
         damage: '1d6',

@@ -8,9 +8,11 @@ import { Ring } from '../Prop/Ring';
 import { Scroll } from '../Prop/Scroll';
 import { Weapon } from '../Prop/Weapon';
 import { Prop } from '../Prop/Prop';
-import { Message } from '../../Message/Message';
+import { Message, Messenger } from '../../Message/Message';
 import { Enemy } from './Enemy';
 import { Colors } from '../../Canvas/Color';
+
+const { colorize } = Messenger;
 
 enum InventoryItems {
   AMULETS = 'amulets',
@@ -128,12 +130,19 @@ class Player extends Actor {
     return super.attemptAttack(target);
   }
 
-  formatSuccessfulAttack (damage: number, target: Enemy): Message {
+  formatSuccessfulAttack (damage: number, target: Enemy, isCritical?: boolean): Message {
     const weapon = this.equipped[EquipmentSlots.WEAPON];
+    const isMassiveDamage = damage >= target.massiveDamageThreshold;
     if (weapon) {
       return <Message>{
         color: Colors.DEFAULT,
-        text: `You strike the ${target.formattedName()} with your ${weapon.getFormattedName()} for <<hex:#ff0000>${damage}>> damage!`
+        text: `You strike the
+        ${colorize(target.formattedName(), Colors.TARGET_DEFAULT)} with your 
+        ${weapon.getFormattedName()} for 
+        ${colorize(
+          String(damage),
+          isMassiveDamage ? Colors.DAMAGE_MASSIVE :
+          Colors.DAMAGE_DEFAULT)} damage!`
       }
     } else {
       return <Message>{

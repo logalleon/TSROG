@@ -181,7 +181,7 @@ window.onload = () => {
     pos: new Vector2(2, 1),
     isActive: true,
     color: new Color({ hex: '#3300ff'}),
-    hp: 12,
+    hp: 6,
     ac: 10,
     char: 'L',
     damage: '1d6',

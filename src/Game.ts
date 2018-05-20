@@ -5,6 +5,7 @@ import { CanvasProps } from './Canvas/Canvas';
 import { Player } from './Entity/Actor/Player';
 import Vector2 from './Vector';
 import { Messenger, Message } from './Message/Message';
+import { Enemy } from './Entity/Actor/Enemy';
 
 class Game {
 
@@ -81,20 +82,20 @@ class Game {
       if (player.hasMoveInteracted && this.activeEnemies.length) {
         const enemyActions = this.activeEnemies.map(enemy => enemy.act()).reduce((actions, action) => actions.concat(action));
         const enemyUpdates = this.activeEnemies.map(enemy => enemy.update()).reduce((updates, update) => updates.concat(update));
-        console.log('before', messages);
         messages = messages.concat(
           Array.isArray(enemyActions) ? enemyActions : [],
           Array.isArray(enemyUpdates) ? enemyUpdates : []
         );
-        console.log('m', messages);
       }
 
       // See player.update description
       const playerMessages = player.update();
       // Clear the current message window
       this.messenger.clearMessages();
-      console.log(messages);
       this.messenger.logMessages(messages.concat(Array.isArray(playerMessages) ? playerMessages : []));
+
+      // Update internals of the game
+      this.update();
 
       // Finally, render what's changed
       this.activeScreen.render(this.ctx);
@@ -120,6 +121,18 @@ class Game {
     // @TODO revisit above
     this.gameMap.tiles = tiles;
     player.move(nextPos);
+  }
+
+  update () {
+    this.activeEnemies = this.activeEnemies.filter(this.corpsify.bind(this));
+  }
+
+  corpsify (enemy: Enemy): boolean {
+    if (enemy.isDead()) {
+      this.gameMap.removeDeadOccupants(enemy.pos);
+      // @TODO generate a bloody mess to inspect
+    }
+    return enemy.isActive;
   }
 }
 

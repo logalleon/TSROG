@@ -27,12 +27,15 @@ class Color implements IColor {
 
 const Colors = {
   RED: new Color({ html: 'red' }),
-  GREEN: new Color({ html: 'kellygreen' }),
+  GREEN: new Color({ html: 'green' }),
   VIOLET: new Color({ html: 'violet' }),
   WHITE: new Color({ html: 'white' }),
-  DEFAULT: new Color({ html: 'white' }), // fontOptions.fontColor??
+  DEFAULT: new Color({ html: 'white' }),
   ORANGE: new Color({ html: 'orange' }),
-  SLATEBLUE: new Color({ html: 'slate blue' })
+  SLATEBLUE: new Color({ html: 'slateblue' }),
+  DAMAGE_DEFAULT: new Color({ html: 'tomato' }),
+  DAMAGE_MASSIVE: new Color({ html: 'fuchsia' }),
+  TARGET_DEFAULT: new Color({ html: 'khaki' })
 };
 
 export { IColor, Color, Colors };

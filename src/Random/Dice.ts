@@ -14,7 +14,6 @@ const rollDice = (dice: string): number => {
   let roll = 0;
   const [die, bonus] = dice.split('+');
   const [iterations, range] = die.split('d');
-  console.log(die, bonus, iterations, range);
   for (let i = 0; i < (iterations ? Number(iterations) : 1); i++) {
     roll += randomInt(1, range);
   }

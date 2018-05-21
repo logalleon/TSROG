@@ -35,7 +35,9 @@ const Colors = {
   SLATEBLUE: new Color({ html: 'slateblue' }),
   DAMAGE_DEFAULT: new Color({ html: 'tomato' }),
   DAMAGE_MASSIVE: new Color({ html: 'fuchsia' }),
-  TARGET_DEFAULT: new Color({ html: 'khaki' })
+  TARGET_DEFAULT: new Color({ html: 'khaki' }),
+  DEATH_DEFAULT: new Color({ html: 'indianred'}),
+  MISS_DEFAULT: new Color({ html: 'darkviolet' })
 };
 
 export { IColor, Color, Colors };

@@ -69,7 +69,7 @@ window.onload = () => {
     new InventoryItemScreen(ScreenNames.AMULET, InventoryItems.AMULETS),
     new InventoryItemScreen(ScreenNames.ARMOR, InventoryItems.ARMOR),
     new InventoryItemScreen(ScreenNames.FOOD, InventoryItems.FOOD),
-    new InventoryItemScreen(ScreenNames.KEYS, InventoryItems.KEYs),
+    new InventoryItemScreen(ScreenNames.KEYS, InventoryItems.KEYS),
     new InventoryItemScreen(ScreenNames.POTIONS, InventoryItems.POTIONS),
     new InventoryItemScreen(ScreenNames.RING, InventoryItems.RINGS),
     new InventoryItemScreen(ScreenNames.SCROLL, InventoryItems.SCROLLS),
@@ -178,7 +178,7 @@ window.onload = () => {
   g.updatePlayerPos(player, player.pos);
 
   const aops: ActorOptions = {
-    pos: new Vector2(2, 1),
+    pos: new Vector2(3, 3),
     isActive: true,
     color: new Color({ hex: '#3300ff'}),
     hp: 6,
@@ -194,19 +194,31 @@ window.onload = () => {
     descriptor: 'Icy'
   };
 
-  const enemyOpts: EnemyOptions = {
+  let enemyOpts: EnemyOptions = {
     actorOptions: aops,
     name: 'Salamander',
     enemyType
   };
 
-  const e = new Enemy(enemyOpts);
+  let e = new Enemy(enemyOpts);
   e.isActive = true;
   g.activeEnemies.push(e);
   g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
   g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];
 
+  enemyOpts.actorOptions.pos = new Vector2(4, 4);
+  e = new Enemy(enemyOpts);
+  e.isActive = true;
+  g.activeEnemies.push(e);
+  g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
+  g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];
+
+  g.gameMap.setGame(g);
+  g.gameMap.initializeEasyStar();
+
   g.activeScreen.render(g.ctx);
   g.messenger.logMessages([{ text: 'This is the map screen', color: Colors.DEFAULT }]);
+  g.gameMap.updateEasystarTiles();
+
   window.game = g;
 };

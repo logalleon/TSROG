@@ -120,7 +120,7 @@ class Messenger {
         </${this.htmlWrapper}>
       `));
     }
-    this.el.innerHTML = html.join('');
+    this.el.innerHTML = html.map(String.prototype.trim).join('');
   }
 
   renderSpaceToContinue (): void {

@@ -3,6 +3,8 @@ import Vector2 from '../../Vector';
 import { Color } from '../../Canvas/Color';
 import { Message } from '../../Message/Message';
 import { rollDice, StandardDice } from '../../Random/Dice';
+import Game from '../../Game';
+import { Promise as Bluebird } from 'bluebird';
 
 interface ActorOptions {
   pos: Vector2,
@@ -15,6 +17,10 @@ interface ActorOptions {
   cth: number,
   canMove?: boolean,
   canAttack?: boolean
+}
+
+enum AttackRange {
+  MELEE = 1
 }
 
 class Actor implements Entity {
@@ -43,6 +49,11 @@ class Actor implements Entity {
     return null;
   }
 
+  // @TODO maybe revisit later
+  actAsync (): Promise<Message[] | null> {
+    return new Bluebird((resolve) => resolve(null));
+  }
+
   move (destination: Vector2) {
     this.pos = destination;
   }
@@ -64,4 +75,4 @@ class Actor implements Entity {
 
 }
 
-export { Actor, ActorOptions };
+export { Actor, ActorOptions, AttackRange };

@@ -13,6 +13,8 @@ class Game {
 
   public gameMap: GameMap;
 
+  public static instance: Game | null = null;
+
   public screens: Screen[];
   public activeScreen: Screen;
 
@@ -34,6 +36,13 @@ class Game {
       el: HTMLElement,
       bottomEl: HTMLElement
     ) {
+
+    if (Game.instance !== null) {
+      throw 'Critical error! Two game instances';
+    } else {
+      Game.instance = this;
+    }
+
     this.player = player;
     this.gameMap = gameMap;
     this.screens = screens;
@@ -70,8 +79,6 @@ class Game {
       // Handle the player input first. The player gets priority for everything
       const inputMessages = this.activeScreen.handleInput(char);
       let messages: Message[] = Array.isArray(inputMessages) ? inputMessages : [];
-      console.log('input Message', inputMessages, messages);
-      console.log(player.hasMoveInteracted, this.activeEnemies.length);
 
       /**
        * If the player has either moved or interacted with an interactable object,
@@ -82,6 +89,7 @@ class Game {
       if (player.hasMoveInteracted && this.activeEnemies.length) {
         const enemyActions = this.activeEnemies.map(enemy => enemy.act()).reduce((actions, action) => actions.concat(action));
         const enemyUpdates = this.activeEnemies.map(enemy => enemy.update()).reduce((updates, update) => updates.concat(update));
+        console.log('enemy actions');
         messages = messages.concat(
           Array.isArray(enemyActions) ? enemyActions : [],
           Array.isArray(enemyUpdates) ? enemyUpdates : []
@@ -96,6 +104,8 @@ class Game {
 
       // Update internals of the game
       this.update();
+
+      console.log(this.gameMap.tiles);
 
       // Finally, render what's changed
       this.activeScreen.render(this.ctx);

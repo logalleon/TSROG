@@ -10,6 +10,8 @@
   "author": "Logan H. Sobczak",
   "license": "MIT",
   "dependencies": {
+    "bluebird": "^3.5.1",
+    "easystarjs": "^0.4.3",
     "lodash": "^4.17.10",
     "tsify": "^3.0.4",
     "typescript": "^2.8.1"

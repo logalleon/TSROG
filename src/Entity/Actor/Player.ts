@@ -11,6 +11,7 @@ import { Prop } from '../Prop/Prop';
 import { Message, Messenger } from '../../Message/Message';
 import { Enemy } from './Enemy';
 import { Colors } from '../../Canvas/Color';
+import Game from '../../Game';
 
 const { colorize } = Messenger;
 
@@ -18,7 +19,7 @@ enum InventoryItems {
   AMULETS = 'amulets',
   ARMOR = 'armor',
   FOOD = 'food',
-  KEYs = 'keys',
+  KEYS = 'keys',
   POTIONS = 'potions',
   RINGS = 'rings',
   SCROLLS = 'scrolls',
@@ -58,6 +59,7 @@ interface EquippedItemAccessor {
 class Player extends Actor {
 
   public hasMoveInteracted: boolean = false;
+  public hasMoved: boolean = false;
 
   public [InventoryItems.AMULETS]: Amulet[];
   public [InventoryItems.ARMOR]: Armor[];
@@ -94,6 +96,7 @@ class Player extends Actor {
    */
   update (): Message[] {
     this.hasMoveInteracted = false;
+    this.hasMoved = false;
     return [];
   }
 
@@ -117,8 +120,15 @@ class Player extends Actor {
    * @param destination {Vector2}
    */
   move (destination: Vector2) {
-    this.pos = destination;
+    super.move(destination);
+    // Set the player tile to open
+    const { gameMap } = Game.instance;
+    // When the game first starts, this may not yet be initialized
+    if (gameMap.easystar) {
+      gameMap.setTileToOpen(destination);
+    }
     this.hasMoveInteracted = true;
+    this.hasMoved = true;
   }
 
   /**
@@ -146,7 +156,7 @@ class Player extends Actor {
       }
     } else {
       return <Message>{
-        text: `You strike the ${target.formattedName()} for your bare hands for ${damage} damage!`,
+        text: `You strike the ${target.formattedName()} ${target.formattedChar()} for your bare hands for ${damage} damage!`,
         color: Colors.DEFAULT
       };
     }
@@ -155,7 +165,11 @@ class Player extends Actor {
   formatUnsuccessfulAttack (target: Enemy): Message {
     return <Message>{
       color: Colors.DEFAULT,
-      text: `You attempt to attack the ${target.formattedName()} but it evades your blows!`
+      text: `
+        You attempt to attack the 
+        ${target.formattedName()} ${target.formattedChar()}
+        ${colorize(` but it evades your blows!`, Colors.MISS_DEFAULT)}
+      `
     }
   }
 

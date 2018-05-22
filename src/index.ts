@@ -18,6 +18,8 @@ import CommandScreen from './Screen/CommandScreen';
 import { Color, Colors } from './Canvas/Color';
 import { Enemy, IEnemyType, EnemyOptions } from './Entity/Actor/Enemy';
 import { StandardDice } from './Random/Dice';
+import { EnemySpawner } from './Entity/Actor/EnemySpawner';
+import { CreatureTypes } from './Entity/Actor/Enemy.data';
 
 const height = 240;
 const width = 600;
@@ -177,38 +179,16 @@ window.onload = () => {
   player.attemptToEquip({ index: 0, type: InventoryItems.WEAPONS }, EquipmentSlots.WEAPON);
   g.updatePlayerPos(player, player.pos);
 
-  const aops: ActorOptions = {
-    pos: new Vector2(3, 3),
-    isActive: true,
-    color: new Color({ hex: '#3300ff'}),
-    hp: 6,
-    ac: 10,
-    char: 'L',
-    damage: '1d6',
-    cth: 5
-  };
+  const spawner: EnemySpawner = new EnemySpawner();
+  console.log(spawner);
 
-  const enemyType: IEnemyType = {
-    creatureType: 'Lizard',
-    variant: null,
-    descriptor: 'Icy'
-  };
-
-  let enemyOpts: EnemyOptions = {
-    actorOptions: aops,
-    name: 'Salamander',
-    enemyType
-  };
-
-  let e = new Enemy(enemyOpts);
+  const e = spawner.createEnemyByCreatureType(CreatureTypes.UNDEAD);
+  e.pos = new Vector2(3, 3);
   e.isActive = true;
   g.activeEnemies.push(e);
   g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
   g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];
 
-  enemyOpts.actorOptions.pos = new Vector2(4, 4);
-  e = new Enemy(enemyOpts);
-  e.isActive = true;
   g.activeEnemies.push(e);
   g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
   g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];

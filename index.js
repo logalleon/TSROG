@@ -1,190 +1,4 @@
-(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],2:[function(require,module,exports){
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,global){
 /* @preserve
  * The MIT License (MIT)
@@ -5810,7 +5624,7 @@ module.exports = ret;
 },{"./es5":13}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":1}],3:[function(require,module,exports){
+},{"_process":31}],2:[function(require,module,exports){
 /**
 *   EasyStar.js
 *   github.com/prettymuchbryce/EasyStarJS
@@ -6372,7 +6186,7 @@ EasyStar.BOTTOM_LEFT = 'BOTTOM_LEFT'
 EasyStar.LEFT = 'LEFT'
 EasyStar.TOP_LEFT = 'TOP_LEFT'
 
-},{"./instance":4,"./node":5,"heap":6}],4:[function(require,module,exports){
+},{"./instance":3,"./node":4,"heap":5}],3:[function(require,module,exports){
 /**
  * Represents a single instance of EasyStar.
  * A path that is in the queue to eventually be found.
@@ -6387,7 +6201,7 @@ module.exports = function() {
     this.nodeHash = {};
     this.openList;
 };
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /**
 * A simple Node that represents a single tile on the grid.
 * @param {Object} parent The parent node.
@@ -6410,10 +6224,10 @@ module.exports = function(parent, x, y, costSoFar, simpleDistanceToTarget) {
         return this.costSoFar + this.simpleDistanceToTarget;
     }
 };
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 module.exports = require('./lib/heap');
 
-},{"./lib/heap":7}],7:[function(require,module,exports){
+},{"./lib/heap":6}],6:[function(require,module,exports){
 // Generated by CoffeeScript 1.8.0
 (function() {
   var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
@@ -6790,7 +6604,7 @@ module.exports = require('./lib/heap');
 
 }).call(this);
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -23899,7 +23713,7 @@ module.exports = require('./lib/heap');
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var fontSize = 14;
@@ -23934,7 +23748,7 @@ var setupCanvas = function (canvas, height, width) {
 };
 exports.setupCanvas = setupCanvas;
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Color = /** @class */ (function () {
@@ -23956,7 +23770,7 @@ var Colors = {
     WHITE: new Color({ html: 'white' }),
     DEFAULT: new Color({ html: 'white' }),
     ORANGE: new Color({ html: 'orange' }),
-    SLATEBLUE: new Color({ html: 'slateblue' }),
+    INDIGO: new Color({ html: 'indigo' }),
     DAMAGE_DEFAULT: new Color({ html: 'tomato' }),
     DAMAGE_MASSIVE: new Color({ html: 'fuchsia' }),
     TARGET_DEFAULT: new Color({ html: 'khaki' }),
@@ -23965,7 +23779,7 @@ var Colors = {
 };
 exports.Colors = Colors;
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../../Random/Dice");
@@ -23977,6 +23791,8 @@ var AttackRange;
 exports.AttackRange = AttackRange;
 var Actor = /** @class */ (function () {
     function Actor(options) {
+        this.isActive = false;
+        this.cth = 0;
         this.canMove = true;
         this.canAttack = true;
         for (var key in options) {
@@ -24009,7 +23825,71 @@ var Actor = /** @class */ (function () {
 }());
 exports.Actor = Actor;
 
-},{"../../Random/Dice":22,"bluebird":2}],12:[function(require,module,exports){
+},{"../../Random/Dice":23,"bluebird":1}],11:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var Dice_1 = require("../../Random/Dice");
+var Color_1 = require("../../Canvas/Color");
+var CreatureTypes;
+(function (CreatureTypes) {
+    CreatureTypes["UNDEAD"] = "undead";
+    CreatureTypes["BEAST"] = "beast";
+})(CreatureTypes || (CreatureTypes = {}));
+exports.CreatureTypes = CreatureTypes;
+var BEAST = CreatureTypes.BEAST, UNDEAD = CreatureTypes.UNDEAD;
+var baseEnemies = [
+    {
+        name: 'Salamander',
+        cr: 1,
+        enemyType: {
+            creatureType: BEAST,
+            variant: null,
+            descriptor: 'Frozen'
+        },
+        actorOptions: {
+            color: Color_1.Colors.INDIGO,
+            hp: 6,
+            ac: 7,
+            char: 'S',
+            damage: Dice_1.StandardDice.d2
+        }
+    },
+    {
+        name: 'Iguana',
+        cr: 1,
+        enemyType: {
+            creatureType: BEAST,
+            variant: null,
+            descriptor: 'Lurid'
+        },
+        actorOptions: {
+            color: Color_1.Colors.RED,
+            hp: 6,
+            ac: 7,
+            char: 'l',
+            damage: Dice_1.StandardDice.d2
+        }
+    },
+    {
+        name: 'Skeleton',
+        cr: 1,
+        enemyType: {
+            creatureType: UNDEAD,
+            variant: null,
+            descriptor: ''
+        },
+        actorOptions: {
+            color: Color_1.Colors.GREEN,
+            hp: 5,
+            ac: 6,
+            char: 'k',
+            damage: Dice_1.StandardDice.d2
+        }
+    }
+];
+exports.baseEnemies = baseEnemies;
+
+},{"../../Canvas/Color":9,"../../Random/Dice":23}],12:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24136,7 +24016,59 @@ var Enemy = /** @class */ (function (_super) {
 }(Actor_1.Actor));
 exports.Enemy = Enemy;
 
-},{"../../Canvas/Color":10,"../../Game":18,"../../Message/Message":21,"./Actor":11}],13:[function(require,module,exports){
+},{"../../Canvas/Color":9,"../../Game":19,"../../Message/Message":22,"./Actor":10}],13:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var Enemy_1 = require("../Actor/Enemy");
+var Enemy_data_1 = require("./Enemy.data");
+var Dice_1 = require("../../Random/Dice");
+var EnemySpawner = /** @class */ (function () {
+    function EnemySpawner() {
+        // this.baseEnemies = this.loadEnemies();
+        this.baseEnemies = Enemy_data_1.baseEnemies;
+        this.generateEnemyHashMaps();
+    }
+    EnemySpawner.prototype.generateEnemyHashMaps = function () {
+        var _this = this;
+        this.enemiesByCR = {};
+        this.enemiesByCreatureType = {};
+        this.baseEnemies.forEach(function (enemy) {
+            var cr = enemy.cr, enemyType = enemy.enemyType;
+            var creatureType = enemyType.creatureType;
+            _this.enemiesByCR[cr] ?
+                _this.enemiesByCR[cr].push(enemy) :
+                _this.enemiesByCR[cr] = [enemy];
+            _this.enemiesByCreatureType[creatureType] ?
+                _this.enemiesByCreatureType[creatureType].push(enemy) :
+                _this.enemiesByCreatureType[creatureType] = [enemy];
+        });
+    };
+    EnemySpawner.prototype.generateVariantEnemy = function (base) {
+        return base;
+    };
+    EnemySpawner.prototype.createEnemyByCr = function (cr) {
+        if (this.enemiesByCR[cr]) {
+            var options = Dice_1.pluck(this.enemiesByCR[cr]);
+            return new Enemy_1.Enemy(options);
+        }
+        else {
+            console.log('No enemies by that cr');
+        }
+    };
+    EnemySpawner.prototype.createEnemyByCreatureType = function (creatureType) {
+        if (this.enemiesByCreatureType[creatureType]) {
+            var options = Dice_1.pluck(this.enemiesByCreatureType[creatureType]);
+            return new Enemy_1.Enemy(options);
+        }
+        else {
+            console.log('No enemies by that creature type');
+        }
+    };
+    return EnemySpawner;
+}());
+exports.EnemySpawner = EnemySpawner;
+
+},{"../../Random/Dice":23,"../Actor/Enemy":12,"./Enemy.data":11}],14:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24274,7 +24206,7 @@ var Player = /** @class */ (function (_super) {
 InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
 exports.Player = Player;
 
-},{"../../Canvas/Color":10,"../../Game":18,"../../Message/Message":21,"./Actor":11}],14:[function(require,module,exports){
+},{"../../Canvas/Color":9,"../../Game":19,"../../Message/Message":22,"./Actor":10}],15:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24303,7 +24235,7 @@ var Armor = /** @class */ (function (_super) {
 }(Prop_1.Prop));
 exports.Armor = Armor;
 
-},{"./Prop":16}],15:[function(require,module,exports){
+},{"./Prop":17}],16:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Quality;
@@ -24331,7 +24263,7 @@ var EMaterialSubtype;
 (function (EMaterialSubtype) {
 })(EMaterialSubtype || (EMaterialSubtype = {}));
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Prop = /** @class */ (function () {
@@ -24344,7 +24276,7 @@ var Prop = /** @class */ (function () {
 }());
 exports.Prop = Prop;
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24382,7 +24314,7 @@ var Weapon = /** @class */ (function (_super) {
 }(Prop_1.Prop));
 exports.Weapon = Weapon;
 
-},{"./Prop":16}],18:[function(require,module,exports){
+},{"./Prop":17}],19:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Input_1 = require("./Input");
@@ -24490,7 +24422,7 @@ var Game = /** @class */ (function () {
 }());
 exports["default"] = Game;
 
-},{"./Input":20,"./Message/Message":21}],19:[function(require,module,exports){
+},{"./Input":21,"./Message/Message":22}],20:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var easystarjs_1 = require("easystarjs");
@@ -24583,7 +24515,7 @@ var GameMap = /** @class */ (function () {
 }());
 exports.GameMap = GameMap;
 
-},{"easystarjs":3}],20:[function(require,module,exports){
+},{"easystarjs":2}],21:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var keyCodeToChar = {
@@ -25007,7 +24939,7 @@ var mapKeyPressToActualCharacter = function (isShiftKey, characterCode) {
 };
 exports.mapKeyPressToActualCharacter = mapKeyPressToActualCharacter;
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Color_1 = require("../Canvas/Color");
@@ -25098,7 +25030,7 @@ var Messenger = /** @class */ (function () {
 }());
 exports.Messenger = Messenger;
 
-},{"../Canvas/Canvas":9,"../Canvas/Color":10}],22:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9}],23:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var StandardDice;
@@ -25124,8 +25056,12 @@ var rollDice = function (dice) {
     return roll + (bonus ? Number(bonus) : 0);
 };
 exports.rollDice = rollDice;
+var pluck = function (arr) {
+    return arr[randomInt(0, arr.length - 1)];
+};
+exports.pluck = pluck;
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25189,7 +25125,7 @@ var CommandScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = CommandScreen;
 
-},{"../Canvas/Canvas":9,"../Canvas/Color":10,"../Entity/Actor/Player":13,"./MapScreen":26,"./Screen":27,"lodash":8}],24:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Entity/Actor/Player":14,"./MapScreen":27,"./Screen":28,"lodash":7}],25:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25245,7 +25181,7 @@ var InventoryItemScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryItemScreen;
 
-},{"../Canvas/Canvas":9,"../Canvas/Color":10,"./Screen":27}],25:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9,"./Screen":28}],26:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25296,7 +25232,7 @@ var InventoryScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Canvas":9,"../Canvas/Color":10,"../Entity/Actor/Player":13,"./Screen":27}],26:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Entity/Actor/Player":14,"./Screen":28}],27:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25490,7 +25426,7 @@ var MapScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = MapScreen;
 
-},{"../Canvas/Canvas":9,"../Canvas/Color":10,"../Vector":28,"./Screen":27}],27:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Vector":29,"./Screen":28}],28:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Message_1 = require("../Message/Message");
@@ -25542,7 +25478,7 @@ var Screen = /** @class */ (function () {
 }());
 exports.Screen = Screen;
 
-},{"../Message/Message":21}],28:[function(require,module,exports){
+},{"../Message/Message":22}],29:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Vector2 = /** @class */ (function () {
@@ -25561,7 +25497,7 @@ var Vector2 = /** @class */ (function () {
 }());
 exports["default"] = Vector2;
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("./Game");
@@ -25579,8 +25515,9 @@ var Prop_data_1 = require("./Entity/Prop/Prop.data");
 var InventoryItemScreen_1 = require("./Screen/InventoryItemScreen");
 var CommandScreen_1 = require("./Screen/CommandScreen");
 var Color_1 = require("./Canvas/Color");
-var Enemy_1 = require("./Entity/Actor/Enemy");
 var Dice_1 = require("./Random/Dice");
+var EnemySpawner_1 = require("./Entity/Actor/EnemySpawner");
+var Enemy_data_1 = require("./Entity/Actor/Enemy.data");
 var height = 240;
 var width = 600;
 window.onload = function () {
@@ -25724,34 +25661,14 @@ window.onload = function () {
     player.addToInventory(pickup);
     player.attemptToEquip({ index: 0, type: Player_1.InventoryItems.WEAPONS }, Player_1.EquipmentSlots.WEAPON);
     g.updatePlayerPos(player, player.pos);
-    var aops = {
-        pos: new Vector_1["default"](3, 3),
-        isActive: true,
-        color: new Color_1.Color({ hex: '#3300ff' }),
-        hp: 6,
-        ac: 10,
-        char: 'L',
-        damage: '1d6',
-        cth: 5
-    };
-    var enemyType = {
-        creatureType: 'Lizard',
-        variant: null,
-        descriptor: 'Icy'
-    };
-    var enemyOpts = {
-        actorOptions: aops,
-        name: 'Salamander',
-        enemyType: enemyType
-    };
-    var e = new Enemy_1.Enemy(enemyOpts);
+    var spawner = new EnemySpawner_1.EnemySpawner();
+    console.log(spawner);
+    var e = spawner.createEnemyByCreatureType(Enemy_data_1.CreatureTypes.UNDEAD);
+    e.pos = new Vector_1["default"](3, 3);
     e.isActive = true;
     g.activeEnemies.push(e);
     g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
     g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];
-    enemyOpts.actorOptions.pos = new Vector_1["default"](4, 4);
-    e = new Enemy_1.Enemy(enemyOpts);
-    e.isActive = true;
     g.activeEnemies.push(e);
     g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
     g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];
@@ -25763,4 +25680,190 @@ window.onload = function () {
     window.game = g;
 };
 
-},{"./Canvas/Canvas":9,"./Canvas/Color":10,"./Entity/Actor/Enemy":12,"./Entity/Actor/Player":13,"./Entity/Prop/Armor":14,"./Entity/Prop/Prop.data":15,"./Entity/Prop/Weapon":17,"./Game":18,"./GameMap":19,"./Random/Dice":22,"./Screen/CommandScreen":23,"./Screen/InventoryItemScreen":24,"./Screen/InventoryScreen":25,"./Screen/MapScreen":26,"./Screen/Screen":27,"./Vector":28}]},{},[29]);
+},{"./Canvas/Canvas":8,"./Canvas/Color":9,"./Entity/Actor/Enemy.data":11,"./Entity/Actor/EnemySpawner":13,"./Entity/Actor/Player":14,"./Entity/Prop/Armor":15,"./Entity/Prop/Prop.data":16,"./Entity/Prop/Weapon":18,"./Game":19,"./GameMap":20,"./Random/Dice":23,"./Screen/CommandScreen":24,"./Screen/InventoryItemScreen":25,"./Screen/InventoryScreen":26,"./Screen/MapScreen":27,"./Screen/Screen":28,"./Vector":29}],31:[function(require,module,exports){
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}]},{},[30]);

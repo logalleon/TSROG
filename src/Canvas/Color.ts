@@ -32,7 +32,7 @@ const Colors = {
   WHITE: new Color({ html: 'white' }),
   DEFAULT: new Color({ html: 'white' }),
   ORANGE: new Color({ html: 'orange' }),
-  SLATEBLUE: new Color({ html: 'slateblue' }),
+  INDIGO: new Color({ html: 'indigo' }),
   DAMAGE_DEFAULT: new Color({ html: 'tomato' }),
   DAMAGE_MASSIVE: new Color({ html: 'fuchsia' }),
   TARGET_DEFAULT: new Color({ html: 'khaki' }),

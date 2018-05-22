@@ -20,4 +20,8 @@ const rollDice = (dice: string): number => {
   return roll + (bonus ? Number(bonus) : 0);
 };
 
-export { rollDice, StandardDice, randomInt };
+const pluck = (arr: Array<any>): any => {
+  return arr[randomInt(0, arr.length - 1)];
+}
+
+export { rollDice, StandardDice, randomInt, pluck };

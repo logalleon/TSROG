@@ -7,14 +7,14 @@ import Game from '../../Game';
 import { Promise as Bluebird } from 'bluebird';
 
 interface ActorOptions {
-  pos: Vector2,
-  isActive: boolean,
+  pos?: Vector2,
+  isActive?: boolean,
   color: Color,
   char: string,
   hp: number,
   ac: number,
   damage: string,
-  cth: number,
+  cth?: number,
   canMove?: boolean,
   canAttack?: boolean
 }
@@ -26,7 +26,7 @@ enum AttackRange {
 class Actor implements Entity {
 
   public pos: Vector2;
-  public isActive: boolean;
+  public isActive: boolean = false;
   public color: Color;
   public char: string;
 
@@ -34,7 +34,7 @@ class Actor implements Entity {
   public ac: number;
 
   public damage: string;
-  public cth: number;
+  public cth: number = 0;
 
   public canMove: boolean = true;
   public canAttack: boolean = true;

@@ -1,18 +1,21 @@
-import { Enemy, IEnemyType } from '../Actor/Enemy';
+import { Enemy, IEnemyType, EnemyOptions } from '../Actor/Enemy';
+import { baseEnemies, CreatureTypes } from './Enemy.data';
+import { randomInt, pluck } from '../../Random/Dice';
 
 interface EnemyHashMap {
-  [key: string]: Enemy[]
+  [key: string]: EnemyOptions[]
 }
 
 class EnemySpawner {
 
-  public baseEnemies: Enemy[];
+  public baseEnemies: EnemyOptions[];
 
   public enemiesByCR: EnemyHashMap;
   public enemiesByCreatureType: EnemyHashMap;
 
   constructor () {
     // this.baseEnemies = this.loadEnemies();
+    this.baseEnemies = baseEnemies;
     this.generateEnemyHashMaps();
   }
 
@@ -22,13 +25,35 @@ class EnemySpawner {
     this.baseEnemies.forEach((enemy) => {
       const { cr, enemyType } = enemy;
       const { creatureType } = enemyType;
-      this.enemiesByCR[cr] ? this.enemiesByCR[cr].push(enemy) : this.enemiesByCR[cr] = [enemy];
-      this.enemiesByCR[creatureType] ? this.enemiesByCR[creatureType].push(enemy) : this.enemiesByCR[creatureType] = [enemy];
+      this.enemiesByCR[cr] ? 
+        this.enemiesByCR[cr].push(enemy) :
+        this.enemiesByCR[cr] = [enemy];
+      this.enemiesByCreatureType[creatureType] ?
+        this.enemiesByCreatureType[creatureType].push(enemy) :
+        this.enemiesByCreatureType[creatureType] = [enemy];
     });
   }
 
   generateVariantEnemy (base: Enemy): Enemy {
     return base;
+  }
+
+  createEnemyByCr (cr: number): Enemy {
+    if (this.enemiesByCR[cr]) {
+      const options = pluck(this.enemiesByCR[cr]);
+      return new Enemy(options);
+    } else {
+      console.log('No enemies by that cr');
+    }
+  }
+
+  createEnemyByCreatureType (creatureType: CreatureTypes) {
+    if (this.enemiesByCreatureType[creatureType]) {
+      const options = pluck(this.enemiesByCreatureType[creatureType]);
+      return new Enemy(options);
+    } else {
+      console.log('No enemies by that creature type')
+    }
   }
 
 }

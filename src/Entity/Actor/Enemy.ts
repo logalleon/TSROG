@@ -14,6 +14,7 @@ interface EnemyOptions {
   actorOptions: ActorOptions,
   enemyType: IEnemyType,
   name: string,
+  cr: number
 }
 
 interface IEnemyType {
@@ -29,6 +30,7 @@ class Enemy extends Actor {
 
   public name: string;
   public enemyType: IEnemyType;
+  public cr: number;
 
   public massiveDamageThreshold: number;
   public attackRange: AttackRange = AttackRange.MELEE;

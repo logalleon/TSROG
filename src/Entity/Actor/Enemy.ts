@@ -5,6 +5,7 @@ import Vector2 from '../../Vector';
 import Game from '../../Game';
 import { Promise as Bluebird } from 'bluebird';
 import { Player } from './Player';
+import { Variation, Variations, VariantModification } from './Enemy.data';
 
 const { colorize } = Messenger;
 
@@ -15,11 +16,12 @@ interface EnemyOptions {
   enemyType: IEnemyType,
   name: string,
   cr: number
+  xp: number
 }
 
 interface IEnemyType {
   creatureType: string,
-  variant: string | null,
+  variant: Variations | null,
   descriptor: string | null
 }
 
@@ -30,14 +32,19 @@ class Enemy extends Actor {
 
   public name: string;
   public enemyType: IEnemyType;
+
   public cr: number;
+  public xp: number;
 
   public massiveDamageThreshold: number;
   public attackRange: AttackRange = AttackRange.MELEE;
 
   private path: Vector2[];
   
-  constructor (options: EnemyOptions) {
+  constructor (
+    options: EnemyOptions,
+    variation?: Variation
+  ) {
     super(options.actorOptions);
     for (let key in options) {
       if (key !== 'actorOptions') {
@@ -45,37 +52,45 @@ class Enemy extends Actor {
       }
     }
     this.massiveDamageThreshold = Math.ceil(this.hp * MASSIVE_DAMAGE_THRESHOLD);
+    if (variation) {
+      this.applyVariation(variation);
+    }
   }
 
   act ():Message[] | null {
-    const { player } = Game.instance;
-    if (!player.hasMoved) {
-      // If the player hasn't moved but has attacked or used a potion / scroll, attack
-      if (this.inRange()) {
-        return this.targetAndAttemptAttackPlayer(player);
-      // If the player hasn't moved but is still too far away, attempt to move closer
+    console.log('accc')
+    // You can't act if you're dead (points to head)
+    if (!this.isDead()) {
+      const { player } = Game.instance;
+      if (!player.hasMoved) {
+        // If the player hasn't moved but has attacked or used a potion / scroll, attack
+        if (this.inRange()) {
+          return this.targetAndAttemptAttackPlayer(player);
+        // If the player hasn't moved but is still too far away, attempt to move closer
+        } else {
+          this.path = this.getUpdatedPath();
+          const nextPos: Vector2 = this.path[this.path.length - 2];
+          this.move(nextPos);
+          return [];
+        }
+      // Always update the path if the player has moved
       } else {
         this.path = this.getUpdatedPath();
-        const nextPos: Vector2 = this.path[this.path.length - 2];
-        this.move(nextPos);
-        return [];
-      }
-    // Always update the path if the player has moved
-    } else {
-      this.path = this.getUpdatedPath();
-      // The player has moved into range
-      if (this.inRange()) {
-        return this.targetAndAttemptAttackPlayer(player);
-      // The player is still too far away
-      } else {
-        const nextPos: Vector2 = this.path[this.path.length - 2];
-        this.move(nextPos);
-        return [];
+        // The player has moved into range
+        if (this.inRange()) {
+          return this.targetAndAttemptAttackPlayer(player);
+        // The player is still too far away
+        } else {
+          const nextPos: Vector2 = this.path[this.path.length - 2];
+          this.move(nextPos);
+          return [];
+        }
       }
     }
   }
 
   targetAndAttemptAttackPlayer (player: Player): Message[] {
+    console.log('hmmm')
     if (this.attemptAttack(player)) {
       const damage = this.attack(player);
       return [<Message>{
@@ -91,8 +106,23 @@ class Enemy extends Actor {
     }
   }
 
+  applyVariation (variation: Variation) {
+    this.enemyType.variant = variation.name;
+    this.applyModification(variation.xpmod);
+    this.applyModification(variation.crmod);
+    variation.modifications.forEach((attribute) => this.applyModification(attribute));
+  }
+
   inRange (): boolean {
     return this.path.length <= this.attackRange + 1;
+  }
+
+  applyModification (modification: VariantModification): void {
+    const [attribute] = Object.keys(modification);
+    this[attribute] = Math.round(
+      this[attribute] * (modification[attribute].multiply || 1)
+      + (modification[attribute].add || 0)
+    );
   }
 
   /**
@@ -123,7 +153,7 @@ class Enemy extends Actor {
     const { descriptor, variant } = this.enemyType;
     const { name } = this;
     return `${descriptor}
-    ${variant ? ` variant ` : ''}
+    ${variant ? ` ${variant} ` : ''}
     ${name}`;
   }
 

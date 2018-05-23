@@ -23837,10 +23837,40 @@ var CreatureTypes;
 })(CreatureTypes || (CreatureTypes = {}));
 exports.CreatureTypes = CreatureTypes;
 var BEAST = CreatureTypes.BEAST, UNDEAD = CreatureTypes.UNDEAD;
+var Variations;
+(function (Variations) {
+    Variations["FEROCIOUS"] = "ferocious";
+    Variations["CURSED"] = "cursed";
+})(Variations || (Variations = {}));
+exports.Variations = Variations;
+var defaultVariations = (_a = {},
+    _a[Variations.FEROCIOUS] = {
+        name: Variations.FEROCIOUS,
+        xpmod: {
+            xp: {
+                multiply: 1.2
+            }
+        },
+        crmod: {
+            cr: {
+                add: 1
+            }
+        },
+        modifications: [
+            {
+                hp: {
+                    multiply: 1.4
+                }
+            }
+        ]
+    },
+    _a);
+exports.defaultVariations = defaultVariations;
 var baseEnemies = [
     {
         name: 'Salamander',
         cr: 1,
+        xp: 25,
         enemyType: {
             creatureType: BEAST,
             variant: null,
@@ -23857,6 +23887,7 @@ var baseEnemies = [
     {
         name: 'Iguana',
         cr: 1,
+        xp: 25,
         enemyType: {
             creatureType: BEAST,
             variant: null,
@@ -23873,6 +23904,7 @@ var baseEnemies = [
     {
         name: 'Skeleton',
         cr: 1,
+        xp: 40,
         enemyType: {
             creatureType: UNDEAD,
             variant: null,
@@ -23885,9 +23917,27 @@ var baseEnemies = [
             char: 'k',
             damage: Dice_1.StandardDice.d2
         }
+    },
+    {
+        name: 'Zombie',
+        cr: 1,
+        xp: 30,
+        enemyType: {
+            creatureType: UNDEAD,
+            variant: null,
+            descriptor: ''
+        },
+        actorOptions: {
+            color: Color_1.Colors.ORANGE,
+            hp: 6,
+            ac: 6,
+            char: 'ø',
+            damage: Dice_1.StandardDice.d2
+        }
     }
 ];
 exports.baseEnemies = baseEnemies;
+var _a;
 
 },{"../../Canvas/Color":9,"../../Random/Dice":23}],12:[function(require,module,exports){
 "use strict";
@@ -23910,7 +23960,7 @@ var colorize = Message_1.Messenger.colorize;
 var MASSIVE_DAMAGE_THRESHOLD = .30;
 var Enemy = /** @class */ (function (_super) {
     __extends(Enemy, _super);
-    function Enemy(options) {
+    function Enemy(options, variation) {
         var _this = _super.call(this, options.actorOptions) || this;
         _this.isInteractive = true;
         _this.isEnemy = true;
@@ -23921,39 +23971,47 @@ var Enemy = /** @class */ (function (_super) {
             }
         }
         _this.massiveDamageThreshold = Math.ceil(_this.hp * MASSIVE_DAMAGE_THRESHOLD);
+        if (variation) {
+            _this.applyVariation(variation);
+        }
         return _this;
     }
     Enemy.prototype.act = function () {
-        var player = Game_1["default"].instance.player;
-        if (!player.hasMoved) {
-            // If the player hasn't moved but has attacked or used a potion / scroll, attack
-            if (this.inRange()) {
-                return this.targetAndAttemptAttackPlayer(player);
-                // If the player hasn't moved but is still too far away, attempt to move closer
+        console.log('accc');
+        // You can't act if you're dead (points to head)
+        if (!this.isDead()) {
+            var player = Game_1["default"].instance.player;
+            if (!player.hasMoved) {
+                // If the player hasn't moved but has attacked or used a potion / scroll, attack
+                if (this.inRange()) {
+                    return this.targetAndAttemptAttackPlayer(player);
+                    // If the player hasn't moved but is still too far away, attempt to move closer
+                }
+                else {
+                    this.path = this.getUpdatedPath();
+                    var nextPos = this.path[this.path.length - 2];
+                    this.move(nextPos);
+                    return [];
+                }
+                // Always update the path if the player has moved
             }
             else {
                 this.path = this.getUpdatedPath();
-                var nextPos = this.path[this.path.length - 2];
-                this.move(nextPos);
-                return [];
-            }
-            // Always update the path if the player has moved
-        }
-        else {
-            this.path = this.getUpdatedPath();
-            // The player has moved into range
-            if (this.inRange()) {
-                return this.targetAndAttemptAttackPlayer(player);
-                // The player is still too far away
-            }
-            else {
-                var nextPos = this.path[this.path.length - 2];
-                this.move(nextPos);
-                return [];
+                // The player has moved into range
+                if (this.inRange()) {
+                    return this.targetAndAttemptAttackPlayer(player);
+                    // The player is still too far away
+                }
+                else {
+                    var nextPos = this.path[this.path.length - 2];
+                    this.move(nextPos);
+                    return [];
+                }
             }
         }
     };
     Enemy.prototype.targetAndAttemptAttackPlayer = function (player) {
+        console.log('hmmm');
         if (this.attemptAttack(player)) {
             var damage = this.attack(player);
             return [{
@@ -23966,8 +24024,20 @@ var Enemy = /** @class */ (function (_super) {
                 }];
         }
     };
+    Enemy.prototype.applyVariation = function (variation) {
+        var _this = this;
+        this.enemyType.variant = variation.name;
+        this.applyModification(variation.xpmod);
+        this.applyModification(variation.crmod);
+        variation.modifications.forEach(function (attribute) { return _this.applyModification(attribute); });
+    };
     Enemy.prototype.inRange = function () {
         return this.path.length <= this.attackRange + 1;
+    };
+    Enemy.prototype.applyModification = function (modification) {
+        var attribute = Object.keys(modification)[0];
+        this[attribute] = Math.round(this[attribute] * (modification[attribute].multiply || 1)
+            + (modification[attribute].add || 0));
     };
     /**
      * @override
@@ -23995,7 +24065,7 @@ var Enemy = /** @class */ (function (_super) {
     Enemy.prototype.formattedName = function () {
         var _a = this.enemyType, descriptor = _a.descriptor, variant = _a.variant;
         var name = this.name;
-        return descriptor + "\n    " + (variant ? " variant " : '') + "\n    " + name;
+        return descriptor + "\n    " + (variant ? " " + variant + " " : '') + "\n    " + name;
     };
     Enemy.prototype.formattedChar = function () {
         var _a = this, char = _a.char, color = _a.color;
@@ -24046,19 +24116,19 @@ var EnemySpawner = /** @class */ (function () {
     EnemySpawner.prototype.generateVariantEnemy = function (base) {
         return base;
     };
-    EnemySpawner.prototype.createEnemyByCr = function (cr) {
+    EnemySpawner.prototype.createEnemyByCr = function (cr, variant) {
         if (this.enemiesByCR[cr]) {
             var options = Dice_1.pluck(this.enemiesByCR[cr]);
-            return new Enemy_1.Enemy(options);
+            return new Enemy_1.Enemy(options, variant);
         }
         else {
             console.log('No enemies by that cr');
         }
     };
-    EnemySpawner.prototype.createEnemyByCreatureType = function (creatureType) {
+    EnemySpawner.prototype.createEnemyByCreatureType = function (creatureType, variant) {
         if (this.enemiesByCreatureType[creatureType]) {
             var options = Dice_1.pluck(this.enemiesByCreatureType[creatureType]);
-            return new Enemy_1.Enemy(options);
+            return new Enemy_1.Enemy(options, variant);
         }
         else {
             console.log('No enemies by that creature type');
@@ -24372,7 +24442,6 @@ var Game = /** @class */ (function () {
             if (player.hasMoveInteracted && this.activeEnemies.length) {
                 var enemyActions = this.activeEnemies.map(function (enemy) { return enemy.act(); }).reduce(function (actions, action) { return actions.concat(action); });
                 var enemyUpdates = this.activeEnemies.map(function (enemy) { return enemy.update(); }).reduce(function (updates, update) { return updates.concat(update); });
-                console.log('enemy actions');
                 messages = messages.concat(Array.isArray(enemyActions) ? enemyActions : [], Array.isArray(enemyUpdates) ? enemyUpdates : []);
             }
             // See player.update description
@@ -25326,7 +25395,7 @@ var MapScreen = /** @class */ (function (_super) {
                 var tile = tiles[row][col];
                 var _a = tile.isOccupied ?
                     tile.occupiers[0] : tile, char = _a.char, color = _a.color; // @TODO update to show the most important occupier to display, maybe with z values
-                ctx.fillStyle = color.hex || color.rgb;
+                ctx.fillStyle = color.val();
                 ctx.fillText(char, (col * fontSize * this.textSpacing.x) + offset.x, (row * fontSize * this.textSpacing.y) + offset.y);
             }
         }
@@ -25662,13 +25731,9 @@ window.onload = function () {
     player.attemptToEquip({ index: 0, type: Player_1.InventoryItems.WEAPONS }, Player_1.EquipmentSlots.WEAPON);
     g.updatePlayerPos(player, player.pos);
     var spawner = new EnemySpawner_1.EnemySpawner();
-    console.log(spawner);
-    var e = spawner.createEnemyByCreatureType(Enemy_data_1.CreatureTypes.UNDEAD);
+    var e = spawner.createEnemyByCreatureType(Enemy_data_1.CreatureTypes.UNDEAD, Enemy_data_1.defaultVariations[Enemy_data_1.Variations.FEROCIOUS]);
     e.pos = new Vector_1["default"](3, 3);
     e.isActive = true;
-    g.activeEnemies.push(e);
-    g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
-    g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];
     g.activeEnemies.push(e);
     g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
     g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];

@@ -19,7 +19,7 @@ import { Color, Colors } from './Canvas/Color';
 import { Enemy, IEnemyType, EnemyOptions } from './Entity/Actor/Enemy';
 import { StandardDice } from './Random/Dice';
 import { EnemySpawner } from './Entity/Actor/EnemySpawner';
-import { CreatureTypes } from './Entity/Actor/Enemy.data';
+import { CreatureTypes, Variations, defaultVariations } from './Entity/Actor/Enemy.data';
 
 const height = 240;
 const width = 600;
@@ -180,15 +180,10 @@ window.onload = () => {
   g.updatePlayerPos(player, player.pos);
 
   const spawner: EnemySpawner = new EnemySpawner();
-  console.log(spawner);
 
-  const e = spawner.createEnemyByCreatureType(CreatureTypes.UNDEAD);
+  const e = spawner.createEnemyByCreatureType(CreatureTypes.UNDEAD, defaultVariations[Variations.FEROCIOUS]);
   e.pos = new Vector2(3, 3);
   e.isActive = true;
-  g.activeEnemies.push(e);
-  g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
-  g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];
-
   g.activeEnemies.push(e);
   g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
   g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];

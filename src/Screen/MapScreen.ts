@@ -86,7 +86,7 @@ class MapScreen extends Screen {
         const tile = tiles[row][col];
         const { char, color } = tile.isOccupied ?
           tile.occupiers[0] : tile; // @TODO update to show the most important occupier to display, maybe with z values
-        ctx.fillStyle = color.hex || color.rgb;
+        ctx.fillStyle = color.val();
         ctx.fillText(
           char,
           (col * fontSize * this.textSpacing.x) + offset.x,

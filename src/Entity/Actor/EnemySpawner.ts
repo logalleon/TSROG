@@ -1,5 +1,5 @@
 import { Enemy, IEnemyType, EnemyOptions } from '../Actor/Enemy';
-import { baseEnemies, CreatureTypes } from './Enemy.data';
+import { baseEnemies, CreatureTypes, Variation } from './Enemy.data';
 import { randomInt, pluck } from '../../Random/Dice';
 
 interface EnemyHashMap {
@@ -38,19 +38,19 @@ class EnemySpawner {
     return base;
   }
 
-  createEnemyByCr (cr: number): Enemy {
+  createEnemyByCr (cr: number, variant?: Variation): Enemy {
     if (this.enemiesByCR[cr]) {
       const options = pluck(this.enemiesByCR[cr]);
-      return new Enemy(options);
+      return new Enemy(options, variant);
     } else {
       console.log('No enemies by that cr');
     }
   }
 
-  createEnemyByCreatureType (creatureType: CreatureTypes) {
+  createEnemyByCreatureType (creatureType: CreatureTypes, variant?: Variation) {
     if (this.enemiesByCreatureType[creatureType]) {
       const options = pluck(this.enemiesByCreatureType[creatureType]);
-      return new Enemy(options);
+      return new Enemy(options, variant);
     } else {
       console.log('No enemies by that creature type')
     }

@@ -1,4 +1,604 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+/**
+*   EasyStar.js
+*   github.com/prettymuchbryce/EasyStarJS
+*   Licensed under the MIT license.
+*
+*   Implementation By Bryce Neal (@prettymuchbryce)
+**/
+
+var EasyStar = {}
+var Instance = require('./instance');
+var Node = require('./node');
+var Heap = require('heap');
+
+const CLOSED_LIST = 0;
+const OPEN_LIST = 1;
+
+module.exports = EasyStar;
+
+var nextInstanceId = 1;
+
+EasyStar.js = function() {
+    var STRAIGHT_COST = 1.0;
+    var DIAGONAL_COST = 1.4;
+    var syncEnabled = false;
+    var pointsToAvoid = {};
+    var collisionGrid;
+    var costMap = {};
+    var pointsToCost = {};
+    var directionalConditions = {};
+    var allowCornerCutting = true;
+    var iterationsSoFar;
+    var instances = {};
+    var instanceQueue = [];
+    var iterationsPerCalculation = Number.MAX_VALUE;
+    var acceptableTiles;
+    var diagonalsEnabled = false;
+
+    /**
+    * Sets the collision grid that EasyStar uses.
+    *
+    * @param {Array|Number} tiles An array of numbers that represent
+    * which tiles in your grid should be considered
+    * acceptable, or "walkable".
+    **/
+    this.setAcceptableTiles = function(tiles) {
+        if (tiles instanceof Array) {
+            // Array
+            acceptableTiles = tiles;
+        } else if (!isNaN(parseFloat(tiles)) && isFinite(tiles)) {
+            // Number
+            acceptableTiles = [tiles];
+        }
+    };
+
+    /**
+    * Enables sync mode for this EasyStar instance..
+    * if you're into that sort of thing.
+    **/
+    this.enableSync = function() {
+        syncEnabled = true;
+    };
+
+    /**
+    * Disables sync mode for this EasyStar instance.
+    **/
+    this.disableSync = function() {
+        syncEnabled = false;
+    };
+
+    /**
+     * Enable diagonal pathfinding.
+     */
+    this.enableDiagonals = function() {
+        diagonalsEnabled = true;
+    }
+
+    /**
+     * Disable diagonal pathfinding.
+     */
+    this.disableDiagonals = function() {
+        diagonalsEnabled = false;
+    }
+
+    /**
+    * Sets the collision grid that EasyStar uses.
+    *
+    * @param {Array} grid The collision grid that this EasyStar instance will read from.
+    * This should be a 2D Array of Numbers.
+    **/
+    this.setGrid = function(grid) {
+        collisionGrid = grid;
+
+        //Setup cost map
+        for (var y = 0; y < collisionGrid.length; y++) {
+            for (var x = 0; x < collisionGrid[0].length; x++) {
+                if (!costMap[collisionGrid[y][x]]) {
+                    costMap[collisionGrid[y][x]] = 1
+                }
+            }
+        }
+    };
+
+    /**
+    * Sets the tile cost for a particular tile type.
+    *
+    * @param {Number} The tile type to set the cost for.
+    * @param {Number} The multiplicative cost associated with the given tile.
+    **/
+    this.setTileCost = function(tileType, cost) {
+        costMap[tileType] = cost;
+    };
+
+    this.setTileAt = function (x, y, value) {
+        collisionGrid[y][x] = value;
+    }
+
+    /**
+    * Sets the an additional cost for a particular point.
+    * Overrides the cost from setTileCost.
+    *
+    * @param {Number} x The x value of the point to cost.
+    * @param {Number} y The y value of the point to cost.
+    * @param {Number} The multiplicative cost associated with the given point.
+    **/
+    this.setAdditionalPointCost = function(x, y, cost) {
+        if (pointsToCost[y] === undefined) {
+            pointsToCost[y] = {};
+        }
+        pointsToCost[y][x] = cost;
+    };
+
+    /**
+    * Remove the additional cost for a particular point.
+    *
+    * @param {Number} x The x value of the point to stop costing.
+    * @param {Number} y The y value of the point to stop costing.
+    **/
+    this.removeAdditionalPointCost = function(x, y) {
+        if (pointsToCost[y] !== undefined) {
+            delete pointsToCost[y][x];
+        }
+    }
+
+    /**
+    * Remove all additional point costs.
+    **/
+    this.removeAllAdditionalPointCosts = function() {
+        pointsToCost = {};
+    }
+
+    /**
+    * Sets a directional condition on a tile
+    *
+    * @param {Number} x The x value of the point.
+    * @param {Number} y The y value of the point.
+    * @param {Array.<String>} allowedDirections A list of all the allowed directions that can access
+    * the tile.
+    **/
+    this.setDirectionalCondition = function(x, y, allowedDirections) {
+        if (directionalConditions[y] === undefined) {
+            directionalConditions[y] = {};
+        }
+        directionalConditions[y][x] = allowedDirections;
+    };
+
+    /**
+    * Remove all directional conditions
+    **/
+    this.removeAllDirectionalConditions = function() {
+        directionalConditions = {};
+    };
+
+    /**
+    * Sets the number of search iterations per calculation.
+    * A lower number provides a slower result, but more practical if you
+    * have a large tile-map and don't want to block your thread while
+    * finding a path.
+    *
+    * @param {Number} iterations The number of searches to prefrom per calculate() call.
+    **/
+    this.setIterationsPerCalculation = function(iterations) {
+        iterationsPerCalculation = iterations;
+    };
+
+    /**
+    * Avoid a particular point on the grid,
+    * regardless of whether or not it is an acceptable tile.
+    *
+    * @param {Number} x The x value of the point to avoid.
+    * @param {Number} y The y value of the point to avoid.
+    **/
+    this.avoidAdditionalPoint = function(x, y) {
+        if (pointsToAvoid[y] === undefined) {
+            pointsToAvoid[y] = {};
+        }
+        pointsToAvoid[y][x] = 1;
+    };
+
+    /**
+    * Stop avoiding a particular point on the grid.
+    *
+    * @param {Number} x The x value of the point to stop avoiding.
+    * @param {Number} y The y value of the point to stop avoiding.
+    **/
+    this.stopAvoidingAdditionalPoint = function(x, y) {
+        if (pointsToAvoid[y] !== undefined) {
+            delete pointsToAvoid[y][x];
+        }
+    };
+
+    /**
+    * Enables corner cutting in diagonal movement.
+    **/
+    this.enableCornerCutting = function() {
+        allowCornerCutting = true;
+    };
+
+    /**
+    * Disables corner cutting in diagonal movement.
+    **/
+    this.disableCornerCutting = function() {
+        allowCornerCutting = false;
+    };
+
+    /**
+    * Stop avoiding all additional points on the grid.
+    **/
+    this.stopAvoidingAllAdditionalPoints = function() {
+        pointsToAvoid = {};
+    };
+
+    /**
+    * Find a path.
+    *
+    * @param {Number} startX The X position of the starting point.
+    * @param {Number} startY The Y position of the starting point.
+    * @param {Number} endX The X position of the ending point.
+    * @param {Number} endY The Y position of the ending point.
+    * @param {Function} callback A function that is called when your path
+    * is found, or no path is found.
+    * @return {Number} A numeric, non-zero value which identifies the created instance. This value can be passed to cancelPath to cancel the path calculation.
+    *
+    **/
+    this.findPath = function(startX, startY, endX, endY, callback) {
+        // Wraps the callback for sync vs async logic
+        var callbackWrapper = function(result) {
+            if (syncEnabled) {
+                callback(result);
+            } else {
+                setTimeout(function() {
+                    callback(result);
+                });
+            }
+        }
+
+        // No acceptable tiles were set
+        if (acceptableTiles === undefined) {
+            throw new Error("You can't set a path without first calling setAcceptableTiles() on EasyStar.");
+        }
+        // No grid was set
+        if (collisionGrid === undefined) {
+            throw new Error("You can't set a path without first calling setGrid() on EasyStar.");
+        }
+
+        // Start or endpoint outside of scope.
+        if (startX < 0 || startY < 0 || endX < 0 || endY < 0 ||
+        startX > collisionGrid[0].length-1 || startY > collisionGrid.length-1 ||
+        endX > collisionGrid[0].length-1 || endY > collisionGrid.length-1) {
+            throw new Error("Your start or end point is outside the scope of your grid.");
+        }
+
+        // Start and end are the same tile.
+        if (startX===endX && startY===endY) {
+            callbackWrapper([]);
+            return;
+        }
+
+        // End point is not an acceptable tile.
+        var endTile = collisionGrid[endY][endX];
+        var isAcceptable = false;
+        for (var i = 0; i < acceptableTiles.length; i++) {
+            if (endTile === acceptableTiles[i]) {
+                isAcceptable = true;
+                break;
+            }
+        }
+
+        if (isAcceptable === false) {
+            callbackWrapper(null);
+            return;
+        }
+
+        // Create the instance
+        var instance = new Instance();
+        instance.openList = new Heap(function(nodeA, nodeB) {
+            return nodeA.bestGuessDistance() - nodeB.bestGuessDistance();
+        });
+        instance.isDoneCalculating = false;
+        instance.nodeHash = {};
+        instance.startX = startX;
+        instance.startY = startY;
+        instance.endX = endX;
+        instance.endY = endY;
+        instance.callback = callbackWrapper;
+
+        instance.openList.push(coordinateToNode(instance, instance.startX,
+            instance.startY, null, STRAIGHT_COST));
+
+        var instanceId = nextInstanceId ++;
+        instances[instanceId] = instance;
+        instanceQueue.push(instanceId);
+        return instanceId;
+    };
+
+    /**
+     * Cancel a path calculation.
+     *
+     * @param {Number} instanceId The instance ID of the path being calculated
+     * @return {Boolean} True if an instance was found and cancelled.
+     *
+     **/
+    this.cancelPath = function(instanceId) {
+        if (instanceId in instances) {
+            delete instances[instanceId];
+            // No need to remove it from instanceQueue
+            return true;
+        }
+        return false;
+    };
+
+    /**
+    * This method steps through the A* Algorithm in an attempt to
+    * find your path(s). It will search 4-8 tiles (depending on diagonals) for every calculation.
+    * You can change the number of calculations done in a call by using
+    * easystar.setIteratonsPerCalculation().
+    **/
+    this.calculate = function() {
+        if (instanceQueue.length === 0 || collisionGrid === undefined || acceptableTiles === undefined) {
+            return;
+        }
+        for (iterationsSoFar = 0; iterationsSoFar < iterationsPerCalculation; iterationsSoFar++) {
+            if (instanceQueue.length === 0) {
+                return;
+            }
+
+            if (syncEnabled) {
+                // If this is a sync instance, we want to make sure that it calculates synchronously.
+                iterationsSoFar = 0;
+            }
+
+            var instanceId = instanceQueue[0];
+            var instance = instances[instanceId];
+            if (typeof instance == 'undefined') {
+                // This instance was cancelled
+                instanceQueue.shift();
+                continue;
+            }
+
+            // Couldn't find a path.
+            if (instance.openList.size() === 0) {
+                instance.callback(null);
+                delete instances[instanceId];
+                instanceQueue.shift();
+                continue;
+            }
+
+            var searchNode = instance.openList.pop();
+
+            // Handles the case where we have found the destination
+            if (instance.endX === searchNode.x && instance.endY === searchNode.y) {
+                var path = [];
+                path.push({x: searchNode.x, y: searchNode.y});
+                var parent = searchNode.parent;
+                while (parent!=null) {
+                    path.push({x: parent.x, y:parent.y});
+                    parent = parent.parent;
+                }
+                path.reverse();
+                var ip = path;
+                instance.callback(ip);
+                delete instances[instanceId];
+                instanceQueue.shift();
+                continue;
+            }
+
+            searchNode.list = CLOSED_LIST;
+
+            if (searchNode.y > 0) {
+                checkAdjacentNode(instance, searchNode,
+                    0, -1, STRAIGHT_COST * getTileCost(searchNode.x, searchNode.y-1));
+            }
+            if (searchNode.x < collisionGrid[0].length-1) {
+                checkAdjacentNode(instance, searchNode,
+                    1, 0, STRAIGHT_COST * getTileCost(searchNode.x+1, searchNode.y));
+            }
+            if (searchNode.y < collisionGrid.length-1) {
+                checkAdjacentNode(instance, searchNode,
+                    0, 1, STRAIGHT_COST * getTileCost(searchNode.x, searchNode.y+1));
+            }
+            if (searchNode.x > 0) {
+                checkAdjacentNode(instance, searchNode,
+                    -1, 0, STRAIGHT_COST * getTileCost(searchNode.x-1, searchNode.y));
+            }
+            if (diagonalsEnabled) {
+                if (searchNode.x > 0 && searchNode.y > 0) {
+
+                    if (allowCornerCutting ||
+                        (isTileWalkable(collisionGrid, acceptableTiles, searchNode.x, searchNode.y-1, searchNode) &&
+                        isTileWalkable(collisionGrid, acceptableTiles, searchNode.x-1, searchNode.y, searchNode))) {
+
+                        checkAdjacentNode(instance, searchNode,
+                            -1, -1, DIAGONAL_COST * getTileCost(searchNode.x-1, searchNode.y-1));
+                    }
+                }
+                if (searchNode.x < collisionGrid[0].length-1 && searchNode.y < collisionGrid.length-1) {
+
+                    if (allowCornerCutting ||
+                        (isTileWalkable(collisionGrid, acceptableTiles, searchNode.x, searchNode.y+1, searchNode) &&
+                        isTileWalkable(collisionGrid, acceptableTiles, searchNode.x+1, searchNode.y, searchNode))) {
+
+                        checkAdjacentNode(instance, searchNode,
+                            1, 1, DIAGONAL_COST * getTileCost(searchNode.x+1, searchNode.y+1));
+                    }
+                }
+                if (searchNode.x < collisionGrid[0].length-1 && searchNode.y > 0) {
+
+                    if (allowCornerCutting ||
+                        (isTileWalkable(collisionGrid, acceptableTiles, searchNode.x, searchNode.y-1, searchNode) &&
+                        isTileWalkable(collisionGrid, acceptableTiles, searchNode.x+1, searchNode.y, searchNode))) {
+
+                        checkAdjacentNode(instance, searchNode,
+                            1, -1, DIAGONAL_COST * getTileCost(searchNode.x+1, searchNode.y-1));
+                    }
+                }
+                if (searchNode.x > 0 && searchNode.y < collisionGrid.length-1) {
+
+                    if (allowCornerCutting ||
+                        (isTileWalkable(collisionGrid, acceptableTiles, searchNode.x, searchNode.y+1, searchNode) &&
+                        isTileWalkable(collisionGrid, acceptableTiles, searchNode.x-1, searchNode.y, searchNode))) {
+
+                        checkAdjacentNode(instance, searchNode,
+                            -1, 1, DIAGONAL_COST * getTileCost(searchNode.x-1, searchNode.y+1));
+                    }
+                }
+            }
+
+        }
+    };
+
+    // Private methods follow
+    var checkAdjacentNode = function(instance, searchNode, x, y, cost) {
+        var adjacentCoordinateX = searchNode.x+x;
+        var adjacentCoordinateY = searchNode.y+y;
+
+        if ((pointsToAvoid[adjacentCoordinateY] === undefined ||
+             pointsToAvoid[adjacentCoordinateY][adjacentCoordinateX] === undefined) &&
+            isTileWalkable(collisionGrid, acceptableTiles, adjacentCoordinateX, adjacentCoordinateY, searchNode)) {
+            var node = coordinateToNode(instance, adjacentCoordinateX,
+                adjacentCoordinateY, searchNode, cost);
+
+            if (node.list === undefined) {
+                node.list = OPEN_LIST;
+                instance.openList.push(node);
+            } else if (searchNode.costSoFar + cost < node.costSoFar) {
+                node.costSoFar = searchNode.costSoFar + cost;
+                node.parent = searchNode;
+                instance.openList.updateItem(node);
+            }
+        }
+    };
+
+    // Helpers
+    var isTileWalkable = function(collisionGrid, acceptableTiles, x, y, sourceNode) {
+        var directionalCondition = directionalConditions[y] && directionalConditions[y][x];
+        if (directionalCondition) {
+            var direction = calculateDirection(sourceNode.x - x, sourceNode.y - y)
+            var directionIncluded = function () {
+                for (var i = 0; i < directionalCondition.length; i++) {
+                    if (directionalCondition[i] === direction) return true
+                }
+                return false
+            }
+            if (!directionIncluded()) return false
+        }
+        for (var i = 0; i < acceptableTiles.length; i++) {
+            if (collisionGrid[y][x] === acceptableTiles[i]) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    /**
+     * -1, -1 | 0, -1  | 1, -1
+     * -1,  0 | SOURCE | 1,  0
+     * -1,  1 | 0,  1  | 1,  1
+     */
+    var calculateDirection = function (diffX, diffY) {
+        if (diffX === 0 && diffY === -1) return EasyStar.TOP
+        else if (diffX === 1 && diffY === -1) return EasyStar.TOP_RIGHT
+        else if (diffX === 1 && diffY === 0) return EasyStar.RIGHT
+        else if (diffX === 1 && diffY === 1) return EasyStar.BOTTOM_RIGHT
+        else if (diffX === 0 && diffY === 1) return EasyStar.BOTTOM
+        else if (diffX === -1 && diffY === 1) return EasyStar.BOTTOM_LEFT
+        else if (diffX === -1 && diffY === 0) return EasyStar.LEFT
+        else if (diffX === -1 && diffY === -1) return EasyStar.TOP_LEFT
+        throw new Error('These differences are not valid: ' + diffX + ', ' + diffY)
+    };
+
+    var getTileCost = function(x, y) {
+        return (pointsToCost[y] && pointsToCost[y][x]) || costMap[collisionGrid[y][x]]
+    };
+
+    var coordinateToNode = function(instance, x, y, parent, cost) {
+        if (instance.nodeHash[y] !== undefined) {
+            if (instance.nodeHash[y][x] !== undefined) {
+                return instance.nodeHash[y][x];
+            }
+        } else {
+            instance.nodeHash[y] = {};
+        }
+        var simpleDistanceToTarget = getDistance(x, y, instance.endX, instance.endY);
+        if (parent!==null) {
+            var costSoFar = parent.costSoFar + cost;
+        } else {
+            costSoFar = 0;
+        }
+        var node = new Node(parent,x,y,costSoFar,simpleDistanceToTarget);
+        instance.nodeHash[y][x] = node;
+        return node;
+    };
+
+    var getDistance = function(x1,y1,x2,y2) {
+        if (diagonalsEnabled) {
+            // Octile distance
+            var dx = Math.abs(x1 - x2);
+            var dy = Math.abs(y1 - y2);
+            if (dx < dy) {
+                return DIAGONAL_COST * dx + dy;
+            } else {
+                return DIAGONAL_COST * dy + dx;
+            }
+        } else {
+            // Manhattan distance
+            var dx = Math.abs(x1 - x2);
+            var dy = Math.abs(y1 - y2);
+            return (dx + dy);
+        }
+    };
+}
+
+EasyStar.TOP = 'TOP'
+EasyStar.TOP_RIGHT = 'TOP_RIGHT'
+EasyStar.RIGHT = 'RIGHT'
+EasyStar.BOTTOM_RIGHT = 'BOTTOM_RIGHT'
+EasyStar.BOTTOM = 'BOTTOM'
+EasyStar.BOTTOM_LEFT = 'BOTTOM_LEFT'
+EasyStar.LEFT = 'LEFT'
+EasyStar.TOP_LEFT = 'TOP_LEFT'
+
+},{"./instance":2,"./node":3,"heap":5}],2:[function(require,module,exports){
+/**
+ * Represents a single instance of EasyStar.
+ * A path that is in the queue to eventually be found.
+ */
+module.exports = function() {
+    this.pointsToAvoid = {};
+    this.startX;
+    this.callback;
+    this.startY;
+    this.endX;
+    this.endY;
+    this.nodeHash = {};
+    this.openList;
+};
+},{}],3:[function(require,module,exports){
+/**
+* A simple Node that represents a single tile on the grid.
+* @param {Object} parent The parent node.
+* @param {Number} x The x position on the grid.
+* @param {Number} y The y position on the grid.
+* @param {Number} costSoFar How far this node is in moves*cost from the start.
+* @param {Number} simpleDistanceToTarget Manhatten distance to the end point.
+**/
+module.exports = function(parent, x, y, costSoFar, simpleDistanceToTarget) {
+    this.parent = parent;
+    this.x = x;
+    this.y = y;
+    this.costSoFar = costSoFar;
+    this.simpleDistanceToTarget = simpleDistanceToTarget;
+
+    /**
+    * @return {Number} Best guess distance of a cost using this node.
+    **/
+    this.bestGuessDistance = function() {
+        return this.costSoFar + this.simpleDistanceToTarget;
+    }
+};
+},{}],4:[function(require,module,exports){
 (function (process,global){
 /* @preserve
  * The MIT License (MIT)
@@ -5624,607 +6224,7 @@ module.exports = ret;
 },{"./es5":13}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":31}],2:[function(require,module,exports){
-/**
-*   EasyStar.js
-*   github.com/prettymuchbryce/EasyStarJS
-*   Licensed under the MIT license.
-*
-*   Implementation By Bryce Neal (@prettymuchbryce)
-**/
-
-var EasyStar = {}
-var Instance = require('./instance');
-var Node = require('./node');
-var Heap = require('heap');
-
-const CLOSED_LIST = 0;
-const OPEN_LIST = 1;
-
-module.exports = EasyStar;
-
-var nextInstanceId = 1;
-
-EasyStar.js = function() {
-    var STRAIGHT_COST = 1.0;
-    var DIAGONAL_COST = 1.4;
-    var syncEnabled = false;
-    var pointsToAvoid = {};
-    var collisionGrid;
-    var costMap = {};
-    var pointsToCost = {};
-    var directionalConditions = {};
-    var allowCornerCutting = true;
-    var iterationsSoFar;
-    var instances = {};
-    var instanceQueue = [];
-    var iterationsPerCalculation = Number.MAX_VALUE;
-    var acceptableTiles;
-    var diagonalsEnabled = false;
-
-    /**
-    * Sets the collision grid that EasyStar uses.
-    *
-    * @param {Array|Number} tiles An array of numbers that represent
-    * which tiles in your grid should be considered
-    * acceptable, or "walkable".
-    **/
-    this.setAcceptableTiles = function(tiles) {
-        if (tiles instanceof Array) {
-            // Array
-            acceptableTiles = tiles;
-        } else if (!isNaN(parseFloat(tiles)) && isFinite(tiles)) {
-            // Number
-            acceptableTiles = [tiles];
-        }
-    };
-
-    /**
-    * Enables sync mode for this EasyStar instance..
-    * if you're into that sort of thing.
-    **/
-    this.enableSync = function() {
-        syncEnabled = true;
-    };
-
-    /**
-    * Disables sync mode for this EasyStar instance.
-    **/
-    this.disableSync = function() {
-        syncEnabled = false;
-    };
-
-    /**
-     * Enable diagonal pathfinding.
-     */
-    this.enableDiagonals = function() {
-        diagonalsEnabled = true;
-    }
-
-    /**
-     * Disable diagonal pathfinding.
-     */
-    this.disableDiagonals = function() {
-        diagonalsEnabled = false;
-    }
-
-    /**
-    * Sets the collision grid that EasyStar uses.
-    *
-    * @param {Array} grid The collision grid that this EasyStar instance will read from.
-    * This should be a 2D Array of Numbers.
-    **/
-    this.setGrid = function(grid) {
-        collisionGrid = grid;
-
-        //Setup cost map
-        for (var y = 0; y < collisionGrid.length; y++) {
-            for (var x = 0; x < collisionGrid[0].length; x++) {
-                if (!costMap[collisionGrid[y][x]]) {
-                    costMap[collisionGrid[y][x]] = 1
-                }
-            }
-        }
-    };
-
-    /**
-    * Sets the tile cost for a particular tile type.
-    *
-    * @param {Number} The tile type to set the cost for.
-    * @param {Number} The multiplicative cost associated with the given tile.
-    **/
-    this.setTileCost = function(tileType, cost) {
-        costMap[tileType] = cost;
-    };
-
-    this.setTileAt = function (x, y, value) {
-        collisionGrid[y][x] = value;
-    }
-
-    /**
-    * Sets the an additional cost for a particular point.
-    * Overrides the cost from setTileCost.
-    *
-    * @param {Number} x The x value of the point to cost.
-    * @param {Number} y The y value of the point to cost.
-    * @param {Number} The multiplicative cost associated with the given point.
-    **/
-    this.setAdditionalPointCost = function(x, y, cost) {
-        if (pointsToCost[y] === undefined) {
-            pointsToCost[y] = {};
-        }
-        pointsToCost[y][x] = cost;
-    };
-
-    /**
-    * Remove the additional cost for a particular point.
-    *
-    * @param {Number} x The x value of the point to stop costing.
-    * @param {Number} y The y value of the point to stop costing.
-    **/
-    this.removeAdditionalPointCost = function(x, y) {
-        if (pointsToCost[y] !== undefined) {
-            delete pointsToCost[y][x];
-        }
-    }
-
-    /**
-    * Remove all additional point costs.
-    **/
-    this.removeAllAdditionalPointCosts = function() {
-        pointsToCost = {};
-    }
-
-    /**
-    * Sets a directional condition on a tile
-    *
-    * @param {Number} x The x value of the point.
-    * @param {Number} y The y value of the point.
-    * @param {Array.<String>} allowedDirections A list of all the allowed directions that can access
-    * the tile.
-    **/
-    this.setDirectionalCondition = function(x, y, allowedDirections) {
-        if (directionalConditions[y] === undefined) {
-            directionalConditions[y] = {};
-        }
-        directionalConditions[y][x] = allowedDirections;
-    };
-
-    /**
-    * Remove all directional conditions
-    **/
-    this.removeAllDirectionalConditions = function() {
-        directionalConditions = {};
-    };
-
-    /**
-    * Sets the number of search iterations per calculation.
-    * A lower number provides a slower result, but more practical if you
-    * have a large tile-map and don't want to block your thread while
-    * finding a path.
-    *
-    * @param {Number} iterations The number of searches to prefrom per calculate() call.
-    **/
-    this.setIterationsPerCalculation = function(iterations) {
-        iterationsPerCalculation = iterations;
-    };
-
-    /**
-    * Avoid a particular point on the grid,
-    * regardless of whether or not it is an acceptable tile.
-    *
-    * @param {Number} x The x value of the point to avoid.
-    * @param {Number} y The y value of the point to avoid.
-    **/
-    this.avoidAdditionalPoint = function(x, y) {
-        if (pointsToAvoid[y] === undefined) {
-            pointsToAvoid[y] = {};
-        }
-        pointsToAvoid[y][x] = 1;
-    };
-
-    /**
-    * Stop avoiding a particular point on the grid.
-    *
-    * @param {Number} x The x value of the point to stop avoiding.
-    * @param {Number} y The y value of the point to stop avoiding.
-    **/
-    this.stopAvoidingAdditionalPoint = function(x, y) {
-        if (pointsToAvoid[y] !== undefined) {
-            delete pointsToAvoid[y][x];
-        }
-    };
-
-    /**
-    * Enables corner cutting in diagonal movement.
-    **/
-    this.enableCornerCutting = function() {
-        allowCornerCutting = true;
-    };
-
-    /**
-    * Disables corner cutting in diagonal movement.
-    **/
-    this.disableCornerCutting = function() {
-        allowCornerCutting = false;
-    };
-
-    /**
-    * Stop avoiding all additional points on the grid.
-    **/
-    this.stopAvoidingAllAdditionalPoints = function() {
-        pointsToAvoid = {};
-    };
-
-    /**
-    * Find a path.
-    *
-    * @param {Number} startX The X position of the starting point.
-    * @param {Number} startY The Y position of the starting point.
-    * @param {Number} endX The X position of the ending point.
-    * @param {Number} endY The Y position of the ending point.
-    * @param {Function} callback A function that is called when your path
-    * is found, or no path is found.
-    * @return {Number} A numeric, non-zero value which identifies the created instance. This value can be passed to cancelPath to cancel the path calculation.
-    *
-    **/
-    this.findPath = function(startX, startY, endX, endY, callback) {
-        // Wraps the callback for sync vs async logic
-        var callbackWrapper = function(result) {
-            if (syncEnabled) {
-                callback(result);
-            } else {
-                setTimeout(function() {
-                    callback(result);
-                });
-            }
-        }
-
-        // No acceptable tiles were set
-        if (acceptableTiles === undefined) {
-            throw new Error("You can't set a path without first calling setAcceptableTiles() on EasyStar.");
-        }
-        // No grid was set
-        if (collisionGrid === undefined) {
-            throw new Error("You can't set a path without first calling setGrid() on EasyStar.");
-        }
-
-        // Start or endpoint outside of scope.
-        if (startX < 0 || startY < 0 || endX < 0 || endY < 0 ||
-        startX > collisionGrid[0].length-1 || startY > collisionGrid.length-1 ||
-        endX > collisionGrid[0].length-1 || endY > collisionGrid.length-1) {
-            throw new Error("Your start or end point is outside the scope of your grid.");
-        }
-
-        // Start and end are the same tile.
-        if (startX===endX && startY===endY) {
-            callbackWrapper([]);
-            return;
-        }
-
-        // End point is not an acceptable tile.
-        var endTile = collisionGrid[endY][endX];
-        var isAcceptable = false;
-        for (var i = 0; i < acceptableTiles.length; i++) {
-            if (endTile === acceptableTiles[i]) {
-                isAcceptable = true;
-                break;
-            }
-        }
-
-        if (isAcceptable === false) {
-            callbackWrapper(null);
-            return;
-        }
-
-        // Create the instance
-        var instance = new Instance();
-        instance.openList = new Heap(function(nodeA, nodeB) {
-            return nodeA.bestGuessDistance() - nodeB.bestGuessDistance();
-        });
-        instance.isDoneCalculating = false;
-        instance.nodeHash = {};
-        instance.startX = startX;
-        instance.startY = startY;
-        instance.endX = endX;
-        instance.endY = endY;
-        instance.callback = callbackWrapper;
-
-        instance.openList.push(coordinateToNode(instance, instance.startX,
-            instance.startY, null, STRAIGHT_COST));
-
-        var instanceId = nextInstanceId ++;
-        instances[instanceId] = instance;
-        instanceQueue.push(instanceId);
-        return instanceId;
-    };
-
-    /**
-     * Cancel a path calculation.
-     *
-     * @param {Number} instanceId The instance ID of the path being calculated
-     * @return {Boolean} True if an instance was found and cancelled.
-     *
-     **/
-    this.cancelPath = function(instanceId) {
-        if (instanceId in instances) {
-            delete instances[instanceId];
-            // No need to remove it from instanceQueue
-            return true;
-        }
-        return false;
-    };
-
-    /**
-    * This method steps through the A* Algorithm in an attempt to
-    * find your path(s). It will search 4-8 tiles (depending on diagonals) for every calculation.
-    * You can change the number of calculations done in a call by using
-    * easystar.setIteratonsPerCalculation().
-    **/
-    this.calculate = function() {
-        if (instanceQueue.length === 0 || collisionGrid === undefined || acceptableTiles === undefined) {
-            return;
-        }
-        for (iterationsSoFar = 0; iterationsSoFar < iterationsPerCalculation; iterationsSoFar++) {
-            if (instanceQueue.length === 0) {
-                return;
-            }
-
-            if (syncEnabled) {
-                // If this is a sync instance, we want to make sure that it calculates synchronously.
-                iterationsSoFar = 0;
-            }
-
-            var instanceId = instanceQueue[0];
-            var instance = instances[instanceId];
-            if (typeof instance == 'undefined') {
-                // This instance was cancelled
-                instanceQueue.shift();
-                continue;
-            }
-
-            // Couldn't find a path.
-            if (instance.openList.size() === 0) {
-                instance.callback(null);
-                delete instances[instanceId];
-                instanceQueue.shift();
-                continue;
-            }
-
-            var searchNode = instance.openList.pop();
-
-            // Handles the case where we have found the destination
-            if (instance.endX === searchNode.x && instance.endY === searchNode.y) {
-                var path = [];
-                path.push({x: searchNode.x, y: searchNode.y});
-                var parent = searchNode.parent;
-                while (parent!=null) {
-                    path.push({x: parent.x, y:parent.y});
-                    parent = parent.parent;
-                }
-                path.reverse();
-                var ip = path;
-                instance.callback(ip);
-                delete instances[instanceId];
-                instanceQueue.shift();
-                continue;
-            }
-
-            searchNode.list = CLOSED_LIST;
-
-            if (searchNode.y > 0) {
-                checkAdjacentNode(instance, searchNode,
-                    0, -1, STRAIGHT_COST * getTileCost(searchNode.x, searchNode.y-1));
-            }
-            if (searchNode.x < collisionGrid[0].length-1) {
-                checkAdjacentNode(instance, searchNode,
-                    1, 0, STRAIGHT_COST * getTileCost(searchNode.x+1, searchNode.y));
-            }
-            if (searchNode.y < collisionGrid.length-1) {
-                checkAdjacentNode(instance, searchNode,
-                    0, 1, STRAIGHT_COST * getTileCost(searchNode.x, searchNode.y+1));
-            }
-            if (searchNode.x > 0) {
-                checkAdjacentNode(instance, searchNode,
-                    -1, 0, STRAIGHT_COST * getTileCost(searchNode.x-1, searchNode.y));
-            }
-            if (diagonalsEnabled) {
-                if (searchNode.x > 0 && searchNode.y > 0) {
-
-                    if (allowCornerCutting ||
-                        (isTileWalkable(collisionGrid, acceptableTiles, searchNode.x, searchNode.y-1, searchNode) &&
-                        isTileWalkable(collisionGrid, acceptableTiles, searchNode.x-1, searchNode.y, searchNode))) {
-
-                        checkAdjacentNode(instance, searchNode,
-                            -1, -1, DIAGONAL_COST * getTileCost(searchNode.x-1, searchNode.y-1));
-                    }
-                }
-                if (searchNode.x < collisionGrid[0].length-1 && searchNode.y < collisionGrid.length-1) {
-
-                    if (allowCornerCutting ||
-                        (isTileWalkable(collisionGrid, acceptableTiles, searchNode.x, searchNode.y+1, searchNode) &&
-                        isTileWalkable(collisionGrid, acceptableTiles, searchNode.x+1, searchNode.y, searchNode))) {
-
-                        checkAdjacentNode(instance, searchNode,
-                            1, 1, DIAGONAL_COST * getTileCost(searchNode.x+1, searchNode.y+1));
-                    }
-                }
-                if (searchNode.x < collisionGrid[0].length-1 && searchNode.y > 0) {
-
-                    if (allowCornerCutting ||
-                        (isTileWalkable(collisionGrid, acceptableTiles, searchNode.x, searchNode.y-1, searchNode) &&
-                        isTileWalkable(collisionGrid, acceptableTiles, searchNode.x+1, searchNode.y, searchNode))) {
-
-                        checkAdjacentNode(instance, searchNode,
-                            1, -1, DIAGONAL_COST * getTileCost(searchNode.x+1, searchNode.y-1));
-                    }
-                }
-                if (searchNode.x > 0 && searchNode.y < collisionGrid.length-1) {
-
-                    if (allowCornerCutting ||
-                        (isTileWalkable(collisionGrid, acceptableTiles, searchNode.x, searchNode.y+1, searchNode) &&
-                        isTileWalkable(collisionGrid, acceptableTiles, searchNode.x-1, searchNode.y, searchNode))) {
-
-                        checkAdjacentNode(instance, searchNode,
-                            -1, 1, DIAGONAL_COST * getTileCost(searchNode.x-1, searchNode.y+1));
-                    }
-                }
-            }
-
-        }
-    };
-
-    // Private methods follow
-    var checkAdjacentNode = function(instance, searchNode, x, y, cost) {
-        var adjacentCoordinateX = searchNode.x+x;
-        var adjacentCoordinateY = searchNode.y+y;
-
-        if ((pointsToAvoid[adjacentCoordinateY] === undefined ||
-             pointsToAvoid[adjacentCoordinateY][adjacentCoordinateX] === undefined) &&
-            isTileWalkable(collisionGrid, acceptableTiles, adjacentCoordinateX, adjacentCoordinateY, searchNode)) {
-            var node = coordinateToNode(instance, adjacentCoordinateX,
-                adjacentCoordinateY, searchNode, cost);
-
-            if (node.list === undefined) {
-                node.list = OPEN_LIST;
-                instance.openList.push(node);
-            } else if (searchNode.costSoFar + cost < node.costSoFar) {
-                node.costSoFar = searchNode.costSoFar + cost;
-                node.parent = searchNode;
-                instance.openList.updateItem(node);
-            }
-        }
-    };
-
-    // Helpers
-    var isTileWalkable = function(collisionGrid, acceptableTiles, x, y, sourceNode) {
-        var directionalCondition = directionalConditions[y] && directionalConditions[y][x];
-        if (directionalCondition) {
-            var direction = calculateDirection(sourceNode.x - x, sourceNode.y - y)
-            var directionIncluded = function () {
-                for (var i = 0; i < directionalCondition.length; i++) {
-                    if (directionalCondition[i] === direction) return true
-                }
-                return false
-            }
-            if (!directionIncluded()) return false
-        }
-        for (var i = 0; i < acceptableTiles.length; i++) {
-            if (collisionGrid[y][x] === acceptableTiles[i]) {
-                return true;
-            }
-        }
-
-        return false;
-    };
-
-    /**
-     * -1, -1 | 0, -1  | 1, -1
-     * -1,  0 | SOURCE | 1,  0
-     * -1,  1 | 0,  1  | 1,  1
-     */
-    var calculateDirection = function (diffX, diffY) {
-        if (diffX === 0 && diffY === -1) return EasyStar.TOP
-        else if (diffX === 1 && diffY === -1) return EasyStar.TOP_RIGHT
-        else if (diffX === 1 && diffY === 0) return EasyStar.RIGHT
-        else if (diffX === 1 && diffY === 1) return EasyStar.BOTTOM_RIGHT
-        else if (diffX === 0 && diffY === 1) return EasyStar.BOTTOM
-        else if (diffX === -1 && diffY === 1) return EasyStar.BOTTOM_LEFT
-        else if (diffX === -1 && diffY === 0) return EasyStar.LEFT
-        else if (diffX === -1 && diffY === -1) return EasyStar.TOP_LEFT
-        throw new Error('These differences are not valid: ' + diffX + ', ' + diffY)
-    };
-
-    var getTileCost = function(x, y) {
-        return (pointsToCost[y] && pointsToCost[y][x]) || costMap[collisionGrid[y][x]]
-    };
-
-    var coordinateToNode = function(instance, x, y, parent, cost) {
-        if (instance.nodeHash[y] !== undefined) {
-            if (instance.nodeHash[y][x] !== undefined) {
-                return instance.nodeHash[y][x];
-            }
-        } else {
-            instance.nodeHash[y] = {};
-        }
-        var simpleDistanceToTarget = getDistance(x, y, instance.endX, instance.endY);
-        if (parent!==null) {
-            var costSoFar = parent.costSoFar + cost;
-        } else {
-            costSoFar = 0;
-        }
-        var node = new Node(parent,x,y,costSoFar,simpleDistanceToTarget);
-        instance.nodeHash[y][x] = node;
-        return node;
-    };
-
-    var getDistance = function(x1,y1,x2,y2) {
-        if (diagonalsEnabled) {
-            // Octile distance
-            var dx = Math.abs(x1 - x2);
-            var dy = Math.abs(y1 - y2);
-            if (dx < dy) {
-                return DIAGONAL_COST * dx + dy;
-            } else {
-                return DIAGONAL_COST * dy + dx;
-            }
-        } else {
-            // Manhattan distance
-            var dx = Math.abs(x1 - x2);
-            var dy = Math.abs(y1 - y2);
-            return (dx + dy);
-        }
-    };
-}
-
-EasyStar.TOP = 'TOP'
-EasyStar.TOP_RIGHT = 'TOP_RIGHT'
-EasyStar.RIGHT = 'RIGHT'
-EasyStar.BOTTOM_RIGHT = 'BOTTOM_RIGHT'
-EasyStar.BOTTOM = 'BOTTOM'
-EasyStar.BOTTOM_LEFT = 'BOTTOM_LEFT'
-EasyStar.LEFT = 'LEFT'
-EasyStar.TOP_LEFT = 'TOP_LEFT'
-
-},{"./instance":3,"./node":4,"heap":5}],3:[function(require,module,exports){
-/**
- * Represents a single instance of EasyStar.
- * A path that is in the queue to eventually be found.
- */
-module.exports = function() {
-    this.pointsToAvoid = {};
-    this.startX;
-    this.callback;
-    this.startY;
-    this.endX;
-    this.endY;
-    this.nodeHash = {};
-    this.openList;
-};
-},{}],4:[function(require,module,exports){
-/**
-* A simple Node that represents a single tile on the grid.
-* @param {Object} parent The parent node.
-* @param {Number} x The x position on the grid.
-* @param {Number} y The y position on the grid.
-* @param {Number} costSoFar How far this node is in moves*cost from the start.
-* @param {Number} simpleDistanceToTarget Manhatten distance to the end point.
-**/
-module.exports = function(parent, x, y, costSoFar, simpleDistanceToTarget) {
-    this.parent = parent;
-    this.x = x;
-    this.y = y;
-    this.costSoFar = costSoFar;
-    this.simpleDistanceToTarget = simpleDistanceToTarget;
-
-    /**
-    * @return {Number} Best guess distance of a cost using this node.
-    **/
-    this.bestGuessDistance = function() {
-        return this.costSoFar + this.simpleDistanceToTarget;
-    }
-};
-},{}],5:[function(require,module,exports){
+},{"_process":34}],5:[function(require,module,exports){
 module.exports = require('./lib/heap');
 
 },{"./lib/heap":6}],6:[function(require,module,exports){
@@ -23825,7 +23825,7 @@ var Actor = /** @class */ (function () {
 }());
 exports.Actor = Actor;
 
-},{"../../Random/Dice":23,"bluebird":1}],11:[function(require,module,exports){
+},{"../../Random/Dice":26,"bluebird":4}],11:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../../Random/Dice");
@@ -23939,7 +23939,7 @@ var baseEnemies = [
 exports.baseEnemies = baseEnemies;
 var _a;
 
-},{"../../Canvas/Color":9,"../../Random/Dice":23}],12:[function(require,module,exports){
+},{"../../Canvas/Color":9,"../../Random/Dice":26}],12:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -23977,7 +23977,6 @@ var Enemy = /** @class */ (function (_super) {
         return _this;
     }
     Enemy.prototype.act = function () {
-        console.log('accc');
         // You can't act if you're dead (points to head)
         if (!this.isDead()) {
             var player = Game_1["default"].instance.player;
@@ -23990,6 +23989,8 @@ var Enemy = /** @class */ (function (_super) {
                 else {
                     this.path = this.getUpdatedPath();
                     var nextPos = this.path[this.path.length - 2];
+                    // Make sure to adjust the length of the path after moving in case it isn't recalculated later
+                    this.path.pop();
                     this.move(nextPos);
                     return [];
                 }
@@ -24004,6 +24005,8 @@ var Enemy = /** @class */ (function (_super) {
                 }
                 else {
                     var nextPos = this.path[this.path.length - 2];
+                    // Make sure to adjust the length of the path after moving in case it isn't recalculated later
+                    this.path.pop();
                     this.move(nextPos);
                     return [];
                 }
@@ -24011,7 +24014,6 @@ var Enemy = /** @class */ (function (_super) {
         }
     };
     Enemy.prototype.targetAndAttemptAttackPlayer = function (player) {
-        console.log('hmmm');
         if (this.attemptAttack(player)) {
             var damage = this.attack(player);
             return [{
@@ -24086,7 +24088,7 @@ var Enemy = /** @class */ (function (_super) {
 }(Actor_1.Actor));
 exports.Enemy = Enemy;
 
-},{"../../Canvas/Color":9,"../../Game":19,"../../Message/Message":22,"./Actor":10}],13:[function(require,module,exports){
+},{"../../Canvas/Color":9,"../../Game":19,"../../Message/Message":25,"./Actor":10}],13:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Enemy_1 = require("../Actor/Enemy");
@@ -24138,7 +24140,7 @@ var EnemySpawner = /** @class */ (function () {
 }());
 exports.EnemySpawner = EnemySpawner;
 
-},{"../../Random/Dice":23,"../Actor/Enemy":12,"./Enemy.data":11}],14:[function(require,module,exports){
+},{"../../Random/Dice":26,"../Actor/Enemy":12,"./Enemy.data":11}],14:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24276,7 +24278,7 @@ var Player = /** @class */ (function (_super) {
 InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
 exports.Player = Player;
 
-},{"../../Canvas/Color":9,"../../Game":19,"../../Message/Message":22,"./Actor":10}],15:[function(require,module,exports){
+},{"../../Canvas/Color":9,"../../Game":19,"../../Message/Message":25,"./Actor":10}],15:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24389,6 +24391,7 @@ exports.Weapon = Weapon;
 exports.__esModule = true;
 var Input_1 = require("./Input");
 var Message_1 = require("./Message/Message");
+var FloorGenerator_1 = require("./Map/FloorGenerator");
 var Game = /** @class */ (function () {
     function Game(gameMap, screens, canvasProps, ctx, player, el, bottomEl) {
         this.activeEnemies = []; // @TODO
@@ -24408,6 +24411,9 @@ var Game = /** @class */ (function () {
         this.messenger = new Message_1.Messenger(el, bottomEl);
         window.onkeydown = this.handleInput.bind(this);
         window.onkeyup = this.handleInput.bind(this);
+        this.floorGenerator = new FloorGenerator_1.FloorGenerator();
+        this.floorGenerator.buildFloor(5, 10);
+        this.floorGenerator.debugOutput();
     }
     /**
      * Effectively, this is the game loop. Since everything is turn-based,
@@ -24451,7 +24457,6 @@ var Game = /** @class */ (function () {
             this.messenger.logMessages(messages.concat(Array.isArray(playerMessages) ? playerMessages : []));
             // Update internals of the game
             this.update();
-            console.log(this.gameMap.tiles);
             // Finally, render what's changed
             this.activeScreen.render(this.ctx);
         }
@@ -24491,10 +24496,10 @@ var Game = /** @class */ (function () {
 }());
 exports["default"] = Game;
 
-},{"./Input":21,"./Message/Message":22}],20:[function(require,module,exports){
+},{"./Input":21,"./Map/FloorGenerator":23,"./Message/Message":25}],20:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-var easystarjs_1 = require("easystarjs");
+var easystarjs_1 = require("../custom_modules/easystarjs");
 var GameMap = /** @class */ (function () {
     function GameMap(options) {
         this.easystarOpenTile = 0;
@@ -24584,7 +24589,7 @@ var GameMap = /** @class */ (function () {
 }());
 exports.GameMap = GameMap;
 
-},{"easystarjs":2}],21:[function(require,module,exports){
+},{"../custom_modules/easystarjs":1}],21:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var keyCodeToChar = {
@@ -25011,6 +25016,249 @@ exports.mapKeyPressToActualCharacter = mapKeyPressToActualCharacter;
 },{}],22:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+var Dice_1 = require("../Random/Dice");
+var Vector_1 = require("../Vector");
+var Direction;
+(function (Direction) {
+    Direction[Direction["North"] = 0] = "North";
+    Direction[Direction["East"] = 1] = "East";
+    Direction[Direction["South"] = 2] = "South";
+    Direction[Direction["West"] = 3] = "West";
+})(Direction || (Direction = {}));
+exports.Direction = Direction;
+var Corridor = /** @class */ (function () {
+    function Corridor() {
+    }
+    Corridor.prototype.setup = function (room, corridorLength, widthRange, heightRange, columns, rows, isInitialCorridor) {
+        this.direction = Dice_1.randomInt(0, 3);
+        // See unity video, but this makes sure the map doesn't double back on itself constantly
+        var oppositeDirection = ((room.enteringCorridor + 2) % 4);
+        // If the room is doubling back, "turn" the map
+        if (!isInitialCorridor && this.direction === oppositeDirection) {
+            var correctedDirection = this.direction;
+            correctedDirection++;
+            correctedDirection = correctedDirection % 4;
+            this.direction = correctedDirection;
+        }
+        this.length = Dice_1.randomInt(corridorLength.low, corridorLength.high);
+        var maxLength = corridorLength.high;
+        switch (this.direction) {
+            case Direction.North:
+                this.startingPosition = new Vector_1["default"](Dice_1.randomInt(room.pos.x, room.pos.x + room.roomWidth - 1), room.pos.y + room.roomHeight);
+                // The maximum length is the height of the board from the top of the room it's coming from
+                maxLength = rows - this.startingPosition.y - heightRange.low;
+                break;
+            case Direction.East:
+                this.startingPosition = new Vector_1["default"](room.pos.x + room.roomWidth, Dice_1.randomInt(room.pos.y, room.pos.y + room.roomHeight - 1));
+                maxLength = columns - this.startingPosition.x - widthRange.low;
+                break;
+            case Direction.South:
+                this.startingPosition = new Vector_1["default"](Dice_1.randomInt(room.pos.x, room.pos.x + room.roomWidth), room.pos.y);
+                maxLength = this.startingPosition.y - heightRange.low;
+                break;
+            case Direction.West:
+                this.startingPosition = new Vector_1["default"](room.pos.x, Dice_1.randomInt(room.pos.y, room.pos.y + room.roomHeight));
+                maxLength = this.startingPosition.x - widthRange.low;
+                break;
+        }
+        this.length = Dice_1.clamp(this.length, 1, maxLength);
+        this.setEndPosition();
+    };
+    Corridor.prototype.setEndPosition = function () {
+        this.endPosition = new Vector_1["default"](((this.direction === Direction.North || this.direction === Direction.South) ?
+            this.startingPosition.x :
+            (this.direction === Direction.East) ?
+                this.startingPosition.x + this.length - 1 :
+                this.startingPosition.x - this.length + 1), ((this.direction === Direction.East || this.direction === Direction.West) ?
+            this.startingPosition.y :
+            (this.direction === Direction.North) ?
+                this.startingPosition.y + this.length - 1 :
+                this.startingPosition.y - this.length + 1));
+    };
+    return Corridor;
+}());
+exports.Corridor = Corridor;
+
+},{"../Random/Dice":26,"../Vector":32}],23:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var Room_1 = require("./Room");
+var Corridor_1 = require("./Corridor");
+var Dice_1 = require("../Random/Dice");
+var Color_1 = require("../Canvas/Color");
+var F = function () { return ({
+    isPassable: true,
+    isOccupied: false,
+    description: 'Hard stone floor',
+    posX: 0,
+    posY: 0,
+    char: 'm',
+    color: new Color_1.Color({ html: 'purple' })
+}); };
+var W = function () { return ({
+    isPassable: false,
+    isOccupied: false,
+    description: 'A wall',
+    posX: 0,
+    posY: 0,
+    char: 'o',
+    color: new Color_1.Color({ hex: '#CCB69B' })
+}); };
+var FloorGenerator = /** @class */ (function () {
+    function FloorGenerator() {
+        this.rooms = [];
+        this.corridors = [];
+        this.roomWidthRange = {
+            low: 5,
+            high: 20
+        };
+        this.roomHeightRange = {
+            low: 5,
+            high: 20
+        };
+        this.corridorLength = {
+            low: 6,
+            high: 15
+        };
+        this.columns = 100;
+        this.rows = 100;
+    }
+    FloorGenerator.prototype.buildFloor = function (minRooms, maxRooms) {
+        this.rooms = [];
+        this.corridors = [];
+        var numRooms = Dice_1.randomInt(minRooms, maxRooms);
+        var numCorridors = numRooms - 1;
+        this.rooms.push(new Room_1.Room());
+        this.corridors.push(new Corridor_1.Corridor());
+        this.rooms[0].initialRoom(this.roomWidthRange, this.roomHeightRange, this.columns, this.rows);
+        this.corridors[0].setup(this.rooms[0], this.corridorLength, this.roomWidthRange, this.roomHeightRange, this.columns, this.rows, true);
+        for (var i = 1; i < numRooms; i++) {
+            this.rooms.push(new Room_1.Room());
+            this.rooms[i].subsequentRoom(this.roomWidthRange, this.roomHeightRange, this.columns, this.rows, this.corridors[i - 1]);
+            if (i < numCorridors) {
+                this.corridors.push(new Corridor_1.Corridor());
+                this.corridors[i].setup(this.rooms[i], this.corridorLength, this.roomWidthRange, this.roomHeightRange, this.columns, this.rows, false);
+            }
+        }
+        this.setWalls();
+        this.setRoomTiles();
+        this.setCorridorTiles();
+    };
+    FloorGenerator.prototype.setWalls = function () {
+        this.tiles = [];
+        for (var y = 0; y < this.rows; y++) {
+            this.tiles[y] = [];
+            for (var x = 0; x < this.columns; x++) {
+                this.tiles[y][x] = W();
+            }
+        }
+    };
+    FloorGenerator.prototype.setRoomTiles = function () {
+        var _this = this;
+        this.rooms.forEach(function (room) {
+            for (var row = 0; row < room.roomHeight; row++) {
+                var y = room.pos.y + row;
+                var p_row = _this.tiles[y];
+                for (var col = 0; col < room.roomWidth; col++) {
+                    var x = room.pos.x + col;
+                    _this.tiles[y][x] = F();
+                }
+            }
+        });
+    };
+    FloorGenerator.prototype.setCorridorTiles = function () {
+        var _this = this;
+        this.corridors.forEach(function (corridor) {
+            for (var i = 0; i < corridor.length; i++) {
+                var _a = corridor.startingPosition, x = _a.x, y = _a.y;
+                switch (corridor.direction) {
+                    case Corridor_1.Direction.North:
+                        y += i;
+                        break;
+                    case Corridor_1.Direction.East:
+                        x += i;
+                        break;
+                    case Corridor_1.Direction.South:
+                        y -= i;
+                        break;
+                    case Corridor_1.Direction.West:
+                        x -= i;
+                        break;
+                }
+                _this.tiles[y][x] = F();
+            }
+        });
+    };
+    FloorGenerator.prototype.debugOutput = function () {
+        var _this = this;
+        var p = document.getElementById('tiles');
+        var html = '';
+        for (var row = 0; row < this.tiles.length; row++) {
+            for (var col = 0; col < this.tiles[row].length; col++) {
+                var tile = this.tiles[row][col];
+                var char = tile.char, color = tile.color;
+                html += "<span class='tile' style=\"color: " + color.val() + "\">" + char + "</span>";
+            }
+            html += '<br/>';
+        }
+        p.innerHTML = html;
+        p.onclick = function () {
+            _this.buildFloor(5, 20);
+            _this.debugOutput();
+        };
+    };
+    return FloorGenerator;
+}());
+exports.FloorGenerator = FloorGenerator;
+
+},{"../Canvas/Color":9,"../Random/Dice":26,"./Corridor":22,"./Room":24}],24:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var Dice_1 = require("../Random/Dice");
+var Vector_1 = require("../Vector");
+var Corridor_1 = require("./Corridor");
+var Room = /** @class */ (function () {
+    function Room() {
+    }
+    Room.prototype.initialRoom = function (widthRange, heightRange, columns, rows) {
+        this.roomWidth = Dice_1.randomInt(widthRange.low, widthRange.high);
+        this.roomHeight = Dice_1.randomInt(heightRange.low, heightRange.high);
+        this.pos = new Vector_1["default"](Math.round(columns / 2 - this.roomWidth / 2), Math.round(columns / 2 - this.roomHeight / 2));
+    };
+    Room.prototype.subsequentRoom = function (widthRange, heightRange, columns, rows, corridor) {
+        this.enteringCorridor = corridor.direction;
+        this.roomWidth = Dice_1.randomInt(widthRange.low, widthRange.high);
+        this.roomHeight = Dice_1.randomInt(heightRange.low, heightRange.high);
+        switch (corridor.direction) {
+            case Corridor_1.Direction.North:
+                this.roomHeight = Dice_1.clamp(this.roomHeight, 1, rows - corridor.endPosition.y);
+                this.pos = new Vector_1["default"](Dice_1.randomInt(corridor.endPosition.x - this.roomWidth + 1, corridor.endPosition.x), corridor.endPosition.y);
+                this.pos.x = Dice_1.clamp(this.pos.x, 0, columns - this.roomWidth);
+                break;
+            case Corridor_1.Direction.East:
+                this.roomWidth = Dice_1.clamp(this.roomWidth, 1, columns - corridor.endPosition.x);
+                this.pos = new Vector_1["default"](corridor.endPosition.x, Dice_1.randomInt(corridor.endPosition.y - this.roomHeight + 1, corridor.endPosition.y));
+                this.pos.y = Dice_1.clamp(this.pos.y, 0, rows - this.roomHeight);
+                break;
+            case Corridor_1.Direction.South:
+                this.roomHeight = Dice_1.clamp(this.roomHeight, 1, corridor.endPosition.y);
+                this.pos = new Vector_1["default"](Dice_1.randomInt(corridor.endPosition.x - this.roomWidth + 1, corridor.endPosition.x), corridor.endPosition.y - this.roomHeight + 1);
+                this.pos.x = Dice_1.clamp(this.pos.x, 0, columns - this.roomWidth);
+                break;
+            case Corridor_1.Direction.West:
+                this.roomWidth = Dice_1.clamp(this.roomWidth, 1, corridor.endPosition.x);
+                this.pos = new Vector_1["default"](corridor.endPosition.x - this.roomWidth + 1, Dice_1.randomInt(corridor.endPosition.y - this.roomHeight + 1, corridor.endPosition.y));
+                this.pos.y = Dice_1.clamp(this.pos.y, 0, rows - this.roomHeight);
+                break;
+        }
+    };
+    return Room;
+}());
+exports.Room = Room;
+
+},{"../Random/Dice":26,"../Vector":32,"./Corridor":22}],25:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
 var Color_1 = require("../Canvas/Color");
 var Canvas_1 = require("../Canvas/Canvas");
 var Status;
@@ -25099,7 +25347,7 @@ var Messenger = /** @class */ (function () {
 }());
 exports.Messenger = Messenger;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9}],23:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9}],26:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var StandardDice;
@@ -25129,8 +25377,18 @@ var pluck = function (arr) {
     return arr[randomInt(0, arr.length - 1)];
 };
 exports.pluck = pluck;
+var clamp = function (value, low, high) {
+    if (value < low) {
+        return low;
+    }
+    if (value > high) {
+        return high;
+    }
+    return value;
+};
+exports.clamp = clamp;
 
-},{}],24:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25194,7 +25452,7 @@ var CommandScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = CommandScreen;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Entity/Actor/Player":14,"./MapScreen":27,"./Screen":28,"lodash":7}],25:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Entity/Actor/Player":14,"./MapScreen":30,"./Screen":31,"lodash":7}],28:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25250,7 +25508,7 @@ var InventoryItemScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryItemScreen;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9,"./Screen":28}],26:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9,"./Screen":31}],29:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25301,7 +25559,7 @@ var InventoryScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Entity/Actor/Player":14,"./Screen":28}],27:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Entity/Actor/Player":14,"./Screen":31}],30:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25495,7 +25753,7 @@ var MapScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = MapScreen;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Vector":29,"./Screen":28}],28:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Vector":32,"./Screen":31}],31:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Message_1 = require("../Message/Message");
@@ -25547,7 +25805,7 @@ var Screen = /** @class */ (function () {
 }());
 exports.Screen = Screen;
 
-},{"../Message/Message":22}],29:[function(require,module,exports){
+},{"../Message/Message":25}],32:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Vector2 = /** @class */ (function () {
@@ -25566,7 +25824,7 @@ var Vector2 = /** @class */ (function () {
 }());
 exports["default"] = Vector2;
 
-},{}],30:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("./Game");
@@ -25745,7 +26003,7 @@ window.onload = function () {
     window.game = g;
 };
 
-},{"./Canvas/Canvas":8,"./Canvas/Color":9,"./Entity/Actor/Enemy.data":11,"./Entity/Actor/EnemySpawner":13,"./Entity/Actor/Player":14,"./Entity/Prop/Armor":15,"./Entity/Prop/Prop.data":16,"./Entity/Prop/Weapon":18,"./Game":19,"./GameMap":20,"./Random/Dice":23,"./Screen/CommandScreen":24,"./Screen/InventoryItemScreen":25,"./Screen/InventoryScreen":26,"./Screen/MapScreen":27,"./Screen/Screen":28,"./Vector":29}],31:[function(require,module,exports){
+},{"./Canvas/Canvas":8,"./Canvas/Color":9,"./Entity/Actor/Enemy.data":11,"./Entity/Actor/EnemySpawner":13,"./Entity/Actor/Player":14,"./Entity/Prop/Armor":15,"./Entity/Prop/Prop.data":16,"./Entity/Prop/Weapon":18,"./Game":19,"./GameMap":20,"./Random/Dice":26,"./Screen/CommandScreen":27,"./Screen/InventoryItemScreen":28,"./Screen/InventoryScreen":29,"./Screen/MapScreen":30,"./Screen/Screen":31,"./Vector":32}],34:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -25931,4 +26189,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},[30]);
+},{}]},{},[33]);

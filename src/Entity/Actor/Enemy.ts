@@ -58,7 +58,6 @@ class Enemy extends Actor {
   }
 
   act ():Message[] | null {
-    console.log('accc')
     // You can't act if you're dead (points to head)
     if (!this.isDead()) {
       const { player } = Game.instance;
@@ -70,6 +69,8 @@ class Enemy extends Actor {
         } else {
           this.path = this.getUpdatedPath();
           const nextPos: Vector2 = this.path[this.path.length - 2];
+          // Make sure to adjust the length of the path after moving in case it isn't recalculated later
+          this.path.pop();
           this.move(nextPos);
           return [];
         }
@@ -82,6 +83,8 @@ class Enemy extends Actor {
         // The player is still too far away
         } else {
           const nextPos: Vector2 = this.path[this.path.length - 2];
+          // Make sure to adjust the length of the path after moving in case it isn't recalculated later
+          this.path.pop();
           this.move(nextPos);
           return [];
         }
@@ -90,7 +93,6 @@ class Enemy extends Actor {
   }
 
   targetAndAttemptAttackPlayer (player: Player): Message[] {
-    console.log('hmmm')
     if (this.attemptAttack(player)) {
       const damage = this.attack(player);
       return [<Message>{

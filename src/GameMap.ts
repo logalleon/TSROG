@@ -1,7 +1,7 @@
 import Vector2 from './Vector';
 import { Color } from './Canvas/Color';
 import Game from './Game';
-import { js as EasyStar } from 'easystarjs';
+import { js as EasyStar } from '../custom_modules/easystarjs';
 import { Promise } from 'bluebird';
 import { Enemy } from './Entity/Actor/Enemy';
 

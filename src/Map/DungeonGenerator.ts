@@ -1,0 +1,4 @@
+class DungeonGenerator {
+
+}
+export { DungeonGenerator };

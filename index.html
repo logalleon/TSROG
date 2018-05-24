@@ -11,9 +11,10 @@
   <h1>TSROG</h1>
   <div id="wrapper">
     <p id="messages"></p>
-    <canvas id="canvas"></canvas>
+    <canvas style="display: none;" id="canvas"></canvas>
   </div>
   <h2 id="bottomMessage">Press '?' for command list.</h2>
+  <p style="color: white; font-size: 10px; cursor: pointer;" id="tiles"></p>
 </body>
 <script src="index.js"></script>
 <style>
@@ -62,6 +63,12 @@
     background: black;
     margin: 0;
     padding: .5rem;
+  }
+  .tile {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    text-align: center;
   }
 </style>
 </html>

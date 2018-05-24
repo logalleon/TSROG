@@ -6,6 +6,7 @@ import { Player } from './Entity/Actor/Player';
 import Vector2 from './Vector';
 import { Messenger, Message } from './Message/Message';
 import { Enemy } from './Entity/Actor/Enemy';
+import { FloorGenerator } from './Map/FloorGenerator';
 
 class Game {
 
@@ -26,6 +27,8 @@ class Game {
   public messenger: Messenger;
 
   public activeEnemies = []; // @TODO
+
+  public floorGenerator: FloorGenerator;
 
   constructor (
       gameMap: GameMap,
@@ -53,6 +56,10 @@ class Game {
     this.messenger = new Messenger(el, bottomEl);
     window.onkeydown = this.handleInput.bind(this);
     window.onkeyup = this.handleInput.bind(this);
+
+    this.floorGenerator = new FloorGenerator();
+    this.floorGenerator.buildFloor(5, 10);
+    this.floorGenerator.debugOutput();
   }
 
   /**
@@ -103,8 +110,6 @@ class Game {
 
       // Update internals of the game
       this.update();
-
-      console.log(this.gameMap.tiles);
 
       // Finally, render what's changed
       this.activeScreen.render(this.ctx);

@@ -24,4 +24,19 @@ const pluck = (arr: Array<any>): any => {
   return arr[randomInt(0, arr.length - 1)];
 }
 
-export { rollDice, StandardDice, randomInt, pluck };
+interface Range {
+  low: number,
+  high: number
+}
+
+const clamp = (value: number, low: number, high: number): number => {
+  if (value < low) {
+    return low;
+  }
+  if (value > high) {
+    return high;
+  }
+  return value;
+}
+
+export { rollDice, StandardDice, randomInt, pluck, Range, clamp };

@@ -72,4 +72,4 @@ const weightedPluck = (arr: string[]): string => {
   return weightedSelection;
 }
 
-export { rollDice, StandardDice, randomInt, pluck, Range, clamp };
+export { rollDice, StandardDice, randomInt, pluck, Range, clamp, weightedPluck };

@@ -1,5 +1,5 @@
 import { LegendaryData } from './language.data';
-import { randomInt, pluck } from './Dice';
+import { randomInt, pluck, weightedPluck } from './Dice';
 
 class Legendary {
 
@@ -40,18 +40,36 @@ class Legendary {
     lists.forEach((listGroup) => {
       const listReferences = listGroup.split('|');
       let results = [];
+      let weighted = false;
       listReferences.forEach((listReference) => {
-        const [accessor] = listReference.match(/([a-zA-Z\.])+/);
+        let [accessor] = listReference.match(/([a-zA-Z\^\.[0-9])+/);
+        accessor = accessor.replace('[', '').replace(']', '');
         const result = this.deepDive(accessor);
         results.push(result);
+        if (result.indexOf('^') !== -1) {
+          weighted = true;
+        }
       });
-      source = source.replace(listGroup, pluck(results));
+      source = source.replace(listGroup, weighted ? weightedPluck(results) : pluck(results));
     });
     return source;
   }
 
   parseAdHocLists (adHocLists: string[], source: string): string {
-    return '';
+    adHocLists.forEach((listGroup) => {
+      const choices = listGroup.split('|');
+      let results = [];
+      let weighted = false;
+      choices.forEach((choice) => {
+        const [result] = choice.match(/([a-zA-Z\^\.[0-9])+/);
+        results.push(result);
+        if (result.indexOf('^') !== -1) {
+          weighted = true;
+        }
+      });
+      source = source.replace(listGroup, weighted ? weightedPluck(results) : pluck(results));
+    });
+    return source;
   }
 
   /**

@@ -6,7 +6,7 @@ import { Player } from './Entity/Actor/Player';
 import Vector2 from './Vector';
 import { Messenger, Message } from './Message/Message';
 import { Enemy } from './Entity/Actor/Enemy';
-import { FloorGenerator } from './Map/FloorGenerator';
+import { DungeonGenerator, DungeonOptions } from './Map/DungeonGenerator';
 
 class Game {
 
@@ -26,9 +26,9 @@ class Game {
 
   public messenger: Messenger;
 
-  public activeEnemies = []; // @TODO
+  public activeEnemies = []; // @TODO move this all to floors
 
-  public floorGenerator: FloorGenerator;
+  public dungeonGenerator: DungeonGenerator;
 
   constructor (
       gameMap: GameMap,
@@ -57,9 +57,12 @@ class Game {
     window.onkeydown = this.handleInput.bind(this);
     window.onkeyup = this.handleInput.bind(this);
 
-    this.floorGenerator = new FloorGenerator();
-    this.floorGenerator.buildFloor(5, 10);
-    this.floorGenerator.debugOutput();
+    this.dungeonGenerator = new DungeonGenerator(<DungeonOptions>{
+      depth: 15
+    });
+
+    // Debug
+    this.dungeonGenerator.debugAndGenerateAllFloors();
   }
 
   /**

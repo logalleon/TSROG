@@ -6224,7 +6224,7 @@ module.exports = ret;
 },{"./es5":13}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":34}],5:[function(require,module,exports){
+},{"_process":39}],5:[function(require,module,exports){
 module.exports = require('./lib/heap');
 
 },{"./lib/heap":6}],6:[function(require,module,exports){
@@ -23825,7 +23825,7 @@ var Actor = /** @class */ (function () {
 }());
 exports.Actor = Actor;
 
-},{"../../Random/Dice":26,"bluebird":4}],11:[function(require,module,exports){
+},{"../../Random/Dice":31,"bluebird":4}],11:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../../Random/Dice");
@@ -23939,7 +23939,7 @@ var baseEnemies = [
 exports.baseEnemies = baseEnemies;
 var _a;
 
-},{"../../Canvas/Color":9,"../../Random/Dice":26}],12:[function(require,module,exports){
+},{"../../Canvas/Color":9,"../../Random/Dice":31}],12:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24088,7 +24088,7 @@ var Enemy = /** @class */ (function (_super) {
 }(Actor_1.Actor));
 exports.Enemy = Enemy;
 
-},{"../../Canvas/Color":9,"../../Game":19,"../../Message/Message":25,"./Actor":10}],13:[function(require,module,exports){
+},{"../../Canvas/Color":9,"../../Game":19,"../../Message/Message":30,"./Actor":10}],13:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Enemy_1 = require("../Actor/Enemy");
@@ -24140,7 +24140,7 @@ var EnemySpawner = /** @class */ (function () {
 }());
 exports.EnemySpawner = EnemySpawner;
 
-},{"../../Random/Dice":26,"../Actor/Enemy":12,"./Enemy.data":11}],14:[function(require,module,exports){
+},{"../../Random/Dice":31,"../Actor/Enemy":12,"./Enemy.data":11}],14:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24278,7 +24278,7 @@ var Player = /** @class */ (function (_super) {
 InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
 exports.Player = Player;
 
-},{"../../Canvas/Color":9,"../../Game":19,"../../Message/Message":25,"./Actor":10}],15:[function(require,module,exports){
+},{"../../Canvas/Color":9,"../../Game":19,"../../Message/Message":30,"./Actor":10}],15:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24391,10 +24391,10 @@ exports.Weapon = Weapon;
 exports.__esModule = true;
 var Input_1 = require("./Input");
 var Message_1 = require("./Message/Message");
-var FloorGenerator_1 = require("./Map/FloorGenerator");
+var DungeonGenerator_1 = require("./Map/DungeonGenerator");
 var Game = /** @class */ (function () {
     function Game(gameMap, screens, canvasProps, ctx, player, el, bottomEl) {
-        this.activeEnemies = []; // @TODO
+        this.activeEnemies = []; // @TODO move this all to floors
         if (Game.instance !== null) {
             throw 'Critical error! Two game instances';
         }
@@ -24411,9 +24411,11 @@ var Game = /** @class */ (function () {
         this.messenger = new Message_1.Messenger(el, bottomEl);
         window.onkeydown = this.handleInput.bind(this);
         window.onkeyup = this.handleInput.bind(this);
-        this.floorGenerator = new FloorGenerator_1.FloorGenerator();
-        this.floorGenerator.buildFloor(5, 10);
-        this.floorGenerator.debugOutput();
+        this.dungeonGenerator = new DungeonGenerator_1.DungeonGenerator({
+            depth: 15
+        });
+        // Debug
+        this.dungeonGenerator.debugAndGenerateAllFloors();
     }
     /**
      * Effectively, this is the game loop. Since everything is turn-based,
@@ -24496,7 +24498,7 @@ var Game = /** @class */ (function () {
 }());
 exports["default"] = Game;
 
-},{"./Input":21,"./Map/FloorGenerator":23,"./Message/Message":25}],20:[function(require,module,exports){
+},{"./Input":21,"./Map/DungeonGenerator":23,"./Message/Message":30}],20:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var easystarjs_1 = require("../custom_modules/easystarjs");
@@ -25079,81 +25081,132 @@ var Corridor = /** @class */ (function () {
 }());
 exports.Corridor = Corridor;
 
-},{"../Random/Dice":26,"../Vector":32}],23:[function(require,module,exports){
+},{"../Random/Dice":31,"../Vector":37}],23:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+var FloorGenerator_1 = require("./FloorGenerator");
+var TileSpawner_1 = require("./TileSpawner");
+var Dice_1 = require("../Random/Dice");
+var MAX_DUNGEON_DEPTH = 100;
+exports.MAX_DUNGEON_DEPTH = MAX_DUNGEON_DEPTH;
+var DungeonGenerator = /** @class */ (function () {
+    function DungeonGenerator(options) {
+        this.initialDepth = 0;
+        this.currentDepth = 0;
+        this.floors = [];
+        for (var key in options) {
+            this[key] = options[key];
+        }
+        this.maxDepth = Dice_1.clamp(options.depth, 1, DungeonGenerator.MAX_DUNGEON_DEPTH);
+        this.floorGenerator = new FloorGenerator_1.FloorGenerator({});
+        this.tileSpawner = new TileSpawner_1.TileSpawner();
+    }
+    DungeonGenerator.prototype.generateNewFloor = function () {
+        if (this.currentDepth <= this.maxDepth) {
+            this.floors.push(this.floorGenerator.generateFloor(this.currentDepth));
+            this.floors[this.currentDepth].buildFloor();
+            this.currentDepth += 1;
+        }
+        else {
+            console.log('Player shouldnt be here.');
+        }
+    };
+    DungeonGenerator.prototype.debugAllFloors = function () {
+        var wrapper = document.getElementById('tiles');
+        this.floors.forEach(function (floor) {
+            var p = document.createElement('p');
+            var html = "<h2>Floor " + floor.depth + "</h2>";
+            for (var y = 0; y < floor.floorHeight; y++) {
+                for (var x = 0; x < floor.floorWidth; x++) {
+                    var tile = floor.tiles[y][x];
+                    var char = tile.char, color = tile.color;
+                    html += "<span class='tile' style=\"color: " + color.val() + "\">" + char + "</span>";
+                }
+                html += '<br/>';
+            }
+            p.innerHTML = html;
+            wrapper.appendChild(p);
+        });
+    };
+    DungeonGenerator.prototype.debugAndGenerateAllFloors = function () {
+        for (var i = 0; i < this.maxDepth; i++) {
+            this.generateNewFloor();
+        }
+        var wrapper = document.getElementById('tiles');
+        this.floors.forEach(function (floor) {
+            var p = document.createElement('p');
+            var html = "<h2>Floor " + floor.depth + "</h2>";
+            for (var y = 0; y < floor.floorHeight; y++) {
+                for (var x = 0; x < floor.floorWidth; x++) {
+                    var tile = floor.tiles[y][x];
+                    var char = tile.char, color = tile.color;
+                    html += "<span class='tile' style=\"color: " + color.val() + "\">" + char + "</span>";
+                }
+                html += '<br/>';
+            }
+            p.innerHTML = html;
+            wrapper.appendChild(p);
+        });
+    };
+    DungeonGenerator.MAX_DUNGEON_DEPTH = MAX_DUNGEON_DEPTH;
+    return DungeonGenerator;
+}());
+exports.DungeonGenerator = DungeonGenerator;
+
+},{"../Random/Dice":31,"./FloorGenerator":25,"./TileSpawner":29}],24:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var Tile_1 = require("../Map/Tile");
 var Room_1 = require("./Room");
 var Corridor_1 = require("./Corridor");
 var Dice_1 = require("../Random/Dice");
-var Color_1 = require("../Canvas/Color");
-var F = function () { return ({
-    isPassable: true,
-    isOccupied: false,
-    description: 'Hard stone floor',
-    posX: 0,
-    posY: 0,
-    char: 'm',
-    color: new Color_1.Color({ html: 'purple' })
-}); };
-var W = function () { return ({
-    isPassable: false,
-    isOccupied: false,
-    description: 'A wall',
-    posX: 0,
-    posY: 0,
-    char: 'o',
-    color: new Color_1.Color({ hex: '#CCB69B' })
-}); };
-var FloorGenerator = /** @class */ (function () {
-    function FloorGenerator() {
+var Game_1 = require("../Game");
+var Vector_1 = require("../Vector");
+var Floor = /** @class */ (function () {
+    function Floor(options) {
         this.rooms = [];
         this.corridors = [];
-        this.roomWidthRange = {
-            low: 5,
-            high: 20
-        };
-        this.roomHeightRange = {
-            low: 5,
-            high: 20
-        };
-        this.corridorLength = {
-            low: 6,
-            high: 15
-        };
-        this.columns = 100;
-        this.rows = 100;
+        for (var key in options) {
+            this[key] = options[key];
+        }
     }
-    FloorGenerator.prototype.buildFloor = function (minRooms, maxRooms) {
+    Floor.prototype.buildFloor = function () {
         this.rooms = [];
         this.corridors = [];
-        var numRooms = Dice_1.randomInt(minRooms, maxRooms);
+        var numRooms = Dice_1.randomIntR(this.numRoomsRange);
         var numCorridors = numRooms - 1;
         this.rooms.push(new Room_1.Room());
         this.corridors.push(new Corridor_1.Corridor());
-        this.rooms[0].initialRoom(this.roomWidthRange, this.roomHeightRange, this.columns, this.rows);
-        this.corridors[0].setup(this.rooms[0], this.corridorLength, this.roomWidthRange, this.roomHeightRange, this.columns, this.rows, true);
+        this.rooms[0].initialRoom(this.roomWidthRange, this.roomHeightRange, this.floorWidth, this.floorHeight);
+        this.corridors[0].setup(this.rooms[0], this.corridorLengthRange, this.roomWidthRange, this.roomHeightRange, this.floorWidth, this.floorHeight, true);
         for (var i = 1; i < numRooms; i++) {
             this.rooms.push(new Room_1.Room());
-            this.rooms[i].subsequentRoom(this.roomWidthRange, this.roomHeightRange, this.columns, this.rows, this.corridors[i - 1]);
+            this.rooms[i].subsequentRoom(this.roomWidthRange, this.roomHeightRange, this.floorWidth, this.floorHeight, this.corridors[i - 1]);
             if (i < numCorridors) {
                 this.corridors.push(new Corridor_1.Corridor());
-                this.corridors[i].setup(this.rooms[i], this.corridorLength, this.roomWidthRange, this.roomHeightRange, this.columns, this.rows, false);
+                this.corridors[i].setup(this.rooms[i], this.corridorLengthRange, this.roomWidthRange, this.roomHeightRange, this.floorWidth, this.floorHeight, false);
             }
         }
         this.setWalls();
         this.setRoomTiles();
         this.setCorridorTiles();
+        this.setDoorTiles();
     };
-    FloorGenerator.prototype.setWalls = function () {
+    Floor.prototype.setWalls = function () {
         this.tiles = [];
-        for (var y = 0; y < this.rows; y++) {
+        for (var y = 0; y < this.floorHeight; y++) {
             this.tiles[y] = [];
-            for (var x = 0; x < this.columns; x++) {
-                this.tiles[y][x] = W();
+            for (var x = 0; x < this.floorWidth; x++) {
+                // Get impassible tiles for walls
+                // @TODO make these of the type wall
+                this.tiles[y][x] = Game_1["default"].instance.dungeonGenerator.tileSpawner.getTile({
+                    depth: this.depth,
+                    isPassible: false
+                });
             }
         }
     };
-    FloorGenerator.prototype.setRoomTiles = function () {
+    Floor.prototype.setRoomTiles = function () {
         var _this = this;
         this.rooms.forEach(function (room) {
             for (var row = 0; row < room.roomHeight; row++) {
@@ -25161,12 +25214,16 @@ var FloorGenerator = /** @class */ (function () {
                 var p_row = _this.tiles[y];
                 for (var col = 0; col < room.roomWidth; col++) {
                     var x = room.pos.x + col;
-                    _this.tiles[y][x] = F();
+                    p_row[x] = Game_1["default"].instance.dungeonGenerator.tileSpawner.getTile({
+                        depth: _this.depth,
+                        isPassible: true,
+                        type: Tile_1.TileTypes.FLOOR
+                    });
                 }
             }
         });
     };
-    FloorGenerator.prototype.setCorridorTiles = function () {
+    Floor.prototype.setCorridorTiles = function () {
         var _this = this;
         this.corridors.forEach(function (corridor) {
             for (var i = 0; i < corridor.length; i++) {
@@ -25185,33 +25242,83 @@ var FloorGenerator = /** @class */ (function () {
                         x -= i;
                         break;
                 }
-                _this.tiles[y][x] = F();
+                // @TODO something isn't right here . . . the start of a corridor should always be
+                // in bounds, right?
+                if (_this.inBounds(_this.floorWidth, _this.floorHeight, new Vector_1["default"](x, y))) {
+                    _this.tiles[y][x] = Game_1["default"].instance.dungeonGenerator.tileSpawner.getTile({
+                        depth: _this.depth,
+                        isPassible: true,
+                        type: Tile_1.TileTypes.FLOOR
+                    });
+                }
             }
         });
     };
-    FloorGenerator.prototype.debugOutput = function () {
+    Floor.prototype.setDoorTiles = function () {
         var _this = this;
-        var p = document.getElementById('tiles');
-        var html = '';
-        for (var row = 0; row < this.tiles.length; row++) {
-            for (var col = 0; col < this.tiles[row].length; col++) {
-                var tile = this.tiles[row][col];
-                var char = tile.char, color = tile.color;
-                html += "<span class='tile' style=\"color: " + color.val() + "\">" + char + "</span>";
+        this.corridors.forEach(function (corridor) {
+            var _a = corridor.startingPosition, x = _a.x, y = _a.y;
+            if (_this.inBounds(_this.floorWidth, _this.floorHeight, corridor.startingPosition)) {
+                // @TODO 'walk back' if there are tiles prevent the door from being any use
+                _this.tiles[y][x] = Game_1["default"].instance.dungeonGenerator.tileSpawner.getTile({
+                    depth: _this.depth,
+                    type: Tile_1.TileTypes.DOOR
+                });
             }
-            html += '<br/>';
+        });
+    };
+    Floor.prototype.inBounds = function (width, height, v) {
+        return v.x >= 0 &&
+            v.y >= 0 &&
+            v.x < width &&
+            v.y < height;
+    };
+    return Floor;
+}());
+exports.Floor = Floor;
+
+},{"../Game":19,"../Map/Tile":28,"../Random/Dice":31,"../Vector":37,"./Corridor":22,"./Room":26}],25:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var Floor_1 = require("./Floor");
+var FloorGenerator = /** @class */ (function () {
+    function FloorGenerator(options) {
+    }
+    FloorGenerator.prototype.generateFloor = function (depth) {
+        if (depth === 0) {
+            return new Floor_1.Floor({
+                maxCR: 10,
+                variantEnemiesRange: { low: 0, high: 1 },
+                pickupsRange: { low: 0, high: 1 },
+                floorHeight: 40,
+                floorWidth: 40,
+                roomHeightRange: { low: 5, high: 8 },
+                roomWidthRange: { low: 5, high: 8 },
+                numRoomsRange: { low: 5, high: 10 },
+                corridorLengthRange: { low: 3, high: 12 },
+                depth: depth
+            });
         }
-        p.innerHTML = html;
-        p.onclick = function () {
-            _this.buildFloor(5, 20);
-            _this.debugOutput();
-        };
+        else {
+            return new Floor_1.Floor({
+                maxCR: 10,
+                variantEnemiesRange: { low: 0, high: 1 },
+                pickupsRange: { low: 0, high: 1 },
+                floorHeight: 30,
+                floorWidth: 30,
+                roomHeightRange: { low: 5, high: 8 },
+                roomWidthRange: { low: 5, high: 8 },
+                numRoomsRange: { low: 5, high: 10 },
+                corridorLengthRange: { low: 3, high: 12 },
+                depth: depth
+            });
+        }
     };
     return FloorGenerator;
 }());
 exports.FloorGenerator = FloorGenerator;
 
-},{"../Canvas/Color":9,"../Random/Dice":26,"./Corridor":22,"./Room":24}],24:[function(require,module,exports){
+},{"./Floor":24}],26:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../Random/Dice");
@@ -25256,7 +25363,115 @@ var Room = /** @class */ (function () {
 }());
 exports.Room = Room;
 
-},{"../Random/Dice":26,"../Vector":32,"./Corridor":22}],25:[function(require,module,exports){
+},{"../Random/Dice":31,"../Vector":37,"./Corridor":22}],27:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var Tile_1 = require("./Tile");
+var Color_1 = require("../Canvas/Color");
+// @TODO something isn't right here import { MAX_DUNGEON_DEPTH } from './DungeonGenerator';
+var MAX_DUNGEON_DEPTH = 100;
+var tileData = [
+    {
+        isPassible: true,
+        description: 'Hard stone floor',
+        char: '.',
+        color: new Color_1.Color({ html: 'black' }),
+        depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
+        type: Tile_1.TileTypes.FLOOR
+    },
+    {
+        isPassible: true,
+        description: 'Hard chert floor',
+        char: '.',
+        color: new Color_1.Color({ html: 'darkblue' }),
+        depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
+        type: Tile_1.TileTypes.FLOOR
+    },
+    {
+        isPassible: false,
+        description: 'A wall',
+        char: '.',
+        color: new Color_1.Color({ html: 'white' }),
+        depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
+        type: Tile_1.TileTypes.WALL
+    },
+    {
+        isPassible: true,
+        description: 'A door',
+        char: 'D',
+        color: new Color_1.Color({ html: 'red' }),
+        depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
+        type: Tile_1.TileTypes.DOOR
+    }
+];
+exports.tileData = tileData;
+
+},{"../Canvas/Color":9,"./Tile":28}],28:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var TileTypes;
+(function (TileTypes) {
+    TileTypes["WALL"] = "wall";
+    TileTypes["FLOOR"] = "floor";
+    TileTypes["DOOR"] = "door";
+})(TileTypes || (TileTypes = {}));
+exports.TileTypes = TileTypes;
+var Tile = /** @class */ (function () {
+    function Tile(options) {
+        this.isPassible = true;
+        this.isOccupied = false;
+        this.occupiers = [];
+        for (var key in options) {
+            this[key] = options[key];
+        }
+        if (!options.type || !options.char || !options.color) {
+            throw 'Error: tile is borked';
+        }
+    }
+    ;
+    return Tile;
+}());
+exports.Tile = Tile;
+
+},{}],29:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var Tile_1 = require("./Tile");
+var Tile_data_1 = require("./Tile.data");
+var Dice_1 = require("../Random/Dice");
+var TileSpawner = /** @class */ (function () {
+    function TileSpawner() {
+        this.tileData = Tile_data_1.tileData;
+    }
+    TileSpawner.prototype.getTile = function (options) {
+        var possibleTiles = this.tileData.filter(function (tile) {
+            var allowed = true;
+            if (options.depth) {
+                if (tile.depthRange.low > options.depth || tile.depthRange.high < options.depth) {
+                    return false;
+                }
+            }
+            if (typeof options.isPassible !== 'undefined') {
+                if (tile.isPassible !== options.isPassible) {
+                    return false;
+                }
+            }
+            if (options.type) {
+                if (tile.type !== options.type) {
+                    return false;
+                }
+            }
+            return allowed;
+        });
+        var tileOptions = Dice_1.pluck(possibleTiles);
+        var tile = new Tile_1.Tile(Dice_1.pluck(possibleTiles));
+        return tile;
+    };
+    return TileSpawner;
+}());
+exports.TileSpawner = TileSpawner;
+
+},{"../Random/Dice":31,"./Tile":28,"./Tile.data":27}],30:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Color_1 = require("../Canvas/Color");
@@ -25347,7 +25562,7 @@ var Messenger = /** @class */ (function () {
 }());
 exports.Messenger = Messenger;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9}],26:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9}],31:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var StandardDice;
@@ -25387,8 +25602,45 @@ var clamp = function (value, low, high) {
     return value;
 };
 exports.clamp = clamp;
+var weightedPluck = function (arr) {
+    var scalars = {};
+    var items = [].concat(arr);
+    var scaleMax = 0;
+    var min = 1;
+    var max = 1;
+    items.forEach(function (el, i) {
+        if (el.match(/\^/g)) {
+            var _a = el.split('^'), str = _a[0], scalar_1 = _a[1];
+            scalars[i] = Number(scalar_1);
+            items[i] = str;
+        }
+        var scalar = scalars[i];
+        min = scalar < min ? scalar : min;
+        max = scalar > max ? scalar : max;
+    });
+    var scale = max / min;
+    items.forEach(function (el, i) {
+        scaleMax += scale * (scalars[i] ? scalars[i] : 1);
+    });
+    var weightedSelection;
+    var currentIndex = 0;
+    var atIndex = randomInt(0, scaleMax);
+    for (var i = 0; i < items.length; i++) {
+        currentIndex += scale * (scalars[i] ? scalars[i] : 1);
+        if (atIndex <= currentIndex) {
+            weightedSelection = items[i];
+            break;
+        }
+    }
+    return weightedSelection;
+};
+exports.weightedPluck = weightedPluck;
+var randomIntR = function (range) {
+    return randomInt(range.low, range.high);
+};
+exports.randomIntR = randomIntR;
 
-},{}],27:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25452,7 +25704,7 @@ var CommandScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = CommandScreen;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Entity/Actor/Player":14,"./MapScreen":30,"./Screen":31,"lodash":7}],28:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Entity/Actor/Player":14,"./MapScreen":35,"./Screen":36,"lodash":7}],33:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25508,7 +25760,7 @@ var InventoryItemScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryItemScreen;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9,"./Screen":31}],29:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9,"./Screen":36}],34:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25559,7 +25811,7 @@ var InventoryScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Entity/Actor/Player":14,"./Screen":31}],30:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Entity/Actor/Player":14,"./Screen":36}],35:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25753,7 +26005,7 @@ var MapScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = MapScreen;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Vector":32,"./Screen":31}],31:[function(require,module,exports){
+},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Vector":37,"./Screen":36}],36:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Message_1 = require("../Message/Message");
@@ -25805,7 +26057,7 @@ var Screen = /** @class */ (function () {
 }());
 exports.Screen = Screen;
 
-},{"../Message/Message":25}],32:[function(require,module,exports){
+},{"../Message/Message":30}],37:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Vector2 = /** @class */ (function () {
@@ -25824,7 +26076,7 @@ var Vector2 = /** @class */ (function () {
 }());
 exports["default"] = Vector2;
 
-},{}],33:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("./Game");
@@ -26003,7 +26255,7 @@ window.onload = function () {
     window.game = g;
 };
 
-},{"./Canvas/Canvas":8,"./Canvas/Color":9,"./Entity/Actor/Enemy.data":11,"./Entity/Actor/EnemySpawner":13,"./Entity/Actor/Player":14,"./Entity/Prop/Armor":15,"./Entity/Prop/Prop.data":16,"./Entity/Prop/Weapon":18,"./Game":19,"./GameMap":20,"./Random/Dice":26,"./Screen/CommandScreen":27,"./Screen/InventoryItemScreen":28,"./Screen/InventoryScreen":29,"./Screen/MapScreen":30,"./Screen/Screen":31,"./Vector":32}],34:[function(require,module,exports){
+},{"./Canvas/Canvas":8,"./Canvas/Color":9,"./Entity/Actor/Enemy.data":11,"./Entity/Actor/EnemySpawner":13,"./Entity/Actor/Player":14,"./Entity/Prop/Armor":15,"./Entity/Prop/Prop.data":16,"./Entity/Prop/Weapon":18,"./Game":19,"./GameMap":20,"./Random/Dice":31,"./Screen/CommandScreen":32,"./Screen/InventoryItemScreen":33,"./Screen/InventoryScreen":34,"./Screen/MapScreen":35,"./Screen/Screen":36,"./Vector":37}],39:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -26189,4 +26441,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},[33]);
+},{}]},{},[38]);

@@ -7,10 +7,11 @@ import { fontOptions } from '../Canvas/Canvas';
 import { Enemy } from '../Entity/Actor/Enemy';
 import Game from '../Game';
 import Vector2 from '../Vector';
+import { RegionNames } from './Floor.data';
 
 interface FloorPersistance {
   // A reference to the starting index to see how long the persistance should keep up
-  startIndex: number,
+  startIndex?: number,
   persistance?: Range
 }
 
@@ -28,6 +29,10 @@ interface FloorOptions {
   depth: number,
   // Floors with a persistance value will persist for RANGE number of floors
   floorPersistance?: FloorPersistance,
+  // Range at which first generation can occur
+  depthRange: Range,
+  name: string,
+  regionName: RegionNames
 }
 
 class Floor {
@@ -55,6 +60,10 @@ class Floor {
   public floorPersistance: FloorPersistance;
   public willPersistFor: number;
 
+  public name: string;
+  public regionName: RegionNames;
+  public nameInSequence: number;
+
   constructor (options: FloorOptions) {
     for (let key in options) {
       this[key] = options[key];
@@ -62,6 +71,8 @@ class Floor {
   }
 
   buildFloor () {
+
+    this.generateName();
 
     this.rooms = [];
     this.corridors = [];
@@ -201,6 +212,18 @@ class Floor {
       v.y >= 0 &&
       v.x < width &&
       v.y < height;
+  }
+
+  generateName (): void {
+    this.name = Game.instance.legendary.parse(this.name);
+    // Starting floor in a sequence
+    if (this.floorPersistance) {
+      if (this.floorPersistance.persistance) {
+        this.nameInSequence = 1;
+      } else {
+        this.nameInSequence = (this.depth - this.floorPersistance.startIndex) + 1;
+      }
+    }
   }
 
 }

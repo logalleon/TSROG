@@ -7,6 +7,7 @@ import Vector2 from './Vector';
 import { Messenger, Message } from './Message/Message';
 import { Enemy } from './Entity/Actor/Enemy';
 import { DungeonGenerator, DungeonOptions } from './Map/DungeonGenerator';
+import { Legendary } from './Random/Legendary';
 
 class Game {
 
@@ -29,6 +30,8 @@ class Game {
   public activeEnemies = []; // @TODO move this all to floors
 
   public dungeonGenerator: DungeonGenerator;
+
+  public legendary: Legendary;
 
   constructor (
       gameMap: GameMap,
@@ -56,6 +59,9 @@ class Game {
     this.messenger = new Messenger(el, bottomEl);
     window.onkeydown = this.handleInput.bind(this);
     window.onkeyup = this.handleInput.bind(this);
+
+    // Legendary has to load before the floor and dungeon generators
+    this.legendary = new Legendary();
 
     this.dungeonGenerator = new DungeonGenerator(<DungeonOptions>{
       depth: 15

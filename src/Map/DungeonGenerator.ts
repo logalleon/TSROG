@@ -2,6 +2,7 @@ import { FloorGenerator, FloorGeneratorOptions } from './FloorGenerator';
 import { TileSpawner } from './TileSpawner';
 import { clamp } from '../Random/Dice';
 import { Floor } from './Floor';
+import { convert } from 'roman-numeral';
 
 interface DungeonOptions {
   depth: number
@@ -40,8 +41,12 @@ class DungeonGenerator {
           this.floors[this.currentDepth - 1].floorPersistance.startIndex
         ));
       } else {
-        this.floors.push(this.floorGenerator.generateFloor(this.currentDepth));
+        this.floors.push(this.floorGenerator.generateFloor(<FloorGeneratorOptions>{
+          depth: this.currentDepth
+        }));
       }
+      // Make sure to set the depth here
+      this.floors[this.currentDepth].depth = this.currentDepth;
       this.floors[this.currentDepth].buildFloor();
       this.currentDepth += 1;
     } else {
@@ -54,6 +59,7 @@ class DungeonGenerator {
       return false;
     }
     const { startIndex } = this.floors[this.currentDepth - 1].floorPersistance;
+    console.log(startIndex);
     const startingFloor = this.floors[startIndex];
     const { willPersistFor } = startingFloor;
     // The floor should only persist if the persistance value hasn't stopped
@@ -64,7 +70,7 @@ class DungeonGenerator {
     const wrapper = document.getElementById('tiles');
     this.floors.forEach((floor) => {
       const p = document.createElement('p');
-      let html = `<h2>Floor ${floor.depth}</h2>`
+      let html = `<h2>${floor.name} of ${floor.regionName} - ${floor.depth}</h2>`
       for (let y = 0; y < floor.floorHeight; y++) {
         for (let x = 0; x < floor.floorWidth; x++) {
           const tile = floor.tiles[y][x];
@@ -85,7 +91,7 @@ class DungeonGenerator {
     const wrapper = document.getElementById('tiles');
     this.floors.forEach((floor) => {
       const p = document.createElement('p');
-      let html = `<h2>Floor ${floor.depth}</h2>`
+      let html = `<h2>${floor.name} of ${floor.regionName}${convert(floor.nameInSequence)} - ${floor.depth}</h2>`
       for (let y = 0; y < floor.floorHeight; y++) {
         for (let x = 0; x < floor.floorWidth; x++) {
           const tile = floor.tiles[y][x];

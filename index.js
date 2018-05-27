@@ -6224,7 +6224,7 @@ module.exports = ret;
 },{"./es5":13}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":39}],5:[function(require,module,exports){
+},{"_process":44}],5:[function(require,module,exports){
 module.exports = require('./lib/heap');
 
 },{"./lib/heap":6}],6:[function(require,module,exports){
@@ -23714,6 +23714,56 @@ module.exports = require('./lib/heap');
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],8:[function(require,module,exports){
+exports.mappings = {
+  'M': 1000 ,
+  'CM': 900,
+  'D': 500,
+  'CD': 400,
+  'C': 100,
+  'XC': 90,
+  'LX': 60,
+  'L': 50,
+  'XL': 40,
+  'X': 10,
+  'IX': 9,
+  'V': 5,
+  'IV': 4,
+  'I': 1 
+};
+
+},{}],9:[function(require,module,exports){
+'use strict';
+
+var config = require('./config.js');
+
+var sortByVal = function (obj) {
+  return function (a, b) { 
+    return obj[a] > obj[b] ? -1 : 1;
+  };
+};
+
+exports.convert = function (n, mappings) {
+  var res = [],
+      mappings = mappings || config.mappings,
+      keys = Object.keys(mappings),
+      sorted = keys.sort(sortByVal(mappings));
+
+  sorted.forEach(function (key) {
+    var val = mappings[key],
+        times = Math.floor(n/val);
+
+    for (var i = 0; i < times; i++) { 
+      res.push(key); 
+    };
+
+    n = n % val;
+  });
+
+  return res.join('');
+};
+
+
+},{"./config.js":8}],10:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var fontSize = 14;
@@ -23748,7 +23798,7 @@ var setupCanvas = function (canvas, height, width) {
 };
 exports.setupCanvas = setupCanvas;
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Color = /** @class */ (function () {
@@ -23779,7 +23829,7 @@ var Colors = {
 };
 exports.Colors = Colors;
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../../Random/Dice");
@@ -23825,7 +23875,7 @@ var Actor = /** @class */ (function () {
 }());
 exports.Actor = Actor;
 
-},{"../../Random/Dice":31,"bluebird":4}],11:[function(require,module,exports){
+},{"../../Random/Dice":34,"bluebird":4}],13:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../../Random/Dice");
@@ -23939,7 +23989,7 @@ var baseEnemies = [
 exports.baseEnemies = baseEnemies;
 var _a;
 
-},{"../../Canvas/Color":9,"../../Random/Dice":31}],12:[function(require,module,exports){
+},{"../../Canvas/Color":11,"../../Random/Dice":34}],14:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24088,7 +24138,7 @@ var Enemy = /** @class */ (function (_super) {
 }(Actor_1.Actor));
 exports.Enemy = Enemy;
 
-},{"../../Canvas/Color":9,"../../Game":19,"../../Message/Message":30,"./Actor":10}],13:[function(require,module,exports){
+},{"../../Canvas/Color":11,"../../Game":21,"../../Message/Message":33,"./Actor":12}],15:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Enemy_1 = require("../Actor/Enemy");
@@ -24140,7 +24190,7 @@ var EnemySpawner = /** @class */ (function () {
 }());
 exports.EnemySpawner = EnemySpawner;
 
-},{"../../Random/Dice":31,"../Actor/Enemy":12,"./Enemy.data":11}],14:[function(require,module,exports){
+},{"../../Random/Dice":34,"../Actor/Enemy":14,"./Enemy.data":13}],16:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24278,7 +24328,7 @@ var Player = /** @class */ (function (_super) {
 InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
 exports.Player = Player;
 
-},{"../../Canvas/Color":9,"../../Game":19,"../../Message/Message":30,"./Actor":10}],15:[function(require,module,exports){
+},{"../../Canvas/Color":11,"../../Game":21,"../../Message/Message":33,"./Actor":12}],17:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24307,7 +24357,7 @@ var Armor = /** @class */ (function (_super) {
 }(Prop_1.Prop));
 exports.Armor = Armor;
 
-},{"./Prop":17}],16:[function(require,module,exports){
+},{"./Prop":19}],18:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Quality;
@@ -24335,7 +24385,7 @@ var EMaterialSubtype;
 (function (EMaterialSubtype) {
 })(EMaterialSubtype || (EMaterialSubtype = {}));
 
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Prop = /** @class */ (function () {
@@ -24348,7 +24398,7 @@ var Prop = /** @class */ (function () {
 }());
 exports.Prop = Prop;
 
-},{}],18:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24386,12 +24436,13 @@ var Weapon = /** @class */ (function (_super) {
 }(Prop_1.Prop));
 exports.Weapon = Weapon;
 
-},{"./Prop":17}],19:[function(require,module,exports){
+},{"./Prop":19}],21:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Input_1 = require("./Input");
 var Message_1 = require("./Message/Message");
 var DungeonGenerator_1 = require("./Map/DungeonGenerator");
+var Legendary_1 = require("./Random/Legendary");
 var Game = /** @class */ (function () {
     function Game(gameMap, screens, canvasProps, ctx, player, el, bottomEl) {
         this.activeEnemies = []; // @TODO move this all to floors
@@ -24411,6 +24462,8 @@ var Game = /** @class */ (function () {
         this.messenger = new Message_1.Messenger(el, bottomEl);
         window.onkeydown = this.handleInput.bind(this);
         window.onkeyup = this.handleInput.bind(this);
+        // Legendary has to load before the floor and dungeon generators
+        this.legendary = new Legendary_1.Legendary();
         this.dungeonGenerator = new DungeonGenerator_1.DungeonGenerator({
             depth: 15
         });
@@ -24498,7 +24551,7 @@ var Game = /** @class */ (function () {
 }());
 exports["default"] = Game;
 
-},{"./Input":21,"./Map/DungeonGenerator":23,"./Message/Message":30}],20:[function(require,module,exports){
+},{"./Input":23,"./Map/DungeonGenerator":25,"./Message/Message":33,"./Random/Legendary":35}],22:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var easystarjs_1 = require("../custom_modules/easystarjs");
@@ -24591,7 +24644,7 @@ var GameMap = /** @class */ (function () {
 }());
 exports.GameMap = GameMap;
 
-},{"../custom_modules/easystarjs":1}],21:[function(require,module,exports){
+},{"../custom_modules/easystarjs":1}],23:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var keyCodeToChar = {
@@ -25015,7 +25068,7 @@ var mapKeyPressToActualCharacter = function (isShiftKey, characterCode) {
 };
 exports.mapKeyPressToActualCharacter = mapKeyPressToActualCharacter;
 
-},{}],22:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../Random/Dice");
@@ -25081,12 +25134,13 @@ var Corridor = /** @class */ (function () {
 }());
 exports.Corridor = Corridor;
 
-},{"../Random/Dice":31,"../Vector":37}],23:[function(require,module,exports){
+},{"../Random/Dice":34,"../Vector":42}],25:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var FloorGenerator_1 = require("./FloorGenerator");
 var TileSpawner_1 = require("./TileSpawner");
 var Dice_1 = require("../Random/Dice");
+var roman_numeral_1 = require("roman-numeral");
 var MAX_DUNGEON_DEPTH = 100;
 exports.MAX_DUNGEON_DEPTH = MAX_DUNGEON_DEPTH;
 var DungeonGenerator = /** @class */ (function () {
@@ -25108,8 +25162,12 @@ var DungeonGenerator = /** @class */ (function () {
                 this.floors.push(this.floorGenerator.generateSimilarFloor(this.currentDepth, this.floors[this.currentDepth - 1].floorPersistance.startIndex));
             }
             else {
-                this.floors.push(this.floorGenerator.generateFloor(this.currentDepth));
+                this.floors.push(this.floorGenerator.generateFloor({
+                    depth: this.currentDepth
+                }));
             }
+            // Make sure to set the depth here
+            this.floors[this.currentDepth].depth = this.currentDepth;
             this.floors[this.currentDepth].buildFloor();
             this.currentDepth += 1;
         }
@@ -25122,6 +25180,7 @@ var DungeonGenerator = /** @class */ (function () {
             return false;
         }
         var startIndex = this.floors[this.currentDepth - 1].floorPersistance.startIndex;
+        console.log(startIndex);
         var startingFloor = this.floors[startIndex];
         var willPersistFor = startingFloor.willPersistFor;
         // The floor should only persist if the persistance value hasn't stopped
@@ -25131,7 +25190,7 @@ var DungeonGenerator = /** @class */ (function () {
         var wrapper = document.getElementById('tiles');
         this.floors.forEach(function (floor) {
             var p = document.createElement('p');
-            var html = "<h2>Floor " + floor.depth + "</h2>";
+            var html = "<h2>" + floor.name + " of " + floor.regionName + " - " + floor.depth + "</h2>";
             for (var y = 0; y < floor.floorHeight; y++) {
                 for (var x = 0; x < floor.floorWidth; x++) {
                     var tile = floor.tiles[y][x];
@@ -25151,7 +25210,7 @@ var DungeonGenerator = /** @class */ (function () {
         var wrapper = document.getElementById('tiles');
         this.floors.forEach(function (floor) {
             var p = document.createElement('p');
-            var html = "<h2>Floor " + floor.depth + "</h2>";
+            var html = "<h2>" + floor.name + " of " + floor.regionName + roman_numeral_1.convert(floor.nameInSequence) + " - " + floor.depth + "</h2>";
             for (var y = 0; y < floor.floorHeight; y++) {
                 for (var x = 0; x < floor.floorWidth; x++) {
                     var tile = floor.tiles[y][x];
@@ -25169,7 +25228,59 @@ var DungeonGenerator = /** @class */ (function () {
 }());
 exports.DungeonGenerator = DungeonGenerator;
 
-},{"../Random/Dice":31,"./FloorGenerator":25,"./TileSpawner":29}],24:[function(require,module,exports){
+},{"../Random/Dice":34,"./FloorGenerator":28,"./TileSpawner":32,"roman-numeral":9}],26:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var DungeonGenerator_1 = require("./DungeonGenerator");
+var RegionNames;
+(function (RegionNames) {
+    RegionNames["Lorlerach"] = "Lorlerach";
+    RegionNames["Jirdenth"] = "Jirdenth";
+    RegionNames["Emdynusk"] = "Emdynusk";
+    RegionNames["Peruskkal"] = "Peruskkal";
+    RegionNames["Oughmoren"] = "Oughmoren";
+    RegionNames["Ranwarir"] = "Ranwarir";
+    RegionNames["Lytandel"] = "Lytandel";
+    RegionNames["Ydra"] = "Ydra";
+    RegionNames["Burm"] = "Burm";
+})(RegionNames || (RegionNames = {}));
+exports.RegionNames = RegionNames;
+var floorData = [
+    {
+        maxCR: 10,
+        variantEnemiesRange: { low: 0, high: 1 },
+        pickupsRange: { low: 0, high: 1 },
+        floorHeight: 40,
+        floorWidth: 40,
+        roomHeightRange: { low: 5, high: 8 },
+        roomWidthRange: { low: 5, high: 8 },
+        numRoomsRange: { low: 5, high: 10 },
+        corridorLengthRange: { low: 3, high: 12 },
+        depthRange: { low: 0, high: 4 },
+        floorPersistance: {
+            persistance: { low: 3, high: 6 }
+        },
+        name: "{dank|meme} dungeon",
+        regionName: RegionNames.Burm
+    },
+    {
+        maxCR: 10,
+        variantEnemiesRange: { low: 0, high: 1 },
+        pickupsRange: { low: 0, high: 1 },
+        floorHeight: 30,
+        floorWidth: 30,
+        roomHeightRange: { low: 5, high: 8 },
+        roomWidthRange: { low: 5, high: 8 },
+        numRoomsRange: { low: 5, high: 10 },
+        corridorLengthRange: { low: 3, high: 12 },
+        depthRange: { low: 1, high: DungeonGenerator_1.MAX_DUNGEON_DEPTH },
+        name: "{Another|Onge} mire",
+        regionName: RegionNames.Jirdenth
+    }
+];
+exports.floorData = floorData;
+
+},{"./DungeonGenerator":25}],27:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Tile_1 = require("../Map/Tile");
@@ -25187,6 +25298,7 @@ var Floor = /** @class */ (function () {
         }
     }
     Floor.prototype.buildFloor = function () {
+        this.generateName();
         this.rooms = [];
         this.corridors = [];
         var numRooms = Dice_1.randomIntR(this.numRoomsRange);
@@ -25293,50 +25405,44 @@ var Floor = /** @class */ (function () {
             v.x < width &&
             v.y < height;
     };
+    Floor.prototype.generateName = function () {
+        this.name = Game_1["default"].instance.legendary.parse(this.name);
+        // Starting floor in a sequence
+        if (this.floorPersistance) {
+            if (this.floorPersistance.persistance) {
+                this.nameInSequence = 1;
+            }
+            else {
+                this.nameInSequence = (this.depth - this.floorPersistance.startIndex) + 1;
+            }
+        }
+    };
     return Floor;
 }());
 exports.Floor = Floor;
 
-},{"../Game":19,"../Map/Tile":28,"../Random/Dice":31,"../Vector":37,"./Corridor":22,"./Room":26}],25:[function(require,module,exports){
+},{"../Game":21,"../Map/Tile":31,"../Random/Dice":34,"../Vector":42,"./Corridor":24,"./Room":29}],28:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+var Dice_1 = require("../Random/Dice");
 var Floor_1 = require("./Floor");
 var Game_1 = require("../Game");
+var Floor_data_1 = require("./Floor.data");
 var FloorGenerator = /** @class */ (function () {
     function FloorGenerator(options) {
+        this.floorData = Floor_data_1.floorData;
     }
-    FloorGenerator.prototype.generateFloor = function (depth) {
-        if (depth === 0) {
-            return new Floor_1.Floor({
-                maxCR: 10,
-                variantEnemiesRange: { low: 0, high: 1 },
-                pickupsRange: { low: 0, high: 1 },
-                floorHeight: 40,
-                floorWidth: 40,
-                roomHeightRange: { low: 5, high: 8 },
-                roomWidthRange: { low: 5, high: 8 },
-                numRoomsRange: { low: 5, high: 10 },
-                corridorLengthRange: { low: 3, high: 12 },
-                depth: depth,
-                floorPersistance: {
-                    persistance: { low: 3, high: 6 }
+    FloorGenerator.prototype.generateFloor = function (options) {
+        var possibleFloors = this.floorData.filter(function (floor) {
+            var allowed = true;
+            if (typeof options.depth !== 'undefined') {
+                if (floor.depthRange.low > options.depth || floor.depthRange.high < options.depth) {
+                    return false;
                 }
-            });
-        }
-        else {
-            return new Floor_1.Floor({
-                maxCR: 10,
-                variantEnemiesRange: { low: 0, high: 1 },
-                pickupsRange: { low: 0, high: 1 },
-                floorHeight: 30,
-                floorWidth: 30,
-                roomHeightRange: { low: 5, high: 8 },
-                roomWidthRange: { low: 5, high: 8 },
-                numRoomsRange: { low: 5, high: 10 },
-                corridorLengthRange: { low: 3, high: 12 },
-                depth: depth
-            });
-        }
+            }
+            return allowed;
+        });
+        return new Floor_1.Floor(Dice_1.pluck(possibleFloors));
     };
     /**
      * Generates similar persistance floor
@@ -25355,7 +25461,9 @@ var FloorGenerator = /** @class */ (function () {
             numRoomsRange: startingFloor.numRoomsRange,
             floorHeight: startingFloor.floorHeight,
             floorWidth: startingFloor.floorWidth,
-            pickupsRange: startingFloor.pickupsRange
+            pickupsRange: startingFloor.pickupsRange,
+            name: startingFloor.name,
+            regionName: startingFloor.regionName
         });
         similarFloor.floorPersistance = {
             startIndex: startIndex
@@ -25367,7 +25475,7 @@ var FloorGenerator = /** @class */ (function () {
 }());
 exports.FloorGenerator = FloorGenerator;
 
-},{"../Game":19,"./Floor":24}],26:[function(require,module,exports){
+},{"../Game":21,"../Random/Dice":34,"./Floor":27,"./Floor.data":26}],29:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../Random/Dice");
@@ -25412,7 +25520,7 @@ var Room = /** @class */ (function () {
 }());
 exports.Room = Room;
 
-},{"../Random/Dice":31,"../Vector":37,"./Corridor":22}],27:[function(require,module,exports){
+},{"../Random/Dice":34,"../Vector":42,"./Corridor":24}],30:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Tile_1 = require("./Tile");
@@ -25490,7 +25598,7 @@ var tileData = [
 ];
 exports.tileData = tileData;
 
-},{"../Canvas/Color":9,"./Tile":28}],28:[function(require,module,exports){
+},{"../Canvas/Color":11,"./Tile":31}],31:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var TileTypes;
@@ -25517,7 +25625,7 @@ var Tile = /** @class */ (function () {
 }());
 exports.Tile = Tile;
 
-},{}],29:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Tile_1 = require("./Tile");
@@ -25555,7 +25663,7 @@ var TileSpawner = /** @class */ (function () {
 }());
 exports.TileSpawner = TileSpawner;
 
-},{"../Random/Dice":31,"./Tile":28,"./Tile.data":27}],30:[function(require,module,exports){
+},{"../Random/Dice":34,"./Tile":31,"./Tile.data":30}],33:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Color_1 = require("../Canvas/Color");
@@ -25646,7 +25754,7 @@ var Messenger = /** @class */ (function () {
 }());
 exports.Messenger = Messenger;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9}],31:[function(require,module,exports){
+},{"../Canvas/Canvas":10,"../Canvas/Color":11}],34:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var StandardDice;
@@ -25724,7 +25832,138 @@ var randomIntR = function (range) {
 };
 exports.randomIntR = randomIntR;
 
-},{}],32:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var language_data_1 = require("./language.data");
+var Dice_1 = require("./Dice");
+var Legendary = /** @class */ (function () {
+    function Legendary() {
+        // Load language libraries
+        this.lists = language_data_1.LegendaryData;
+    }
+    /**
+     * [list] - selects from list, same as ...
+     * [list:unique(1)] - selects 1, unique, from list
+     * [list:unique(2)] - selects 2, unique, from list
+     * [list:any(2)] - selects 2, not unqiue
+     * [listA|listB|...listN] - selects 1 from either A..N
+     * [listA:any(2).join(' ')] - select 2, join with ' '
+     * {A|B} - select A or B
+     * [list.sublist] - select 1, unqiue, from sublist
+     * {import:list} - specifies that one list belongs to another list
+     * {a} - uses a/an on the next word
+     * {A} - uses A/An on the next word
+     * @param source
+     */
+    Legendary.prototype.parse = function (source) {
+        var lists = source.match(/\[.+\]/g);
+        var adHocLists = source.match(/\{.+\}/g);
+        if (lists) {
+            source = this.parseLists(lists, source);
+        }
+        if (adHocLists) {
+            source = this.parseAdHocLists(adHocLists, source);
+        }
+        return source;
+    };
+    Legendary.prototype.parseLists = function (lists, source) {
+        var _this = this;
+        lists.forEach(function (listGroup) {
+            var listReferences = listGroup.split('|');
+            var results = [];
+            var weighted = false;
+            listReferences.forEach(function (listReference) {
+                var accessor = listReference.match(/([a-zA-Z\^\.[0-9])+/)[0];
+                accessor = accessor.replace('[', '').replace(']', '');
+                var result = _this.deepDive(accessor);
+                results.push(result);
+                if (result.indexOf('^') !== -1) {
+                    weighted = true;
+                }
+            });
+            source = source.replace(listGroup, weighted ? Dice_1.weightedPluck(results) : Dice_1.pluck(results));
+        });
+        return source;
+    };
+    Legendary.prototype.parseAdHocLists = function (adHocLists, source) {
+        adHocLists.forEach(function (listGroup) {
+            var choices = listGroup.split('|');
+            var results = [];
+            var weighted = false;
+            choices.forEach(function (choice) {
+                var result = choice.match(/([a-zA-Z\^\.[0-9])+/)[0];
+                results.push(result);
+                if (result.indexOf('^') !== -1) {
+                    weighted = true;
+                }
+            });
+            source = source.replace(listGroup, weighted ? Dice_1.weightedPluck(results) : Dice_1.pluck(results));
+        });
+        return source;
+    };
+    /**
+     * Recursively unfurl and object
+     * @param accessor {string}
+     */
+    Legendary.prototype.deepDive = function (accessor) {
+        var selections = [];
+        var a;
+        var ref = this.lists;
+        if (accessor.indexOf('.') !== -1) {
+            a = accessor.split('.');
+            a.forEach(function (k) {
+                ref = ref[k];
+            });
+        }
+        else {
+            ref = ref[accessor];
+        }
+        var diveIn = function (swimmingPool) {
+            if (Array.isArray(swimmingPool)) {
+                selections = selections.concat(swimmingPool);
+            }
+            else if (typeof swimmingPool === 'object') {
+                var keys = Object.keys(swimmingPool);
+                keys.forEach(function (key) {
+                    diveIn(swimmingPool[key]);
+                });
+            }
+            else {
+                console.log('Huh?');
+            }
+        };
+        diveIn(ref);
+        return Dice_1.pluck(selections);
+    };
+    return Legendary;
+}());
+exports.Legendary = Legendary;
+
+},{"./Dice":34,"./language.data":36}],36:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var LegendaryData = {
+    animals: {
+        mammals: [
+            'dog',
+            'cat'
+        ],
+        reptiles: [
+            'lizard'
+        ]
+    },
+    mammals: [
+        'dog',
+        'cat'
+    ],
+    reptiles: [
+        'lizard'
+    ]
+};
+exports.LegendaryData = LegendaryData;
+
+},{}],37:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25788,7 +26027,7 @@ var CommandScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = CommandScreen;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Entity/Actor/Player":14,"./MapScreen":35,"./Screen":36,"lodash":7}],33:[function(require,module,exports){
+},{"../Canvas/Canvas":10,"../Canvas/Color":11,"../Entity/Actor/Player":16,"./MapScreen":40,"./Screen":41,"lodash":7}],38:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25844,7 +26083,7 @@ var InventoryItemScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryItemScreen;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9,"./Screen":36}],34:[function(require,module,exports){
+},{"../Canvas/Canvas":10,"../Canvas/Color":11,"./Screen":41}],39:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -25895,7 +26134,7 @@ var InventoryScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Entity/Actor/Player":14,"./Screen":36}],35:[function(require,module,exports){
+},{"../Canvas/Canvas":10,"../Canvas/Color":11,"../Entity/Actor/Player":16,"./Screen":41}],40:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26089,7 +26328,7 @@ var MapScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = MapScreen;
 
-},{"../Canvas/Canvas":8,"../Canvas/Color":9,"../Vector":37,"./Screen":36}],36:[function(require,module,exports){
+},{"../Canvas/Canvas":10,"../Canvas/Color":11,"../Vector":42,"./Screen":41}],41:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Message_1 = require("../Message/Message");
@@ -26141,7 +26380,7 @@ var Screen = /** @class */ (function () {
 }());
 exports.Screen = Screen;
 
-},{"../Message/Message":30}],37:[function(require,module,exports){
+},{"../Message/Message":33}],42:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Vector2 = /** @class */ (function () {
@@ -26160,7 +26399,7 @@ var Vector2 = /** @class */ (function () {
 }());
 exports["default"] = Vector2;
 
-},{}],38:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("./Game");
@@ -26339,7 +26578,7 @@ window.onload = function () {
     window.game = g;
 };
 
-},{"./Canvas/Canvas":8,"./Canvas/Color":9,"./Entity/Actor/Enemy.data":11,"./Entity/Actor/EnemySpawner":13,"./Entity/Actor/Player":14,"./Entity/Prop/Armor":15,"./Entity/Prop/Prop.data":16,"./Entity/Prop/Weapon":18,"./Game":19,"./GameMap":20,"./Random/Dice":31,"./Screen/CommandScreen":32,"./Screen/InventoryItemScreen":33,"./Screen/InventoryScreen":34,"./Screen/MapScreen":35,"./Screen/Screen":36,"./Vector":37}],39:[function(require,module,exports){
+},{"./Canvas/Canvas":10,"./Canvas/Color":11,"./Entity/Actor/Enemy.data":13,"./Entity/Actor/EnemySpawner":15,"./Entity/Actor/Player":16,"./Entity/Prop/Armor":17,"./Entity/Prop/Prop.data":18,"./Entity/Prop/Weapon":20,"./Game":21,"./GameMap":22,"./Random/Dice":34,"./Screen/CommandScreen":37,"./Screen/InventoryItemScreen":38,"./Screen/InventoryScreen":39,"./Screen/MapScreen":40,"./Screen/Screen":41,"./Vector":42}],44:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -26525,4 +26764,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},[38]);
+},{}]},{},[43]);

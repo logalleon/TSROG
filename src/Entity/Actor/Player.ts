@@ -122,10 +122,9 @@ class Player extends Actor {
   move (destination: Vector2) {
     super.move(destination);
     // Set the player tile to open
-    const { gameMap } = Game.instance;
     // When the game first starts, this may not yet be initialized
-    if (gameMap.easystar) {
-      gameMap.setTileToOpen(destination);
+    if (Game.instance) {
+      Game.instance.setTileToOpen(destination);
     }
     this.hasMoveInteracted = true;
     this.hasMoved = true;

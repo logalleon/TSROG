@@ -1,5 +1,4 @@
 import Game from './Game';
-import { GameMap, Tile } from './GameMap';
 import { Screen, ScreenNames } from './Screen/Screen';
 import * as Input from './Input';
 import { clearCanvas, CanvasProps, setupCanvas } from './Canvas/Canvas';
@@ -32,38 +31,6 @@ window.onload = () => {
   };
   const el = document.getElementById('messages');
   const bottomEl = document.getElementById('bottomMessage');
-
-  // TEST DATA ///////////////////////////////////////
-  const F = () => ({
-    isPassable: true,
-    isOccupied: false,
-    description: 'Hard stone floor',
-    posX: 0,
-    posY: 0,
-    char: '.',
-    color: new Color({ hex: fontOptions.fontColor })
-  });
-  const W = () => ({
-    isPassable: false,
-    isOccupied: false,
-    description: 'A wall',
-    posX: 0,
-    posY: 0,
-    char: '\u2592',
-    color: new Color({ hex: '#CCB69B' })
-  });
-  const gameMap = new GameMap({
-    tiles: [
-      [W(),W(),W(),W(),W(),W(),W()],
-      [W(),F(),F(),F(),F(),F(),W()],
-      [W(),F(),F(),F(),F(),F(),W()],
-      [W(),F(),F(),F(),F(),F(),W()],
-      [W(),F(),F(),F(),F(),F(),W()],
-      [W(),W(),W(),W(),W(),W(),W()],
-    ]
-  });
-
-  // END TEST DATA
 
   const screens: Screen[] = [
     new MapScreen(),
@@ -155,7 +122,7 @@ window.onload = () => {
 
   // END TEST DATA ////////////////////
 
-  const g = new Game(gameMap, screens, canvasProps, ctx, player, el, bottomEl);
+  const g = new Game(screens, canvasProps, ctx, player, el, bottomEl);
   // Bind the current game to all screens
   g.screens.forEach((screen) => screen.setGame(g));
 
@@ -177,23 +144,16 @@ window.onload = () => {
   };
   player.addToInventory(pickup);
   player.attemptToEquip({ index: 0, type: InventoryItems.WEAPONS }, EquipmentSlots.WEAPON);
-  g.updatePlayerPos(player, player.pos);
 
   const spawner: EnemySpawner = new EnemySpawner();
 
   const e = spawner.createEnemyByCreatureType(CreatureTypes.UNDEAD, defaultVariations[Variations.FEROCIOUS]);
   e.pos = new Vector2(3, 3);
   e.isActive = true;
-  g.activeEnemies.push(e);
-  g.gameMap.tiles[e.pos.y][e.pos.x].isOccupied = true;
-  g.gameMap.tiles[e.pos.y][e.pos.x].occupiers = [e];
-
-  g.gameMap.setGame(g);
-  g.gameMap.initializeEasyStar();
+  //g.activeEnemies.push(e);
 
   g.activeScreen.render(g.ctx);
   g.messenger.logMessages([{ text: 'This is the map screen', color: Colors.DEFAULT }]);
-  g.gameMap.updateEasystarTiles();
 
   window.game = g;
 };

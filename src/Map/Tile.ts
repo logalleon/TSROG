@@ -5,7 +5,9 @@ import { Range } from '../Random/Dice';
 enum TileTypes {
   WALL = 'wall',
   FLOOR = 'floor',
-  DOOR = 'door'
+  DOOR = 'door',
+  FLOOR_UP = 'staircase up',
+  FLOOR_DOWN = 'staircase down'
 }
 
 interface TileOptions {

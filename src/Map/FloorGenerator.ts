@@ -1,4 +1,3 @@
-import { Tile } from '../GameMap';
 import { Room } from './Room';
 import { Corridor, Direction } from './Corridor';
 import { randomInt, Range, pluck } from '../Random/Dice';

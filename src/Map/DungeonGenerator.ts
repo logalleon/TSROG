@@ -3,6 +3,7 @@ import { TileSpawner } from './TileSpawner';
 import { clamp } from '../Random/Dice';
 import { Floor } from './Floor';
 import { convert } from 'roman-numeral';
+import { TileTypes } from './Tile';
 
 interface DungeonOptions {
   depth: number

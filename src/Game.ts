@@ -1,4 +1,3 @@
-import { GameMap } from './GameMap';
 import { Screen } from './Screen/Screen';
 import { mapKeyPressToActualCharacter, keyCharToCode, keyCodeToChar } from './Input';
 import { CanvasProps } from './Canvas/Canvas';
@@ -8,12 +7,13 @@ import { Messenger, Message } from './Message/Message';
 import { Enemy } from './Entity/Actor/Enemy';
 import { DungeonGenerator, DungeonOptions } from './Map/DungeonGenerator';
 import { Legendary } from './Random/Legendary';
+import { Floor } from './Map/Floor';
+import { js as EasyStar, js } from '../custom_modules/easystarjs';
+import { Promise } from 'bluebird';
 
 class Game {
 
   private keyMap: any;
-
-  public gameMap: GameMap;
 
   public static instance: Game | null = null;
 
@@ -33,8 +33,14 @@ class Game {
 
   public legendary: Legendary;
 
+  public currentFloor: Floor;
+
+  public easystar: EasyStar;
+  public easystarTiles: number[][];
+  private easystarClosedTile: number = 0;
+  private easystarOpenTile: number = 1;
+
   constructor (
-      gameMap: GameMap,
       screens: Screen[],
       canvasProps: CanvasProps,
       ctx: CanvasRenderingContext2D,
@@ -50,7 +56,6 @@ class Game {
     }
 
     this.player = player;
-    this.gameMap = gameMap;
     this.screens = screens;
     this.activeScreen = screens[0];
     this.canvasProps = canvasProps;
@@ -68,7 +73,13 @@ class Game {
     });
 
     // Debug
-    this.dungeonGenerator.debugAndGenerateAllFloors();
+    //this.dungeonGenerator.debugAndGenerateAllFloors();
+    this.dungeonGenerator.generateNewFloor();
+    this.currentFloor = this.dungeonGenerator.floors[0];
+    this.initializeEasyStar();
+    this.updatePlayerPos(this.player, this.dungeonGenerator.floors[0].floorStart);
+    //console.log(this.dungeonGenerator.floors);
+    // Debug
   }
 
   /**
@@ -126,7 +137,7 @@ class Game {
   }
 
   updatePlayerPos (player: Player, nextPos: Vector2): void {
-    const { tiles } = this.gameMap;
+    const { tiles } = this.currentFloor;
     const { x, y } = player.pos;
     const { x: nextX, y: nextY } = nextPos;
     // This is a reference to the row and the items themselves - don't forget they're essentially pointers
@@ -142,7 +153,7 @@ class Game {
     p_item.occupiers = [player];
     p_item.isOccupied = true;
     // @TODO revisit above
-    this.gameMap.tiles = tiles;
+    this.currentFloor.tiles = tiles;
     player.move(nextPos);
   }
 
@@ -152,10 +163,89 @@ class Game {
 
   corpsify (enemy: Enemy): boolean {
     if (enemy.isDead()) {
-      this.gameMap.removeDeadOccupants(enemy.pos);
+      this.removeDeadOccupants(enemy.pos);
       // @TODO generate a bloody mess to inspect
     }
     return enemy.isActive;
+  }
+
+  initializeEasyStar (): void {
+    this.easystar = new EasyStar();
+    this.easystarTiles = this.generateEasystarTiles();
+    this.easystar.setGrid(this.easystarTiles);
+    this.easystar.setAcceptableTiles([this.easystarOpenTile]);
+    this.easystar.enableDiagonals();
+    this.easystar.enableSync();
+  }
+
+  removeDeadOccupants (pos: Vector2): void {
+    const { x, y } = pos;
+    let { occupiers } = this.currentFloor.tiles[y][x];
+    // Bring out the dead
+    occupiers = occupiers.filter(occupier => !occupier.isDead());
+    this.currentFloor.tiles[y][x].occupiers = occupiers;
+    this.currentFloor.tiles[y][x].isOccupied = Boolean(occupiers.length);
+  }
+
+  generateEasystarTiles (): number[][] {
+    let easystarTiles = [];
+    for (let y = 0; y < this.currentFloor.tiles.length; y++) {
+      easystarTiles[y] = [];
+      for (let x = 0; x < this.currentFloor.tiles[y].length; x++) {
+        const currentTile = this.currentFloor.tiles[y][x];
+        easystarTiles[y].push(
+          currentTile.isPassible && !currentTile.isOccupied ?
+          this.easystarOpenTile :
+          this.easystarClosedTile
+        );
+      }
+    }
+    // Set the player's location to open so the AI can "move" there
+    const { x, y } = this.player.pos;
+    easystarTiles[y][x] = this.easystarOpenTile;
+    return easystarTiles;
+  }
+
+  updateEasystarTiles (): void {
+    this.easystarTiles = this.generateEasystarTiles();
+    this.easystar.setGrid(this.easystarTiles);
+  }
+
+  setTileToOpen (pos: Vector2): void {
+    this.easystar.setTileAt(pos.x, pos.y, this.easystarOpenTile);
+  }
+
+  setTileToClosed (pos: Vector2): void {
+    this.easystar.setTileAt(pos.x, pos.y, this.easystarClosedTile);
+  }
+
+  getPath (pos1, pos2): Vector2[] {
+    const { easystar } = this;
+    let found = [];
+    easystar.findPath(pos1.x, pos1.y, pos2.x, pos2.y, (path) => {
+      if (!path) {
+      } else {
+        found = path;
+      }
+    });
+    easystar.calculate();
+    return found;
+  }
+
+  updateEnemyPosition (oldPos: Vector2, newPos: Vector2, enemy: Enemy): void {
+    const { x, y } = oldPos;
+    // Remove here
+    this.currentFloor.tiles[y][x].occupiers = this.currentFloor.tiles[y][x].occupiers.filter(occupier => !occupier.isEnemy);
+    this.currentFloor.tiles[y][x].isOccupied = false;
+    // Add to the next position
+    Array.isArray(this.currentFloor.tiles[newPos.y][newPos.x].occupiers) ? 
+    this.currentFloor.tiles[newPos.y][newPos.x].occupiers.push(enemy) :
+    this.currentFloor.tiles[newPos.y][newPos.x].occupiers = [enemy];
+    this.currentFloor.tiles[newPos.y][newPos.x].isOccupied = true;
+  }
+
+  renderCurrentMap () {
+
   }
 }
 

@@ -8,7 +8,7 @@ const MAX_DUNGEON_DEPTH = 100;
 /**
  * It's apparently really important to pass "isPassible" to these . . . need to refactor
  */
-const tileData: TileOptions[] = [
+const generalTiles: TileOptions[] = [
   <TileOptions>{
     isPassible: true,
     description: 'Hard stone floor',
@@ -74,5 +74,29 @@ const tileData: TileOptions[] = [
     type: TileTypes.DOOR
   }
 ];
+
+const floorUpDown: TileOptions[] = [
+  <TileOptions>{
+    isPassible: true,
+    description: 'Staircase up',
+    char: '<',
+    color: new Color({ html: 'teal' }),
+    depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
+    type: TileTypes.FLOOR_UP
+  },
+  <TileOptions>{
+    isPassible: true,
+    description: 'Staircase down',
+    char: '>',
+    color: new Color({ html: 'teal' }),
+    depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
+    type: TileTypes.FLOOR_DOWN
+  }
+];
+
+const tileData: TileOptions[] = [].concat(
+  generalTiles,
+  floorUpDown
+);
 
 export { tileData };

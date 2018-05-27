@@ -1,7 +1,7 @@
 import { Tile, TileTypes } from '../Map/Tile';
 import { Room } from './Room';
 import { Corridor, Direction } from './Corridor';
-import { randomInt, Range, randomIntR } from '../Random/Dice';
+import { randomInt, Range, randomIntR, clamp } from '../Random/Dice';
 import { Color } from '../Canvas/Color';
 import { fontOptions } from '../Canvas/Canvas';
 import { Enemy } from '../Entity/Actor/Enemy';
@@ -64,6 +64,8 @@ class Floor {
   public regionName: RegionNames;
   public nameInSequence: number;
 
+  public floorStart: Vector2;
+
   constructor (options: FloorOptions) {
     for (let key in options) {
       this[key] = options[key];
@@ -125,6 +127,7 @@ class Floor {
     this.setRoomTiles();
     this.setCorridorTiles();
     this.setDoorTiles();
+    this.setStaircaseTiles();
     if (this.floorPersistance && this.floorPersistance.persistance) {
       this.willPersistFor = randomIntR(this.floorPersistance.persistance);
       this.floorPersistance.startIndex = this.depth;
@@ -205,6 +208,39 @@ class Floor {
         });
       }
     });
+  }
+
+  setStaircaseTiles (): void {
+    const startingRoom = this.rooms[0];
+    let startingPosition = this.getRandomPointInRoom(startingRoom);
+    // Don't set staircases near the edge of rooms.
+    clamp(startingPosition.x, startingRoom.pos.x + 1, startingRoom.pos.x + startingRoom.roomWidth - 2);
+    clamp(startingPosition.y, startingRoom.pos.y + 1, startingRoom.pos.y + startingRoom.roomHeight - 2);
+    this.tiles[startingPosition.y][startingPosition.x] = Game.instance.dungeonGenerator.tileSpawner.getTile({
+      type: TileTypes.FLOOR_UP
+    });
+    this.floorStart = startingPosition;
+    if (this.depth !== Game.instance.dungeonGenerator.maxDepth - 1) {
+      // @TODO hard-coded? maybe the location of ending staircase should depend on floor options
+      const endingRoom = this.rooms[randomInt(this.rooms.length - 3, this.rooms.length - 1)];
+      let endingPosition = this.getRandomPointInRoom(endingRoom);
+      // Don't set staircases near the edge of rooms.
+      clamp(endingPosition.x, endingRoom.pos.x + 1, endingRoom.pos.x + endingRoom.roomWidth - 2);
+      clamp(endingPosition.y, endingRoom.pos.y + 1, endingRoom.pos.y + endingRoom.roomHeight - 2);
+      this.tiles[endingPosition.y][endingPosition.x] = Game.instance.dungeonGenerator.tileSpawner.getTile({
+        type: TileTypes.FLOOR_DOWN
+      });
+    }
+  }
+
+  getRandomPointInRoom (room: Room): Vector2 {
+    const x = randomInt(room.pos.x, room.roomWidth + room.pos.x);
+    const y = randomInt(room.pos.y, room.roomHeight + room.pos.y);
+    // Just fucking clamp to the bounds of the map
+    return new Vector2(
+      clamp(x, 0, this.floorWidth - 1),
+      clamp(y, 0, this.floorHeight - 1)
+    );
   }
 
   inBounds (width: number, height: number, v: Vector2): boolean {

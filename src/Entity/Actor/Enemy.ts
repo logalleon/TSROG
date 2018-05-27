@@ -133,9 +133,9 @@ class Enemy extends Actor {
    */
   move (destination: Vector2): void {
     // Update the tile references to the enemy
-    Game.instance.gameMap.updateEnemyPosition(this.pos, destination, this);
+    Game.instance.updateEnemyPosition(this.pos, destination, this);
     // Update the open / closed tiles for pathfinding
-    Game.instance.gameMap.updateEasystarTiles();
+    Game.instance.updateEasystarTiles();
     super.move(destination);
   }
 
@@ -165,16 +165,15 @@ class Enemy extends Actor {
   }
 
   getUpdatedPath (): Vector2[] {
-    const { player, gameMap } = Game.instance;
-    const { easystar } = gameMap;
+    const { player, easystar } = Game.instance;
     // Unset self
-    gameMap.setTileToOpen(this.pos);
+    Game.instance.setTileToOpen(this.pos);
 
     // Calculate the path
-    let path = gameMap.getPath(player.pos, this.pos);
+    let path = Game.instance.getPath(player.pos, this.pos);
 
     // Set self
-    gameMap.setTileToClosed(this.pos);
+    Game.instance.setTileToClosed(this.pos);
 
     return(path);
   }

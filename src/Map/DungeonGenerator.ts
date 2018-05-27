@@ -33,12 +33,31 @@ class DungeonGenerator {
 
   generateNewFloor () {
     if (this.currentDepth <= this.maxDepth) {
-      this.floors.push(this.floorGenerator.generateFloor(this.currentDepth));
+      // Generate a similar floor if the previous floor had persistance
+      if (this.nextFloorShouldPersist()) {
+        this.floors.push(this.floorGenerator.generateSimilarFloor(
+          this.currentDepth,
+          this.floors[this.currentDepth - 1].floorPersistance.startIndex
+        ));
+      } else {
+        this.floors.push(this.floorGenerator.generateFloor(this.currentDepth));
+      }
       this.floors[this.currentDepth].buildFloor();
       this.currentDepth += 1;
     } else {
       console.log('Player shouldnt be here.');
     }
+  }
+
+  nextFloorShouldPersist (): boolean {
+    if (this.currentDepth === 0 || !this.floors[this.currentDepth - 1].floorPersistance) {
+      return false;
+    }
+    const { startIndex } = this.floors[this.currentDepth - 1].floorPersistance;
+    const startingFloor = this.floors[startIndex];
+    const { willPersistFor } = startingFloor;
+    // The floor should only persist if the persistance value hasn't stopped
+    return (this.currentDepth - startingFloor.depth <= willPersistFor);
   }
 
   debugAllFloors () {

@@ -8,6 +8,11 @@ import { Enemy } from '../Entity/Actor/Enemy';
 import Game from '../Game';
 import Vector2 from '../Vector';
 
+interface FloorPersistance {
+  // A reference to the starting index to see how long the persistance should keep up
+  startIndex: number,
+  persistance?: Range
+}
 
 // @TODO there are probably many more options that will go into this
 interface FloorOptions {
@@ -20,7 +25,9 @@ interface FloorOptions {
   floorWidth: number,
   floorHeight: number,
   numRoomsRange: Range,
-  depth: number
+  depth: number,
+  // Floors with a persistance value will persist for RANGE number of floors
+  floorPersistance?: FloorPersistance,
 }
 
 class Floor {
@@ -30,6 +37,10 @@ class Floor {
   public corridors: Corridor[] = [];
   public enemies: Enemy[];
   public activeEnemies: Enemy[];
+  public variantEnemiesRange: Range;
+  public maxCR: number;
+
+  public pickupsRange: Range;
 
   public roomWidthRange: Range;
   public roomHeightRange: Range;
@@ -40,6 +51,9 @@ class Floor {
 
   public floorWidth: number;
   public floorHeight: number;
+
+  public floorPersistance: FloorPersistance;
+  public willPersistFor: number;
 
   constructor (options: FloorOptions) {
     for (let key in options) {
@@ -100,6 +114,10 @@ class Floor {
     this.setRoomTiles();
     this.setCorridorTiles();
     this.setDoorTiles();
+    if (this.floorPersistance && this.floorPersistance.persistance) {
+      this.willPersistFor = randomIntR(this.floorPersistance.persistance);
+      this.floorPersistance.startIndex = this.depth;
+    }
   }
 
   setWalls (): void {
@@ -186,4 +204,4 @@ class Floor {
   }
 
 }
-export { Floor, FloorOptions }
+export { Floor, FloorOptions, FloorPersistance }

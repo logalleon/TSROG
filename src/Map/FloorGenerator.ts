@@ -5,7 +5,8 @@ import { randomInt, Range } from '../Random/Dice';
 import { Color } from '../Canvas/Color';
 import { fontOptions } from '../Canvas/Canvas';
 import { Enemy } from '../Entity/Actor/Enemy';
-import { FloorOptions, Floor } from './Floor';
+import { FloorOptions, Floor, FloorPersistance } from './Floor';
+import Game from '../Game';
 
 interface FloorGeneratorOptions {
 
@@ -28,7 +29,10 @@ class FloorGenerator {
         roomWidthRange: { low: 5, high: 8 },
         numRoomsRange: { low: 5, high: 10 },
         corridorLengthRange: { low: 3, high: 12 },
-        depth
+        depth,
+        floorPersistance: <FloorPersistance>{
+          persistance: <Range>{ low: 1, high: 3}
+        }
       });
     } else {
       return new Floor(<FloorOptions>{
@@ -44,6 +48,32 @@ class FloorGenerator {
           depth
       });
     }
+  }
+
+  /**
+   * Generates similar persistance floor
+   * @param depth {number}
+   */
+  generateSimilarFloor (depth: number, startIndex: number): Floor {
+    // If the floorPersistance just has and index value, it's part of a prior series
+    const { floors } = Game.instance.dungeonGenerator;
+    const startingFloor = floors[startIndex];
+    const similarFloor = new Floor(<FloorOptions>{
+      maxCR: startingFloor.maxCR,
+      variantEnemiesRange: startingFloor.variantEnemiesRange,
+      roomHeightRange: startingFloor.roomHeightRange,
+      roomWidthRange: startingFloor.roomWidthRange,
+      corridorLengthRange: startingFloor.corridorLengthRange,
+      numRoomsRange: startingFloor.numRoomsRange,
+      floorHeight: startingFloor.floorHeight,
+      floorWidth: startingFloor.floorWidth,
+      pickupsRange: startingFloor.pickupsRange,
+    });
+    similarFloor.floorPersistance = <FloorPersistance>{
+      startIndex
+    };
+    similarFloor.depth = depth;
+    return similarFloor;
   }
 
 }

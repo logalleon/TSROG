@@ -25103,13 +25103,29 @@ var DungeonGenerator = /** @class */ (function () {
     }
     DungeonGenerator.prototype.generateNewFloor = function () {
         if (this.currentDepth <= this.maxDepth) {
-            this.floors.push(this.floorGenerator.generateFloor(this.currentDepth));
+            // Generate a similar floor if the previous floor had persistance
+            if (this.nextFloorShouldPersist()) {
+                this.floors.push(this.floorGenerator.generateSimilarFloor(this.currentDepth, this.floors[this.currentDepth - 1].floorPersistance.startIndex));
+            }
+            else {
+                this.floors.push(this.floorGenerator.generateFloor(this.currentDepth));
+            }
             this.floors[this.currentDepth].buildFloor();
             this.currentDepth += 1;
         }
         else {
             console.log('Player shouldnt be here.');
         }
+    };
+    DungeonGenerator.prototype.nextFloorShouldPersist = function () {
+        if (this.currentDepth === 0 || !this.floors[this.currentDepth - 1].floorPersistance) {
+            return false;
+        }
+        var startIndex = this.floors[this.currentDepth - 1].floorPersistance.startIndex;
+        var startingFloor = this.floors[startIndex];
+        var willPersistFor = startingFloor.willPersistFor;
+        // The floor should only persist if the persistance value hasn't stopped
+        return (this.currentDepth - startingFloor.depth <= willPersistFor);
     };
     DungeonGenerator.prototype.debugAllFloors = function () {
         var wrapper = document.getElementById('tiles');
@@ -25191,6 +25207,10 @@ var Floor = /** @class */ (function () {
         this.setRoomTiles();
         this.setCorridorTiles();
         this.setDoorTiles();
+        if (this.floorPersistance && this.floorPersistance.persistance) {
+            this.willPersistFor = Dice_1.randomIntR(this.floorPersistance.persistance);
+            this.floorPersistance.startIndex = this.depth;
+        }
     };
     Floor.prototype.setWalls = function () {
         this.tiles = [];
@@ -25281,6 +25301,7 @@ exports.Floor = Floor;
 "use strict";
 exports.__esModule = true;
 var Floor_1 = require("./Floor");
+var Game_1 = require("../Game");
 var FloorGenerator = /** @class */ (function () {
     function FloorGenerator(options) {
     }
@@ -25296,7 +25317,10 @@ var FloorGenerator = /** @class */ (function () {
                 roomWidthRange: { low: 5, high: 8 },
                 numRoomsRange: { low: 5, high: 10 },
                 corridorLengthRange: { low: 3, high: 12 },
-                depth: depth
+                depth: depth,
+                floorPersistance: {
+                    persistance: { low: 1, high: 3 }
+                }
             });
         }
         else {
@@ -25314,11 +25338,36 @@ var FloorGenerator = /** @class */ (function () {
             });
         }
     };
+    /**
+     * Generates similar persistance floor
+     * @param depth {number}
+     */
+    FloorGenerator.prototype.generateSimilarFloor = function (depth, startIndex) {
+        // If the floorPersistance just has and index value, it's part of a prior series
+        var floors = Game_1["default"].instance.dungeonGenerator.floors;
+        var startingFloor = floors[startIndex];
+        var similarFloor = new Floor_1.Floor({
+            maxCR: startingFloor.maxCR,
+            variantEnemiesRange: startingFloor.variantEnemiesRange,
+            roomHeightRange: startingFloor.roomHeightRange,
+            roomWidthRange: startingFloor.roomWidthRange,
+            corridorLengthRange: startingFloor.corridorLengthRange,
+            numRoomsRange: startingFloor.numRoomsRange,
+            floorHeight: startingFloor.floorHeight,
+            floorWidth: startingFloor.floorWidth,
+            pickupsRange: startingFloor.pickupsRange
+        });
+        similarFloor.floorPersistance = {
+            startIndex: startIndex
+        };
+        similarFloor.depth = depth;
+        return similarFloor;
+    };
     return FloorGenerator;
 }());
 exports.FloorGenerator = FloorGenerator;
 
-},{"./Floor":24}],26:[function(require,module,exports){
+},{"../Game":19,"./Floor":24}],26:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../Random/Dice");
@@ -25370,6 +25419,9 @@ var Tile_1 = require("./Tile");
 var Color_1 = require("../Canvas/Color");
 // @TODO something isn't right here import { MAX_DUNGEON_DEPTH } from './DungeonGenerator';
 var MAX_DUNGEON_DEPTH = 100;
+/**
+ * It's apparently really important to pass "isPassible" to these . . . need to refactor
+ */
 var tileData = [
     {
         isPassible: true,

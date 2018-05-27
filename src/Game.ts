@@ -10,6 +10,7 @@ import { Legendary } from './Random/Legendary';
 import { Floor } from './Map/Floor';
 import { js as EasyStar, js } from '../custom_modules/easystarjs';
 import { Promise } from 'bluebird';
+import { EnemySpawner } from './Entity/Actor/EnemySpawner';
 
 class Game {
 
@@ -27,13 +28,13 @@ class Game {
 
   public messenger: Messenger;
 
-  public activeEnemies = []; // @TODO move this all to floors
-
   public dungeonGenerator: DungeonGenerator;
 
   public legendary: Legendary;
 
   public currentFloor: Floor;
+
+  public enemySpawner: EnemySpawner;
 
   public easystar: EasyStar;
   public easystarTiles: number[][];
@@ -68,6 +69,8 @@ class Game {
     // Legendary has to load before the floor and dungeon generators
     this.legendary = new Legendary();
 
+    this.enemySpawner = new EnemySpawner();
+
     this.dungeonGenerator = new DungeonGenerator(<DungeonOptions>{
       depth: 15
     });
@@ -78,7 +81,6 @@ class Game {
     this.currentFloor = this.dungeonGenerator.floors[0];
     this.initializeEasyStar();
     this.updatePlayerPos(this.player, this.dungeonGenerator.floors[0].floorStart);
-    //console.log(this.dungeonGenerator.floors);
     // Debug
   }
 
@@ -113,9 +115,9 @@ class Game {
        * actions that the play takes, such as inspecting a nearby tile, which essentially
        * a free action.
        */
-      if (player.hasMoveInteracted && this.activeEnemies.length) {
-        const enemyActions = this.activeEnemies.map(enemy => enemy.act()).reduce((actions, action) => actions.concat(action));
-        const enemyUpdates = this.activeEnemies.map(enemy => enemy.update()).reduce((updates, update) => updates.concat(update));
+      if (player.hasMoveInteracted && this.currentFloor.activeEnemies.length) {
+        const enemyActions = this.currentFloor.activeEnemies.map(enemy => enemy.act()).reduce((actions, action) => actions.concat(action));
+        const enemyUpdates = this.currentFloor.activeEnemies.map(enemy => enemy.update()).reduce((updates, update) => updates.concat(update));
         messages = messages.concat(
           Array.isArray(enemyActions) ? enemyActions : [],
           Array.isArray(enemyUpdates) ? enemyUpdates : []
@@ -158,7 +160,7 @@ class Game {
   }
 
   update () {
-    this.activeEnemies = this.activeEnemies.filter(this.corpsify.bind(this));
+    this.currentFloor.activeEnemies = this.currentFloor.activeEnemies.filter(this.corpsify.bind(this));
   }
 
   corpsify (enemy: Enemy): boolean {
@@ -246,6 +248,20 @@ class Game {
 
   renderCurrentMap () {
 
+  }
+
+  playerDescend () {
+    const { floors, currentDepth } = this.dungeonGenerator;
+    if (floors[currentDepth + 1]) {
+      this.currentFloor = floors[currentDepth + 1];
+    } else {
+      this.dungeonGenerator.generateNewFloor();
+      // Dungeon generator updates the depth automatically
+      this.currentFloor = floors[this.dungeonGenerator.currentDepth - 1];
+      this.updatePlayerPos(this.player, this.dungeonGenerator.floors[this.dungeonGenerator.currentDepth - 1].floorStart);
+      // @TODO Seems like the previous easystar tiles should be saved somehow
+      this.initializeEasyStar();
+    }
   }
 }
 

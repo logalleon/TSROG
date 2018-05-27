@@ -8,6 +8,7 @@ import { Enemy } from '../Entity/Actor/Enemy';
 import Game from '../Game';
 import Vector2 from '../Vector';
 import { RegionNames } from './Floor.data';
+import { CreatureTypes, defaultVariations, Variations } from '../Entity/Actor/Enemy.data';
 
 interface FloorPersistance {
   // A reference to the starting index to see how long the persistance should keep up
@@ -40,8 +41,8 @@ class Floor {
   public tiles: Tile[][];
   public rooms: Room[] = [];
   public corridors: Corridor[] = [];
-  public enemies: Enemy[];
-  public activeEnemies: Enemy[];
+  public enemies: Enemy[] = [];
+  public activeEnemies: Enemy[] = [];
   public variantEnemiesRange: Range;
   public maxCR: number;
 
@@ -128,6 +129,7 @@ class Floor {
     this.setCorridorTiles();
     this.setDoorTiles();
     this.setStaircaseTiles();
+    this.spawnEnemies();
     if (this.floorPersistance && this.floorPersistance.persistance) {
       this.willPersistFor = randomIntR(this.floorPersistance.persistance);
       this.floorPersistance.startIndex = this.depth;
@@ -260,6 +262,18 @@ class Floor {
         this.nameInSequence = (this.depth - this.floorPersistance.startIndex) + 1;
       }
     }
+  }
+
+  spawnEnemies (): void {
+    const { enemySpawner } = Game.instance;
+    // DEBUG
+    const e = enemySpawner.createEnemyByCreatureType(CreatureTypes.UNDEAD, defaultVariations[Variations.FEROCIOUS]);
+    e.pos = this.getRandomPointInRoom(this.rooms[2]);
+    e.isActive = true;
+    this.activeEnemies.push(e);
+    this.tiles[e.pos.y][e.pos.x].isOccupied = true;
+    this.tiles[e.pos.y][e.pos.x].occupiers.push(e);;
+    //
   }
 
 }

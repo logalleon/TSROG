@@ -24084,7 +24084,7 @@ var Enemy = /** @class */ (function (_super) {
         variation.modifications.forEach(function (attribute) { return _this.applyModification(attribute); });
     };
     Enemy.prototype.inRange = function () {
-        return this.path.length <= this.attackRange + 1;
+        return this.path && this.path.length <= this.attackRange + 1;
     };
     Enemy.prototype.applyModification = function (modification) {
         var attribute = Object.keys(modification)[0];
@@ -24442,9 +24442,9 @@ var Message_1 = require("./Message/Message");
 var DungeonGenerator_1 = require("./Map/DungeonGenerator");
 var Legendary_1 = require("./Random/Legendary");
 var easystarjs_1 = require("../custom_modules/easystarjs");
+var EnemySpawner_1 = require("./Entity/Actor/EnemySpawner");
 var Game = /** @class */ (function () {
     function Game(screens, canvasProps, ctx, player, el, bottomEl) {
-        this.activeEnemies = []; // @TODO move this all to floors
         this.easystarClosedTile = 0;
         this.easystarOpenTile = 1;
         if (Game.instance !== null) {
@@ -24464,6 +24464,7 @@ var Game = /** @class */ (function () {
         window.onkeyup = this.handleInput.bind(this);
         // Legendary has to load before the floor and dungeon generators
         this.legendary = new Legendary_1.Legendary();
+        this.enemySpawner = new EnemySpawner_1.EnemySpawner();
         this.dungeonGenerator = new DungeonGenerator_1.DungeonGenerator({
             depth: 15
         });
@@ -24473,7 +24474,6 @@ var Game = /** @class */ (function () {
         this.currentFloor = this.dungeonGenerator.floors[0];
         this.initializeEasyStar();
         this.updatePlayerPos(this.player, this.dungeonGenerator.floors[0].floorStart);
-        //console.log(this.dungeonGenerator.floors);
         // Debug
     }
     /**
@@ -24506,9 +24506,9 @@ var Game = /** @class */ (function () {
              * actions that the play takes, such as inspecting a nearby tile, which essentially
              * a free action.
              */
-            if (player.hasMoveInteracted && this.activeEnemies.length) {
-                var enemyActions = this.activeEnemies.map(function (enemy) { return enemy.act(); }).reduce(function (actions, action) { return actions.concat(action); });
-                var enemyUpdates = this.activeEnemies.map(function (enemy) { return enemy.update(); }).reduce(function (updates, update) { return updates.concat(update); });
+            if (player.hasMoveInteracted && this.currentFloor.activeEnemies.length) {
+                var enemyActions = this.currentFloor.activeEnemies.map(function (enemy) { return enemy.act(); }).reduce(function (actions, action) { return actions.concat(action); });
+                var enemyUpdates = this.currentFloor.activeEnemies.map(function (enemy) { return enemy.update(); }).reduce(function (updates, update) { return updates.concat(update); });
                 messages = messages.concat(Array.isArray(enemyActions) ? enemyActions : [], Array.isArray(enemyUpdates) ? enemyUpdates : []);
             }
             // See player.update description
@@ -24543,7 +24543,7 @@ var Game = /** @class */ (function () {
         player.move(nextPos);
     };
     Game.prototype.update = function () {
-        this.activeEnemies = this.activeEnemies.filter(this.corpsify.bind(this));
+        this.currentFloor.activeEnemies = this.currentFloor.activeEnemies.filter(this.corpsify.bind(this));
     };
     Game.prototype.corpsify = function (enemy) {
         if (enemy.isDead()) {
@@ -24620,12 +24620,26 @@ var Game = /** @class */ (function () {
     };
     Game.prototype.renderCurrentMap = function () {
     };
+    Game.prototype.playerDescend = function () {
+        var _a = this.dungeonGenerator, floors = _a.floors, currentDepth = _a.currentDepth;
+        if (floors[currentDepth + 1]) {
+            this.currentFloor = floors[currentDepth + 1];
+        }
+        else {
+            this.dungeonGenerator.generateNewFloor();
+            // Dungeon generator updates the depth automatically
+            this.currentFloor = floors[this.dungeonGenerator.currentDepth - 1];
+            this.updatePlayerPos(this.player, this.dungeonGenerator.floors[this.dungeonGenerator.currentDepth - 1].floorStart);
+            // @TODO Seems like the previous easystar tiles should be saved somehow
+            this.initializeEasyStar();
+        }
+    };
     Game.instance = null;
     return Game;
 }());
 exports["default"] = Game;
 
-},{"../custom_modules/easystarjs":1,"./Input":22,"./Map/DungeonGenerator":24,"./Message/Message":32,"./Random/Legendary":34}],22:[function(require,module,exports){
+},{"../custom_modules/easystarjs":1,"./Entity/Actor/EnemySpawner":15,"./Input":22,"./Map/DungeonGenerator":24,"./Message/Message":32,"./Random/Legendary":34}],22:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var keyCodeToChar = {
@@ -25270,10 +25284,13 @@ var Corridor_1 = require("./Corridor");
 var Dice_1 = require("../Random/Dice");
 var Game_1 = require("../Game");
 var Vector_1 = require("../Vector");
+var Enemy_data_1 = require("../Entity/Actor/Enemy.data");
 var Floor = /** @class */ (function () {
     function Floor(options) {
         this.rooms = [];
         this.corridors = [];
+        this.enemies = [];
+        this.activeEnemies = [];
         for (var key in options) {
             this[key] = options[key];
         }
@@ -25301,6 +25318,7 @@ var Floor = /** @class */ (function () {
         this.setCorridorTiles();
         this.setDoorTiles();
         this.setStaircaseTiles();
+        this.spawnEnemies();
         if (this.floorPersistance && this.floorPersistance.persistance) {
             this.willPersistFor = Dice_1.randomIntR(this.floorPersistance.persistance);
             this.floorPersistance.startIndex = this.depth;
@@ -25427,11 +25445,23 @@ var Floor = /** @class */ (function () {
             }
         }
     };
+    Floor.prototype.spawnEnemies = function () {
+        var enemySpawner = Game_1["default"].instance.enemySpawner;
+        // DEBUG
+        var e = enemySpawner.createEnemyByCreatureType(Enemy_data_1.CreatureTypes.UNDEAD, Enemy_data_1.defaultVariations[Enemy_data_1.Variations.FEROCIOUS]);
+        e.pos = this.getRandomPointInRoom(this.rooms[2]);
+        e.isActive = true;
+        this.activeEnemies.push(e);
+        this.tiles[e.pos.y][e.pos.x].isOccupied = true;
+        this.tiles[e.pos.y][e.pos.x].occupiers.push(e);
+        ;
+        //
+    };
     return Floor;
 }());
 exports.Floor = Floor;
 
-},{"../Game":21,"../Map/Tile":30,"../Random/Dice":33,"../Vector":41,"./Corridor":23,"./Room":28}],27:[function(require,module,exports){
+},{"../Entity/Actor/Enemy.data":13,"../Game":21,"../Map/Tile":30,"../Random/Dice":33,"../Vector":41,"./Corridor":23,"./Room":28}],27:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../Random/Dice");
@@ -26182,6 +26212,7 @@ var Screen_1 = require("./Screen");
 var Game_1 = require("../Game");
 var Vector_1 = require("../Vector");
 var Color_1 = require("../Canvas/Color");
+var Tile_1 = require("../Map/Tile");
 var roman_numeral_1 = require("roman-numeral");
 var MapScreenInputs;
 (function (MapScreenInputs) {
@@ -26206,6 +26237,8 @@ var MapScreenInputs;
     MapScreenInputs["MOVE_UP_RIGHT"] = "e";
     MapScreenInputs["MOVE_DOWN_LEFT"] = "z";
     MapScreenInputs["MOVE_DOWN_RIGHT"] = "c";
+    MapScreenInputs["DESCEND"] = ">";
+    MapScreenInputs["ASCEND"] = "<";
 })(MapScreenInputs || (MapScreenInputs = {}));
 exports.MapScreenInputs = MapScreenInputs;
 var MapScreen = /** @class */ (function (_super) {
@@ -26236,6 +26269,7 @@ var MapScreen = /** @class */ (function (_super) {
             _a[MapScreenInputs.MOVE_UP_RIGHT] = _this.attemptPlayerMovement.bind(_this),
             _a[MapScreenInputs.MOVE_DOWN_LEFT] = _this.attemptPlayerMovement.bind(_this),
             _a[MapScreenInputs.MOVE_DOWN_RIGHT] = _this.attemptPlayerMovement.bind(_this),
+            _a[MapScreenInputs.DESCEND] = _this.attemptDescend,
             _a);
         return _this;
         var _a;
@@ -26248,7 +26282,7 @@ var MapScreen = /** @class */ (function (_super) {
             color: Color_1.Colors.DEFAULT,
             text: "Press '?' for command list."
         });
-        this.renderTiles(tiles, ctx, canvasProps);
+        this.renderTiles();
     };
     MapScreen.prototype.renderTiles = function () {
         var main = document.getElementById('main-window');
@@ -26326,6 +26360,8 @@ var MapScreen = /** @class */ (function (_super) {
                 }
                 return messages;
             }
+            else if (!isPassible) {
+            }
             else {
                 console.log('Something is not right here. Check your logic, ya dingus.');
             }
@@ -26356,11 +26392,22 @@ var MapScreen = /** @class */ (function (_super) {
         var nextScreen = this.game.screens.filter(function (screen) { return screen.name === inventoryItem; })[0];
         this.game.activeScreen = nextScreen;
     };
+    MapScreen.prototype.attemptDescend = function () {
+        var _a = Game_1["default"].instance, currentFloor = _a.currentFloor, player = _a.player;
+        if (currentFloor.tiles[player.pos.y][player.pos.x].type === Tile_1.TileTypes.FLOOR_DOWN) {
+            Game_1["default"].instance.playerDescend();
+        }
+        else {
+            return [{
+                    text: 'You cannot descend here.'
+                }];
+        }
+    };
     return MapScreen;
 }(Screen_1.Screen));
 exports["default"] = MapScreen;
 
-},{"../Canvas/Color":11,"../Game":21,"../Vector":41,"./Screen":40,"roman-numeral":9}],40:[function(require,module,exports){
+},{"../Canvas/Color":11,"../Game":21,"../Map/Tile":30,"../Vector":41,"./Screen":40,"roman-numeral":9}],40:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Message_1 = require("../Message/Message");
@@ -26448,8 +26495,6 @@ var InventoryItemScreen_1 = require("./Screen/InventoryItemScreen");
 var CommandScreen_1 = require("./Screen/CommandScreen");
 var Color_1 = require("./Canvas/Color");
 var Dice_1 = require("./Random/Dice");
-var EnemySpawner_1 = require("./Entity/Actor/EnemySpawner");
-var Enemy_data_1 = require("./Entity/Actor/Enemy.data");
 var height = 240;
 var width = 600;
 window.onload = function () {
@@ -26562,17 +26607,12 @@ window.onload = function () {
     };
     player.addToInventory(pickup);
     player.attemptToEquip({ index: 0, type: Player_1.InventoryItems.WEAPONS }, Player_1.EquipmentSlots.WEAPON);
-    var spawner = new EnemySpawner_1.EnemySpawner();
-    var e = spawner.createEnemyByCreatureType(Enemy_data_1.CreatureTypes.UNDEAD, Enemy_data_1.defaultVariations[Enemy_data_1.Variations.FEROCIOUS]);
-    e.pos = new Vector_1["default"](3, 3);
-    e.isActive = true;
-    //g.activeEnemies.push(e);
     g.activeScreen.render(g.ctx);
     g.messenger.logMessages([{ text: 'This is the map screen', color: Color_1.Colors.DEFAULT }]);
     window.game = g;
 };
 
-},{"./Canvas/Canvas":10,"./Canvas/Color":11,"./Entity/Actor/Enemy.data":13,"./Entity/Actor/EnemySpawner":15,"./Entity/Actor/Player":16,"./Entity/Prop/Armor":17,"./Entity/Prop/Prop.data":18,"./Entity/Prop/Weapon":20,"./Game":21,"./Random/Dice":33,"./Screen/CommandScreen":36,"./Screen/InventoryItemScreen":37,"./Screen/InventoryScreen":38,"./Screen/MapScreen":39,"./Screen/Screen":40,"./Vector":41}],43:[function(require,module,exports){
+},{"./Canvas/Canvas":10,"./Canvas/Color":11,"./Entity/Actor/Player":16,"./Entity/Prop/Armor":17,"./Entity/Prop/Prop.data":18,"./Entity/Prop/Weapon":20,"./Game":21,"./Random/Dice":33,"./Screen/CommandScreen":36,"./Screen/InventoryItemScreen":37,"./Screen/InventoryScreen":38,"./Screen/MapScreen":39,"./Screen/Screen":40,"./Vector":41}],43:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 

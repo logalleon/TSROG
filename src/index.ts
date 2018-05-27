@@ -145,13 +145,6 @@ window.onload = () => {
   player.addToInventory(pickup);
   player.attemptToEquip({ index: 0, type: InventoryItems.WEAPONS }, EquipmentSlots.WEAPON);
 
-  const spawner: EnemySpawner = new EnemySpawner();
-
-  const e = spawner.createEnemyByCreatureType(CreatureTypes.UNDEAD, defaultVariations[Variations.FEROCIOUS]);
-  e.pos = new Vector2(3, 3);
-  e.isActive = true;
-  //g.activeEnemies.push(e);
-
   g.activeScreen.render(g.ctx);
   g.messenger.logMessages([{ text: 'This is the map screen', color: Colors.DEFAULT }]);
 

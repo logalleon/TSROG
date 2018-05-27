@@ -116,7 +116,7 @@ class Enemy extends Actor {
   }
 
   inRange (): boolean {
-    return this.path.length <= this.attackRange + 1;
+    return this.path && this.path.length <= this.attackRange + 1;
   }
 
   applyModification (modification: VariantModification): void {

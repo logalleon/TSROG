@@ -6,7 +6,7 @@ import Vector2 from '../Vector';
 import { Message } from '../Message/Message';
 import { Colors } from '../Canvas/Color';
 import { Floor } from '../Map/Floor';
-import { Tile } from '../Map/Tile';
+import { Tile, TileTypes } from '../Map/Tile';
 import { convert } from 'roman-numeral';
 
 enum MapScreenInputs {
@@ -30,7 +30,9 @@ enum MapScreenInputs {
   MOVE_UP_LEFT = 'q',
   MOVE_UP_RIGHT = 'e',
   MOVE_DOWN_LEFT = 'z',
-  MOVE_DOWN_RIGHT = 'c'
+  MOVE_DOWN_RIGHT = 'c',
+  DESCEND = '>',
+  ASCEND = '<'
 }
 
 class MapScreen extends Screen {
@@ -60,7 +62,8 @@ class MapScreen extends Screen {
     [MapScreenInputs.MOVE_UP_LEFT]: this.attemptPlayerMovement.bind(this),
     [MapScreenInputs.MOVE_UP_RIGHT]: this.attemptPlayerMovement.bind(this),
     [MapScreenInputs.MOVE_DOWN_LEFT]: this.attemptPlayerMovement.bind(this),
-    [MapScreenInputs.MOVE_DOWN_RIGHT]: this.attemptPlayerMovement.bind(this)
+    [MapScreenInputs.MOVE_DOWN_RIGHT]: this.attemptPlayerMovement.bind(this),
+    [MapScreenInputs.DESCEND]: this.attemptDescend
   }
 
   constructor() {
@@ -75,7 +78,7 @@ class MapScreen extends Screen {
       color: Colors.DEFAULT,
       text: `Press '?' for command list.`
     });
-    this.renderTiles(tiles, ctx, canvasProps);
+    this.renderTiles();
   }
 
   renderTiles () {
@@ -156,6 +159,7 @@ class MapScreen extends Screen {
           }
         }
         return messages;
+      } else if (!isPassible) {
       } else {
         console.log('Something is not right here. Check your logic, ya dingus.');
       }
@@ -191,6 +195,17 @@ class MapScreen extends Screen {
   showInventoryItemScreen (inventoryItem: string): void | Message[] {
     const [nextScreen] = this.game.screens.filter(screen => screen.name === inventoryItem);
     this.game.activeScreen = nextScreen;
+  }
+
+  attemptDescend (): void | Message[] {
+    const { currentFloor, player } = Game.instance;
+    if (currentFloor.tiles[player.pos.y][player.pos.x].type === TileTypes.FLOOR_DOWN) {
+      Game.instance.playerDescend();
+    } else {
+      return [<Message>{
+        text: 'You cannot descend here.'
+      }];
+    }
   }
 
 }

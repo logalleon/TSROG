@@ -19,7 +19,7 @@ class TileSpawner {
   getTile(options: TileRequestOptions): Tile {
     const possibleTiles = this.tileData.filter((tile) => {
       const allowed = true;
-      if (options.depth) {
+      if (typeof options.depth !== 'undefined') {
         if (tile.depthRange.low > options.depth || tile.depthRange.high < options.depth) {
           return false;
         }

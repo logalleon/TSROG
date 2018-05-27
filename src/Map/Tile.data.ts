@@ -26,6 +26,38 @@ const tileData: TileOptions[] = [
     type: TileTypes.FLOOR
   },
   <TileOptions>{
+    isPassible: true,
+    description: 'Rough hewn floor',
+    char: '.',
+    color: new Color({ html: 'green' }),
+    depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+    type: TileTypes.FLOOR
+  },
+  <TileOptions>{
+    isPassible: true,
+    description: 'Rough magma floor',
+    char: '.',
+    color: new Color({ html: 'orange' }),
+    depthRange: { low: 10, high: MAX_DUNGEON_DEPTH },
+    type: TileTypes.FLOOR
+  },
+  <TileOptions>{
+    isPassible: false,
+    description: 'Rough hewn wall',
+    char: '.',
+    color: new Color({ html: 'red' }),
+    depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+    type: TileTypes.WALL
+  },
+  <TileOptions>{
+    isPassible: false,
+    description: 'Rough magma wall',
+    char: '.',
+    color: new Color({ html: 'orange' }),
+    depthRange: { low: 10, high: MAX_DUNGEON_DEPTH },
+    type: TileTypes.WALL
+  },
+  <TileOptions>{
     isPassible: false,
     description: 'A wall',
     char: '.',

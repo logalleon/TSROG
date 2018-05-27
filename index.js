@@ -25319,7 +25319,7 @@ var FloorGenerator = /** @class */ (function () {
                 corridorLengthRange: { low: 3, high: 12 },
                 depth: depth,
                 floorPersistance: {
-                    persistance: { low: 1, high: 3 }
+                    persistance: { low: 3, high: 6 }
                 }
             });
         }
@@ -25440,6 +25440,38 @@ var tileData = [
         type: Tile_1.TileTypes.FLOOR
     },
     {
+        isPassible: true,
+        description: 'Rough hewn floor',
+        char: '.',
+        color: new Color_1.Color({ html: 'green' }),
+        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+        type: Tile_1.TileTypes.FLOOR
+    },
+    {
+        isPassible: true,
+        description: 'Rough magma floor',
+        char: '.',
+        color: new Color_1.Color({ html: 'orange' }),
+        depthRange: { low: 10, high: MAX_DUNGEON_DEPTH },
+        type: Tile_1.TileTypes.FLOOR
+    },
+    {
+        isPassible: false,
+        description: 'Rough hewn wall',
+        char: '.',
+        color: new Color_1.Color({ html: 'red' }),
+        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+        type: Tile_1.TileTypes.WALL
+    },
+    {
+        isPassible: false,
+        description: 'Rough magma wall',
+        char: '.',
+        color: new Color_1.Color({ html: 'orange' }),
+        depthRange: { low: 10, high: MAX_DUNGEON_DEPTH },
+        type: Tile_1.TileTypes.WALL
+    },
+    {
         isPassible: false,
         description: 'A wall',
         char: '.',
@@ -25498,7 +25530,7 @@ var TileSpawner = /** @class */ (function () {
     TileSpawner.prototype.getTile = function (options) {
         var possibleTiles = this.tileData.filter(function (tile) {
             var allowed = true;
-            if (options.depth) {
+            if (typeof options.depth !== 'undefined') {
                 if (tile.depthRange.low > options.depth || tile.depthRange.high < options.depth) {
                     return false;
                 }

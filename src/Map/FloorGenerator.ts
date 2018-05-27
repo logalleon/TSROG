@@ -31,7 +31,7 @@ class FloorGenerator {
         corridorLengthRange: { low: 3, high: 12 },
         depth,
         floorPersistance: <FloorPersistance>{
-          persistance: <Range>{ low: 1, high: 3}
+          persistance: <Range>{ low: 3, high: 6}
         }
       });
     } else {

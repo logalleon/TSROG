@@ -7,7 +7,8 @@ enum TileTypes {
   FLOOR = 'floor',
   DOOR = 'door',
   FLOOR_UP = 'staircase up',
-  FLOOR_DOWN = 'staircase down'
+  FLOOR_DOWN = 'staircase down',
+  VOID = 'void'
 }
 
 interface TileOptions {

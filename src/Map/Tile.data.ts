@@ -13,7 +13,7 @@ const generalTiles: TileOptions[] = [
     isPassible: true,
     description: 'Hard stone floor',
     char: '.',
-    color: new Color({ html: 'black' }),
+    color: new Color({ hex: '#333' }),
     depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
     type: TileTypes.FLOOR
   },
@@ -21,7 +21,7 @@ const generalTiles: TileOptions[] = [
     isPassible: true,
     description: 'Hard chert floor',
     char: '.',
-    color: new Color({ html: 'darkblue' }),
+    color: new Color({ hex: '#777' }),
     depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
     type: TileTypes.FLOOR
   },
@@ -44,7 +44,7 @@ const generalTiles: TileOptions[] = [
   <TileOptions>{
     isPassible: false,
     description: 'Rough hewn wall',
-    char: '.',
+    char: '0',
     color: new Color({ html: 'red' }),
     depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
     type: TileTypes.WALL
@@ -52,7 +52,7 @@ const generalTiles: TileOptions[] = [
   <TileOptions>{
     isPassible: false,
     description: 'Rough magma wall',
-    char: '.',
+    char: '|',
     color: new Color({ html: 'orange' }),
     depthRange: { low: 10, high: MAX_DUNGEON_DEPTH },
     type: TileTypes.WALL
@@ -60,7 +60,7 @@ const generalTiles: TileOptions[] = [
   <TileOptions>{
     isPassible: false,
     description: 'A wall',
-    char: '.',
+    char: '|',
     color: new Color({ html: 'white' }),
     depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
     type: TileTypes.WALL
@@ -94,9 +94,21 @@ const floorUpDown: TileOptions[] = [
   }
 ];
 
+const voidTiles: TileOptions[] = [
+  <TileOptions>{
+    isPassible: false,
+    description: 'void',
+    char: 'x',
+    color: new Color({ html: 'black' }),
+    depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
+    type: TileTypes.VOID
+  }
+]
+
 const tileData: TileOptions[] = [].concat(
   generalTiles,
-  floorUpDown
+  floorUpDown,
+  voidTiles
 );
 
 export { tileData };

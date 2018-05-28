@@ -28,7 +28,7 @@ const floorData = <FloorOptions[]>[
     corridorLengthRange: { low: 3, high: 12 },
     depthRange: { low: 0, high: 4 },
     floorPersistance: <FloorPersistance>{
-      persistance: <Range>{ low: 3, high: 6}
+      persistance: <Range>{ low: 0, high: 2}
     },
     name: `{dank|meme} dungeon`,
     regionName: RegionNames.Burm
@@ -43,7 +43,7 @@ const floorData = <FloorOptions[]>[
       roomWidthRange: { low: 5, high: 8 },
       numRoomsRange: { low: 5, high: 10 },
       corridorLengthRange: { low: 3, high: 12 },
-      depthRange: { low: 1, high: MAX_DUNGEON_DEPTH },
+      depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
       name: `{Another|Onge} mire`,
       regionName: RegionNames.Jirdenth
   }

@@ -124,9 +124,11 @@ class Floor {
         );
       }
     }
-    this.setWalls();
+    this.setVoidTiles();
     this.setRoomTiles();
     this.setCorridorTiles();
+    // Walls are added around rooms and corridors, so this has to be called afterwards
+    this.setWalls();
     this.setDoorTiles();
     this.setStaircaseTiles();
     this.spawnEnemies();
@@ -136,17 +138,13 @@ class Floor {
     }
   }
 
-  setWalls (): void {
+  setVoidTiles (): void {
     this.tiles = [];
     for (let y = 0; y < this.floorHeight; y++) {
       this.tiles[y] = [];
       for (let x = 0; x < this.floorWidth; x++) {
-        // Get impassible tiles for walls
-        // @TODO make these of the type wall
-        this.tiles[y][x] = Game.instance.dungeonGenerator.tileSpawner.getTile({
-          depth: this.depth,
-          isPassible: false
-        });
+        // These all point to the same void tile instance
+        this.tiles[y][x] = Game.instance.dungeonGenerator.tileSpawner.voidTile;
       }
     }
   }
@@ -163,6 +161,7 @@ class Floor {
             isPassible: true,
             type: TileTypes.FLOOR
           });
+          p_row[x].pos = new Vector2(col, row);
         }
       }
     });
@@ -194,6 +193,7 @@ class Floor {
             isPassible: true,
             type: TileTypes.FLOOR
           });
+          this.tiles[y][x].pos = new Vector2(x, y);
         }
       }
     });
@@ -208,6 +208,7 @@ class Floor {
           depth: this.depth,
           type: TileTypes.DOOR
         });
+        this.tiles[y][x].pos = new Vector2(x, y);
       }
     });
   }
@@ -233,6 +234,75 @@ class Floor {
         type: TileTypes.FLOOR_DOWN
       });
     }
+  }
+
+  setWalls (): void {
+    this.rooms.forEach((room) => {
+      const { tileSpawner } = Game.instance.dungeonGenerator;
+      let y;
+      let x;
+      let row;
+      let col;
+      // West wall
+      for (row = -1; row < room.roomHeight + 1; row++) {
+        x = room.pos.x - 1;
+        y = room.pos.y + row;
+        if (this.tiles[y] && this.tiles[y][x] && this.tiles[y][x].type === TileTypes.VOID) {
+          this.tiles[y][x] = tileSpawner.getTile({
+            depth: this.depth,
+            isPassible: false,
+            type: TileTypes.WALL
+          });
+        }
+      }
+      // North wall
+      for (col = -1; col < room.roomWidth + 1; col++) {
+        x = room.pos.x + col;
+        y = room.pos.y - 1;
+        if (this.tiles[y] && this.tiles[y][x] && this.tiles[y][x].type === TileTypes.VOID) {
+          this.tiles[y][x] = tileSpawner.getTile({
+            depth: this.depth,
+            isPassible: false,
+            type: TileTypes.WALL
+          });
+        }
+      }
+      // East wall
+      for (row = -1; row < room.roomHeight + 1; row++) {
+        x = room.pos.x + room.roomWidth;
+        y = room.pos.y + row;
+        if (this.tiles[y] && this.tiles[y][x] && this.tiles[y][x].type === TileTypes.VOID) {
+          this.tiles[y][x] = tileSpawner.getTile({
+            depth: this.depth,
+            isPassible: false,
+            type: TileTypes.WALL
+          });
+        }
+      }
+      // South wall
+      for (col = -1; col < room.roomWidth + 1; col++) {
+        x = room.pos.x + col;
+        y = room.pos.y + room.roomHeight;
+        if (this.tiles[y] && this.tiles[y][x] && this.tiles[y][x].type === TileTypes.VOID) {
+          this.tiles[y][x] = tileSpawner.getTile({
+            depth: this.depth,
+            isPassible: false,
+            type: TileTypes.WALL
+          });
+        }
+      }
+    });
+  }
+
+  hasAdjacentFloorTiles (tile: Tile): boolean {
+    const { x, y } = tile.pos;
+    const { FLOOR } = TileTypes;
+    return (
+      (this.tiles[y - 1] && this.tiles[y - 1][x].type === TileTypes.FLOOR) ||
+      (this.tiles[y + 1] && this.tiles[y + 1][x].type === TileTypes.FLOOR) ||
+      (this.tiles[y][x - 1] && this.tiles[y][x - 1].type === TileTypes.FLOOR) ||
+      (this.tiles[y][x + 1] && this.tiles[y][x + 1].type === TileTypes.FLOOR)
+    );
   }
 
   getRandomPointInRoom (room: Room): Vector2 {

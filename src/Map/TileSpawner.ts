@@ -12,8 +12,11 @@ class TileSpawner {
 
   public tileData: TileOptions[];
 
+  public voidTile: Tile;
+
   constructor () {
     this.tileData = tileData;
+    this.voidTile = this.getTile({ type: TileTypes.VOID });
   }
 
   getTile(options: TileRequestOptions): Tile {

@@ -50,7 +50,7 @@ window.onload = () => {
     pos: new Vector2(1, 1),
     char: '@',
     isActive: true,
-    color: new Color({ hex: '#ff3354' }),
+    color: new Color({ html: 'rebeccapurple' }),
     hp: 17,
     ac: 10,
     damage: '1d4',

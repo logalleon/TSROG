@@ -246,10 +246,6 @@ class Game {
     this.currentFloor.tiles[newPos.y][newPos.x].isOccupied = true;
   }
 
-  renderCurrentMap () {
-
-  }
-
   playerDescend () {
     const { floors, currentDepth } = this.dungeonGenerator;
     if (floors[currentDepth + 1]) {

@@ -11,6 +11,7 @@ import { Floor } from './Map/Floor';
 import { js as EasyStar, js } from '../custom_modules/easystarjs';
 import { Promise } from 'bluebird';
 import { EnemySpawner } from './Entity/Actor/EnemySpawner';
+import { Effects } from './Effects';
 
 class Game {
 
@@ -35,6 +36,8 @@ class Game {
   public currentFloor: Floor;
 
   public enemySpawner: EnemySpawner;
+
+  public effects: Effects;
 
   public easystar: EasyStar;
   public easystarTiles: number[][];
@@ -75,12 +78,15 @@ class Game {
       depth: 15
     });
 
+    this.effects = new Effects(<HTMLDivElement>document.getElementById('transition-wrapper'));
+
     // Debug
     //this.dungeonGenerator.debugAndGenerateAllFloors();
     this.dungeonGenerator.generateNewFloor();
     this.currentFloor = this.dungeonGenerator.floors[0];
     this.initializeEasyStar();
     this.updatePlayerPos(this.player, this.dungeonGenerator.floors[0].floorStart);
+    this.effects.transitionToNextFloor();
     // Debug
   }
 
@@ -258,6 +264,7 @@ class Game {
       // @TODO Seems like the previous easystar tiles should be saved somehow
       this.initializeEasyStar();
     }
+    this.effects.transitionToNextFloor();
   }
 }
 

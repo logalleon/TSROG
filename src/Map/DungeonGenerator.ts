@@ -71,7 +71,7 @@ class DungeonGenerator {
     const wrapper = document.getElementById('tiles');
     this.floors.forEach((floor) => {
       const p = document.createElement('p');
-      let html = `<h2>${floor.name} of ${floor.regionName} - ${floor.depth}</h2>`
+      let html = `<h2>${floor.getFormattedName()}</h2>`
       for (let y = 0; y < floor.floorHeight; y++) {
         for (let x = 0; x < floor.floorWidth; x++) {
           const tile = floor.tiles[y][x];
@@ -92,7 +92,7 @@ class DungeonGenerator {
     const wrapper = document.getElementById('tiles');
     this.floors.forEach((floor) => {
       const p = document.createElement('p');
-      let html = `<h2>${floor.name} of ${floor.regionName}${convert(floor.nameInSequence)} - ${floor.depth}</h2>`
+      let html = `<h2>${floor.getFormattedName()}</h2>`
       for (let y = 0; y < floor.floorHeight; y++) {
         for (let x = 0; x < floor.floorWidth; x++) {
           const tile = floor.tiles[y][x];

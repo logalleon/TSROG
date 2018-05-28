@@ -16,6 +16,7 @@
   </div>
   <h2 id="bottomMessage">Press '?' for command list.</h2>
   <p style="color: white; font-size: 10px; cursor: pointer;" id="tiles"></p>
+  <div style="display: none;" id="transition-wrapper"></div>
 </body>
 <script src="index.js"></script>
 <style>
@@ -80,6 +81,43 @@
     width: 10px;
     height: 10px;
     text-align: center;
+  }
+  #transition-wrapper {
+    position: fixed;
+    z-index: 20;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    text-align: center;
+    background-color: black;
+  }
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      color: black;
+    }
+    100% {
+      color: white;
+      opacity: 1;
+    }
+  }
+  #transition-wrapper p {
+    position: absolute;
+    top: 25vh;
+    text-align: center;
+    font-size: 2rem;
+    letter-spacing: 3px;
+    width: 100%;
+    left: 0;
+  }
+  #transition-wrapper span {
+    color: black;
+    animation: fade-in forwards;
+  }
+  .fade {
+    transition: .5s;
+    opacity: 0;
   }
 </style>
 </html>

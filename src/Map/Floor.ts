@@ -9,6 +9,7 @@ import Game from '../Game';
 import Vector2 from '../Vector';
 import { RegionNames } from './Floor.data';
 import { CreatureTypes, defaultVariations, Variations } from '../Entity/Actor/Enemy.data';
+import { convert } from 'roman-numeral';
 
 interface FloorPersistance {
   // A reference to the starting index to see how long the persistance should keep up
@@ -344,6 +345,12 @@ class Floor {
     this.tiles[e.pos.y][e.pos.x].isOccupied = true;
     this.tiles[e.pos.y][e.pos.x].occupiers.push(e);;
     //
+  }
+
+  getFormattedName (): string {
+    return `
+      ${this.name}${this.nameInSequence ? ` - ${convert(this.nameInSequence) }` : ''} of ${this.regionName} - ${this.depth}
+    `;
   }
 
 }

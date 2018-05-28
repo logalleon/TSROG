@@ -6224,7 +6224,7 @@ module.exports = ret;
 },{"./es5":13}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":43}],5:[function(require,module,exports){
+},{"_process":44}],5:[function(require,module,exports){
 module.exports = require('./lib/heap');
 
 },{"./lib/heap":6}],6:[function(require,module,exports){
@@ -23832,6 +23832,43 @@ exports.Colors = Colors;
 },{}],12:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+var Game_1 = require("./Game");
+var TITLE_TIME = 5000;
+var Effects = /** @class */ (function () {
+    function Effects(el) {
+        this.el = el;
+    }
+    Effects.prototype.transitionToNextFloor = function () {
+        var _this = this;
+        var _a = Game_1["default"].instance, currentFloor = _a.currentFloor, player = _a.player;
+        player.canMove = false;
+        var floorName = currentFloor.getFormattedName();
+        this.el.style.display = 'inherit'; // this is only really needed once
+        this.el.innerHTML = '';
+        this.el.classList.remove('fade');
+        var stepTime = floorName.length / TITLE_TIME;
+        var p = document.createElement('p');
+        this.el.appendChild(p);
+        for (var i = 0; i < floorName.length; i++) {
+            var span = document.createElement('span');
+            span.innerText = floorName[i];
+            span.style.animationDelay = stepTime * i * 8 + "s";
+            p.appendChild(span);
+        }
+        setTimeout(function () {
+            _this.el.classList.add('fade');
+            setTimeout(function () {
+                player.canMove = true;
+            }, 600); // fade animation time
+        }, TITLE_TIME);
+    };
+    return Effects;
+}());
+exports.Effects = Effects;
+
+},{"./Game":22}],13:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
 var Dice_1 = require("../../Random/Dice");
 var bluebird_1 = require("bluebird");
 var AttackRange;
@@ -23875,7 +23912,7 @@ var Actor = /** @class */ (function () {
 }());
 exports.Actor = Actor;
 
-},{"../../Random/Dice":33,"bluebird":4}],13:[function(require,module,exports){
+},{"../../Random/Dice":34,"bluebird":4}],14:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../../Random/Dice");
@@ -23989,7 +24026,7 @@ var baseEnemies = [
 exports.baseEnemies = baseEnemies;
 var _a;
 
-},{"../../Canvas/Color":11,"../../Random/Dice":33}],14:[function(require,module,exports){
+},{"../../Canvas/Color":11,"../../Random/Dice":34}],15:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24137,7 +24174,7 @@ var Enemy = /** @class */ (function (_super) {
 }(Actor_1.Actor));
 exports.Enemy = Enemy;
 
-},{"../../Canvas/Color":11,"../../Game":21,"../../Message/Message":32,"./Actor":12}],15:[function(require,module,exports){
+},{"../../Canvas/Color":11,"../../Game":22,"../../Message/Message":33,"./Actor":13}],16:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Enemy_1 = require("../Actor/Enemy");
@@ -24189,7 +24226,7 @@ var EnemySpawner = /** @class */ (function () {
 }());
 exports.EnemySpawner = EnemySpawner;
 
-},{"../../Random/Dice":33,"../Actor/Enemy":14,"./Enemy.data":13}],16:[function(require,module,exports){
+},{"../../Random/Dice":34,"../Actor/Enemy":15,"./Enemy.data":14}],17:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24326,7 +24363,7 @@ var Player = /** @class */ (function (_super) {
 InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
 exports.Player = Player;
 
-},{"../../Canvas/Color":11,"../../Game":21,"../../Message/Message":32,"./Actor":12}],17:[function(require,module,exports){
+},{"../../Canvas/Color":11,"../../Game":22,"../../Message/Message":33,"./Actor":13}],18:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24355,7 +24392,7 @@ var Armor = /** @class */ (function (_super) {
 }(Prop_1.Prop));
 exports.Armor = Armor;
 
-},{"./Prop":19}],18:[function(require,module,exports){
+},{"./Prop":20}],19:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Quality;
@@ -24383,7 +24420,7 @@ var EMaterialSubtype;
 (function (EMaterialSubtype) {
 })(EMaterialSubtype || (EMaterialSubtype = {}));
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Prop = /** @class */ (function () {
@@ -24396,7 +24433,7 @@ var Prop = /** @class */ (function () {
 }());
 exports.Prop = Prop;
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24434,7 +24471,7 @@ var Weapon = /** @class */ (function (_super) {
 }(Prop_1.Prop));
 exports.Weapon = Weapon;
 
-},{"./Prop":19}],21:[function(require,module,exports){
+},{"./Prop":20}],22:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Input_1 = require("./Input");
@@ -24443,6 +24480,7 @@ var DungeonGenerator_1 = require("./Map/DungeonGenerator");
 var Legendary_1 = require("./Random/Legendary");
 var easystarjs_1 = require("../custom_modules/easystarjs");
 var EnemySpawner_1 = require("./Entity/Actor/EnemySpawner");
+var Effects_1 = require("./Effects");
 var Game = /** @class */ (function () {
     function Game(screens, canvasProps, ctx, player, el, bottomEl) {
         this.easystarClosedTile = 0;
@@ -24468,12 +24506,14 @@ var Game = /** @class */ (function () {
         this.dungeonGenerator = new DungeonGenerator_1.DungeonGenerator({
             depth: 15
         });
+        this.effects = new Effects_1.Effects(document.getElementById('transition-wrapper'));
         // Debug
         //this.dungeonGenerator.debugAndGenerateAllFloors();
         this.dungeonGenerator.generateNewFloor();
         this.currentFloor = this.dungeonGenerator.floors[0];
         this.initializeEasyStar();
         this.updatePlayerPos(this.player, this.dungeonGenerator.floors[0].floorStart);
+        this.effects.transitionToNextFloor();
         // Debug
     }
     /**
@@ -24631,13 +24671,14 @@ var Game = /** @class */ (function () {
             // @TODO Seems like the previous easystar tiles should be saved somehow
             this.initializeEasyStar();
         }
+        this.effects.transitionToNextFloor();
     };
     Game.instance = null;
     return Game;
 }());
 exports["default"] = Game;
 
-},{"../custom_modules/easystarjs":1,"./Entity/Actor/EnemySpawner":15,"./Input":22,"./Map/DungeonGenerator":24,"./Message/Message":32,"./Random/Legendary":34}],22:[function(require,module,exports){
+},{"../custom_modules/easystarjs":1,"./Effects":12,"./Entity/Actor/EnemySpawner":16,"./Input":23,"./Map/DungeonGenerator":25,"./Message/Message":33,"./Random/Legendary":35}],23:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var keyCodeToChar = {
@@ -25061,7 +25102,7 @@ var mapKeyPressToActualCharacter = function (isShiftKey, characterCode) {
 };
 exports.mapKeyPressToActualCharacter = mapKeyPressToActualCharacter;
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../Random/Dice");
@@ -25127,13 +25168,12 @@ var Corridor = /** @class */ (function () {
 }());
 exports.Corridor = Corridor;
 
-},{"../Random/Dice":33,"../Vector":41}],24:[function(require,module,exports){
+},{"../Random/Dice":34,"../Vector":42}],25:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var FloorGenerator_1 = require("./FloorGenerator");
 var TileSpawner_1 = require("./TileSpawner");
 var Dice_1 = require("../Random/Dice");
-var roman_numeral_1 = require("roman-numeral");
 var MAX_DUNGEON_DEPTH = 100;
 exports.MAX_DUNGEON_DEPTH = MAX_DUNGEON_DEPTH;
 var DungeonGenerator = /** @class */ (function () {
@@ -25183,7 +25223,7 @@ var DungeonGenerator = /** @class */ (function () {
         var wrapper = document.getElementById('tiles');
         this.floors.forEach(function (floor) {
             var p = document.createElement('p');
-            var html = "<h2>" + floor.name + " of " + floor.regionName + " - " + floor.depth + "</h2>";
+            var html = "<h2>" + floor.getFormattedName() + "</h2>";
             for (var y = 0; y < floor.floorHeight; y++) {
                 for (var x = 0; x < floor.floorWidth; x++) {
                     var tile = floor.tiles[y][x];
@@ -25203,7 +25243,7 @@ var DungeonGenerator = /** @class */ (function () {
         var wrapper = document.getElementById('tiles');
         this.floors.forEach(function (floor) {
             var p = document.createElement('p');
-            var html = "<h2>" + floor.name + " of " + floor.regionName + roman_numeral_1.convert(floor.nameInSequence) + " - " + floor.depth + "</h2>";
+            var html = "<h2>" + floor.getFormattedName() + "</h2>";
             for (var y = 0; y < floor.floorHeight; y++) {
                 for (var x = 0; x < floor.floorWidth; x++) {
                     var tile = floor.tiles[y][x];
@@ -25221,7 +25261,7 @@ var DungeonGenerator = /** @class */ (function () {
 }());
 exports.DungeonGenerator = DungeonGenerator;
 
-},{"../Random/Dice":33,"./FloorGenerator":27,"./TileSpawner":31,"roman-numeral":9}],25:[function(require,module,exports){
+},{"../Random/Dice":34,"./FloorGenerator":28,"./TileSpawner":32}],26:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var DungeonGenerator_1 = require("./DungeonGenerator");
@@ -25273,7 +25313,7 @@ var floorData = [
 ];
 exports.floorData = floorData;
 
-},{"./DungeonGenerator":24}],26:[function(require,module,exports){
+},{"./DungeonGenerator":25}],27:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Tile_1 = require("../Map/Tile");
@@ -25283,6 +25323,7 @@ var Dice_1 = require("../Random/Dice");
 var Game_1 = require("../Game");
 var Vector_1 = require("../Vector");
 var Enemy_data_1 = require("../Entity/Actor/Enemy.data");
+var roman_numeral_1 = require("roman-numeral");
 var Floor = /** @class */ (function () {
     function Floor(options) {
         this.rooms = [];
@@ -25522,11 +25563,14 @@ var Floor = /** @class */ (function () {
         ;
         //
     };
+    Floor.prototype.getFormattedName = function () {
+        return "\n      " + this.name + (this.nameInSequence ? " - " + roman_numeral_1.convert(this.nameInSequence) : '') + " of " + this.regionName + " - " + this.depth + "\n    ";
+    };
     return Floor;
 }());
 exports.Floor = Floor;
 
-},{"../Entity/Actor/Enemy.data":13,"../Game":21,"../Map/Tile":30,"../Random/Dice":33,"../Vector":41,"./Corridor":23,"./Room":28}],27:[function(require,module,exports){
+},{"../Entity/Actor/Enemy.data":14,"../Game":22,"../Map/Tile":31,"../Random/Dice":34,"../Vector":42,"./Corridor":24,"./Room":29,"roman-numeral":9}],28:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../Random/Dice");
@@ -25580,7 +25624,7 @@ var FloorGenerator = /** @class */ (function () {
 }());
 exports.FloorGenerator = FloorGenerator;
 
-},{"../Game":21,"../Random/Dice":33,"./Floor":26,"./Floor.data":25}],28:[function(require,module,exports){
+},{"../Game":22,"../Random/Dice":34,"./Floor":27,"./Floor.data":26}],29:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../Random/Dice");
@@ -25625,7 +25669,7 @@ var Room = /** @class */ (function () {
 }());
 exports.Room = Room;
 
-},{"../Random/Dice":33,"../Vector":41,"./Corridor":23}],29:[function(require,module,exports){
+},{"../Random/Dice":34,"../Vector":42,"./Corridor":24}],30:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Tile_1 = require("./Tile");
@@ -25732,7 +25776,7 @@ var voidTiles = [
 var tileData = [].concat(generalTiles, floorUpDown, voidTiles);
 exports.tileData = tileData;
 
-},{"../Canvas/Color":11,"./Tile":30}],30:[function(require,module,exports){
+},{"../Canvas/Color":11,"./Tile":31}],31:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var TileTypes;
@@ -25762,7 +25806,7 @@ var Tile = /** @class */ (function () {
 }());
 exports.Tile = Tile;
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Tile_1 = require("./Tile");
@@ -25801,7 +25845,7 @@ var TileSpawner = /** @class */ (function () {
 }());
 exports.TileSpawner = TileSpawner;
 
-},{"../Random/Dice":33,"./Tile":30,"./Tile.data":29}],32:[function(require,module,exports){
+},{"../Random/Dice":34,"./Tile":31,"./Tile.data":30}],33:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Color_1 = require("../Canvas/Color");
@@ -25892,7 +25936,7 @@ var Messenger = /** @class */ (function () {
 }());
 exports.Messenger = Messenger;
 
-},{"../Canvas/Canvas":10,"../Canvas/Color":11}],33:[function(require,module,exports){
+},{"../Canvas/Canvas":10,"../Canvas/Color":11}],34:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var StandardDice;
@@ -25970,7 +26014,7 @@ var randomIntR = function (range) {
 };
 exports.randomIntR = randomIntR;
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var language_data_1 = require("./language.data");
@@ -26078,7 +26122,7 @@ var Legendary = /** @class */ (function () {
 }());
 exports.Legendary = Legendary;
 
-},{"./Dice":33,"./language.data":35}],35:[function(require,module,exports){
+},{"./Dice":34,"./language.data":36}],36:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var LegendaryData = {
@@ -26101,7 +26145,7 @@ var LegendaryData = {
 };
 exports.LegendaryData = LegendaryData;
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26165,7 +26209,7 @@ var CommandScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = CommandScreen;
 
-},{"../Canvas/Canvas":10,"../Canvas/Color":11,"../Entity/Actor/Player":16,"./MapScreen":39,"./Screen":40,"lodash":7}],37:[function(require,module,exports){
+},{"../Canvas/Canvas":10,"../Canvas/Color":11,"../Entity/Actor/Player":17,"./MapScreen":40,"./Screen":41,"lodash":7}],38:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26221,7 +26265,7 @@ var InventoryItemScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryItemScreen;
 
-},{"../Canvas/Canvas":10,"../Canvas/Color":11,"./Screen":40}],38:[function(require,module,exports){
+},{"../Canvas/Canvas":10,"../Canvas/Color":11,"./Screen":41}],39:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26272,7 +26316,7 @@ var InventoryScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Canvas":10,"../Canvas/Color":11,"../Entity/Actor/Player":16,"./Screen":40}],39:[function(require,module,exports){
+},{"../Canvas/Canvas":10,"../Canvas/Color":11,"../Entity/Actor/Player":17,"./Screen":41}],40:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26484,7 +26528,7 @@ var MapScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = MapScreen;
 
-},{"../Canvas/Color":11,"../Game":21,"../Map/Tile":30,"../Vector":41,"./Screen":40,"roman-numeral":9}],40:[function(require,module,exports){
+},{"../Canvas/Color":11,"../Game":22,"../Map/Tile":31,"../Vector":42,"./Screen":41,"roman-numeral":9}],41:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Message_1 = require("../Message/Message");
@@ -26536,7 +26580,7 @@ var Screen = /** @class */ (function () {
 }());
 exports.Screen = Screen;
 
-},{"../Message/Message":32}],41:[function(require,module,exports){
+},{"../Message/Message":33}],42:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Vector2 = /** @class */ (function () {
@@ -26555,7 +26599,7 @@ var Vector2 = /** @class */ (function () {
 }());
 exports["default"] = Vector2;
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("./Game");
@@ -26689,7 +26733,7 @@ window.onload = function () {
     window.game = g;
 };
 
-},{"./Canvas/Canvas":10,"./Canvas/Color":11,"./Entity/Actor/Player":16,"./Entity/Prop/Armor":17,"./Entity/Prop/Prop.data":18,"./Entity/Prop/Weapon":20,"./Game":21,"./Random/Dice":33,"./Screen/CommandScreen":36,"./Screen/InventoryItemScreen":37,"./Screen/InventoryScreen":38,"./Screen/MapScreen":39,"./Screen/Screen":40,"./Vector":41}],43:[function(require,module,exports){
+},{"./Canvas/Canvas":10,"./Canvas/Color":11,"./Entity/Actor/Player":17,"./Entity/Prop/Armor":18,"./Entity/Prop/Prop.data":19,"./Entity/Prop/Weapon":21,"./Game":22,"./Random/Dice":34,"./Screen/CommandScreen":37,"./Screen/InventoryItemScreen":38,"./Screen/InventoryScreen":39,"./Screen/MapScreen":40,"./Screen/Screen":41,"./Vector":42}],44:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -26875,4 +26919,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},[42]);
+},{}]},{},[43]);

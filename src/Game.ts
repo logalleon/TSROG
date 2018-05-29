@@ -22,9 +22,6 @@ class Game {
   public screens: Screen[];
   public activeScreen: Screen;
 
-  public ctx: CanvasRenderingContext2D;
-  public canvasProps: CanvasProps;
-
   public player: Player;
 
   public messenger: Messenger;
@@ -46,8 +43,6 @@ class Game {
 
   constructor (
       screens: Screen[],
-      canvasProps: CanvasProps,
-      ctx: CanvasRenderingContext2D,
       player: Player,
       el: HTMLElement,
       bottomEl: HTMLElement
@@ -62,9 +57,7 @@ class Game {
     this.player = player;
     this.screens = screens;
     this.activeScreen = screens[0];
-    this.canvasProps = canvasProps;
     this.keyMap = {};
-    this.ctx = ctx;
     this.messenger = new Messenger(el, bottomEl);
     window.onkeydown = this.handleInput.bind(this);
     window.onkeyup = this.handleInput.bind(this);
@@ -140,7 +133,7 @@ class Game {
       this.update();
 
       // Finally, render what's changed
-      this.activeScreen.render(this.ctx);
+      this.activeScreen.render();
     }
   }
 

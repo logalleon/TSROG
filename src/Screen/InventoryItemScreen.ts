@@ -6,6 +6,7 @@ import { Player, InventoryItems } from '../Entity/Actor/Player';
 import { Prop } from '../Entity/Prop/Prop';
 import { Colors } from '../Canvas/Color';
 import { Message } from '../Message/Message';
+import { titleCase } from 'lodash';
 
 class InventoryItemScreen extends Screen {
 
@@ -20,18 +21,15 @@ class InventoryItemScreen extends Screen {
     this.item = item;
   }
 
-  render(ctx: CanvasRenderingContext2D) {
-    const { canvasProps, messenger } = this.game;
-    this.renderTitle(ctx);
+  render() {
+    const { messenger } = this.game;
+    this.renderTitle();
     this.renderInventoryItems();
     messenger.renderSpaceToContinue();
   }
 
-  renderTitle(ctx: CanvasRenderingContext2D) {
-    const title = `${this.item[0].toUpperCase()}${this.item.slice(1)}`;
-    ctx.fillStyle = fontOptions.fontColor;
-    ctx.textAlign = 'center';
-    ctx.fillText(title, this.game.canvasProps.width / 2, padding);
+  renderTitle() {
+    const title = `${titleCase(this.item)}`;
   }
 
   renderInventoryItems () {

@@ -70,8 +70,8 @@ class MapScreen extends Screen {
     super();
   }
 
-  render(ctx: CanvasRenderingContext2D) {
-    const { currentFloor, canvasProps, messenger } = this.game;
+  render() {
+    const { currentFloor, messenger } = this.game;
     const { tiles } = currentFloor;
     messenger.clearBottomMessages();
     messenger.logBottomMessage({
@@ -95,14 +95,6 @@ class MapScreen extends Screen {
       html += '<br/>'
     }
     main.innerHTML = html;
-  }
-
-  calculateOffset(canvasProps: CanvasProps, currentFloor: Floor, fontSize: number): Vector2 {
-    // This centers the map on the canvas
-    return new Vector2(
-      (canvasProps.width / 2) - (currentFloor.floorWidth / 2 * fontSize),
-      (canvasProps.height / 2) - (currentFloor.floorHeight / 2 * fontSize)
-    );
   }
 
   attemptPlayerMovement(keyValue: string): void | Message[] {

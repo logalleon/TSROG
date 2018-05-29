@@ -17,9 +17,8 @@ class InventoryScreen extends Screen {
     super();
   }
 
-  render(ctx: CanvasRenderingContext2D) {
-    const { canvasProps, messenger } = this.game;
-    clearCanvas(ctx, canvasProps);
+  render() {
+    const { messenger } = this.game;
     this.renderPlayerInventory();
     messenger.renderSpaceToContinue();
   }

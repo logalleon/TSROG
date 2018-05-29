@@ -11,11 +11,10 @@
   <h1>TSROG</h1>
   <div id="wrapper">
     <p id="messages"></p>
-    <canvas style="display: none;" id="canvas"></canvas>
     <div id="main-window"></div>
   </div>
   <h2 id="bottomMessage">Press '?' for command list.</h2>
-  <p style="color: white; font-size: 10px; cursor: pointer;" id="tiles"></p>
+  <!-- <p style="color: white; font-size: 10px; cursor: pointer;" id="tiles"></p> -->
   <div style="display: none;" id="transition-wrapper"></div>
 </body>
 <script src="index.js"></script>
@@ -27,7 +26,6 @@
     letter-spacing: 2px;
     font-size: 14px;
     background-color: black;
-    height: 85vh;
     box-sizing: border-box;
   }
   #messages {
@@ -43,12 +41,6 @@
     width: 70%;
   }
   #main-window {
-    position: fixed;
-    height: 100vh;
-    width: 100vw;
-    top: 0;
-    left: 0;
-    background-color: black;
     overflow-y: scroll;
   }
   body {

@@ -238,8 +238,8 @@ class Floor {
   }
 
   setWalls (): void {
+    const { tileSpawner } = Game.instance.dungeonGenerator;
     this.rooms.forEach((room) => {
-      const { tileSpawner } = Game.instance.dungeonGenerator;
       let y;
       let x;
       let row;
@@ -290,6 +290,103 @@ class Floor {
             isPassible: false,
             type: TileTypes.WALL
           });
+        }
+      }
+    });
+    this.corridors.forEach((corridor) => {
+      let north;
+      let east;
+      let south;
+      let west;
+      for (let i = 0; i < corridor.length; i++) {
+        let { x, y } = corridor.startingPosition;
+        switch (corridor.direction) {
+          case Direction.North:
+            y += i;
+            west = x - 1;
+            east = x + 1;
+            if (this.tiles[y] && this.tiles[y][west] && this.tiles[y][west].type === TileTypes.VOID) {
+              this.tiles[y][west] = tileSpawner.getTile({
+                depth: this.depth,
+                isPassible: false,
+                type: TileTypes.WALL
+              });
+            }
+            if (this.tiles[y] && this.tiles[y][east] && this.tiles[y][east].type === TileTypes.VOID) {
+              this.tiles[y][east] = tileSpawner.getTile({
+                depth: this.depth,
+                isPassible: false,
+                type: TileTypes.WALL
+              });
+            }
+            break;
+          case Direction.East:
+            x += i;
+            north = y - 1;
+            south = y + 1;
+            if (this.tiles[north] && this.tiles[north][x] && this.tiles[north][x].type === TileTypes.VOID) {
+              this.tiles[north][x] = tileSpawner.getTile({
+                depth: this.depth,
+                isPassible: false,
+                type: TileTypes.WALL
+              });
+            }
+            if (this.tiles[south] && this.tiles[south][x] && this.tiles[south][x].type === TileTypes.VOID) {
+              this.tiles[south][x] = tileSpawner.getTile({
+                depth: this.depth,
+                isPassible: false,
+                type: TileTypes.WALL
+              });
+            }
+            break;
+          case Direction.South:
+            y -= i;
+            west = x - 1;
+            east = x + 1;
+            if (this.tiles[y] && this.tiles[y][west] && this.tiles[y][west].type === TileTypes.VOID) {
+              this.tiles[y][west] = tileSpawner.getTile({
+                depth: this.depth,
+                isPassible: false,
+                type: TileTypes.WALL
+              });
+            }
+            if (this.tiles[y] && this.tiles[y][east] && this.tiles[y][east].type === TileTypes.VOID) {
+              this.tiles[y][east] = tileSpawner.getTile({
+                depth: this.depth,
+                isPassible: false,
+                type: TileTypes.WALL
+              });
+            }
+            break;
+          case Direction.West:
+            x -= i;
+            north = y - 1;
+            south = y + 1;
+            if (this.tiles[north] && this.tiles[north][x] && this.tiles[north][x].type === TileTypes.VOID) {
+              this.tiles[north][x] = tileSpawner.getTile({
+                depth: this.depth,
+                isPassible: false,
+                type: TileTypes.WALL
+              });
+            }
+            if (this.tiles[south] && this.tiles[south][x] && this.tiles[south][x].type === TileTypes.VOID) {
+              this.tiles[south][x] = tileSpawner.getTile({
+                depth: this.depth,
+                isPassible: false,
+                type: TileTypes.WALL
+              });
+            }
+            break;
+        }
+        // @TODO something isn't right here . . . the start of a corridor should always be
+        // in bounds, right?
+        if (this.inBounds(this.floorWidth, this.floorHeight, new Vector2(x, y))) {
+          this.tiles[y][x] = Game.instance.dungeonGenerator.tileSpawner.getTile({
+            depth: this.depth,
+            isPassible: true,
+            type: TileTypes.FLOOR
+          });
+          this.tiles[y][x].pos = new Vector2(x, y);
         }
       }
     });

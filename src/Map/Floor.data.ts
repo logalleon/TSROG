@@ -20,8 +20,8 @@ const floorData = <FloorOptions[]>[
     maxCR: 10,
     variantEnemiesRange: { low: 0, high: 1 },
     pickupsRange: { low: 0, high: 1 },
-    floorHeight: 40,
-    floorWidth: 40,
+    floorHeight: 80,
+    floorWidth: 80,
     roomHeightRange: { low: 5, high: 8 },
     roomWidthRange: { low: 5, high: 8 },
     numRoomsRange: { low: 5, high: 10 },
@@ -30,21 +30,21 @@ const floorData = <FloorOptions[]>[
     floorPersistance: <FloorPersistance>{
       persistance: <Range>{ low: 0, high: 2}
     },
-    name: `{dank|meme} dungeon`,
+    name: `{Dank|Meme|Heroic} Dungeon`,
     regionName: RegionNames.Burm
   },
   <FloorOptions>{
       maxCR: 10,
       variantEnemiesRange: { low: 0, high: 1 },
       pickupsRange: { low: 0, high: 1 },
-      floorHeight: 30,
-      floorWidth: 30,
+      floorHeight: 60,
+      floorWidth: 60,
       roomHeightRange: { low: 5, high: 8 },
       roomWidthRange: { low: 5, high: 8 },
       numRoomsRange: { low: 5, high: 10 },
       corridorLengthRange: { low: 3, high: 12 },
       depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
-      name: `{Another|Onge} mire`,
+      name: `{Terrible|Awful} Mire`,
       regionName: RegionNames.Jirdenth
   }
 ];

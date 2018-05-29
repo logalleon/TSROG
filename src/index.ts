@@ -23,12 +23,6 @@ import { CreatureTypes, Variations, defaultVariations } from './Entity/Actor/Ene
 const height = 240;
 const width = 600;
 window.onload = () => {
-  const canvas: HTMLCanvasElement = <HTMLCanvasElement> document.getElementById('canvas');
-  const ctx: CanvasRenderingContext2D = setupCanvas(canvas, height, width);
-  const canvasProps: CanvasProps = {
-    height,
-    width
-  };
   const el = document.getElementById('messages');
   const bottomEl = document.getElementById('bottomMessage');
 
@@ -122,7 +116,7 @@ window.onload = () => {
 
   // END TEST DATA ////////////////////
 
-  const g = new Game(screens, canvasProps, ctx, player, el, bottomEl);
+  const g = new Game(screens,  player, el, bottomEl);
   // Bind the current game to all screens
   g.screens.forEach((screen) => screen.setGame(g));
 
@@ -145,7 +139,7 @@ window.onload = () => {
   player.addToInventory(pickup);
   player.attemptToEquip({ index: 0, type: InventoryItems.WEAPONS }, EquipmentSlots.WEAPON);
 
-  g.activeScreen.render(g.ctx);
+  g.activeScreen.render();
   g.messenger.logMessages([{ text: 'This is the map screen', color: Colors.DEFAULT }]);
 
   window.game = g;

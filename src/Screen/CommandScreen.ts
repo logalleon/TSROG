@@ -7,6 +7,7 @@ import { Colors } from '../Canvas/Color';
 import { Player, InventoryItems } from '../Entity/Actor/Player';
 import { Prop } from '../Entity/Prop/Prop';
 import { MapScreenInputs } from './MapScreen';
+import { titleCase } from 'lodash';
 
 class CommandScreen extends Screen {
 
@@ -18,17 +19,14 @@ class CommandScreen extends Screen {
     super();
   }
 
-  render(ctx: CanvasRenderingContext2D) {
-    const { canvasProps, messenger } = this.game;
+  render() {
+    const { messenger } = this.game;
     this.renderMovement();
     messenger.renderSpaceToContinue();
   }
 
-  renderTitle(ctx: CanvasRenderingContext2D) {
-    const title = `${this.name[0].toUpperCase()}${this.name.slice(1)}`;
-    ctx.fillStyle = fontOptions.fontColor;
-    ctx.textAlign = 'center';
-    ctx.fillText(title, this.game.canvasProps.width / 2, padding);
+  renderTitle() {
+    const title = `${titleCase(this.name)}`;
   }
 
   renderMovement (): void {
@@ -47,21 +45,13 @@ class CommandScreen extends Screen {
     }]);
   }
 
-  renderPlayerInventory (ctx: CanvasRenderingContext2D) {
+  renderPlayerInventory () {
     const { player } = this.game;
     const padding = fontOptions.fontSize * 2;
     let keyCode = 65;
     let i = 0;
-    ctx.textAlign = fontOptions.defaultFontAlignment;
-    ctx.fillStyle = fontOptions.fontColor;
     for (let key in InventoryItems) {
       player[InventoryItems[key]].forEach((item: Prop) => {
-        ctx.fillText(
-          `${String.fromCharCode(keyCode)}) ${item.name}`,
-          padding,
-          fontOptions.fontSize * i + padding
-        );
-        i++;
         keyCode++;
       });
     }

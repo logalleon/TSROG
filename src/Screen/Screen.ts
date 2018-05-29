@@ -61,7 +61,7 @@ class Screen implements IScreen {
     game.activeScreen = mapScreen;
   }
 
-  render (ctx: CanvasRenderingContext2D): void {
+  render (): void {
     return null;
   }
 

@@ -24482,7 +24482,7 @@ var easystarjs_1 = require("../custom_modules/easystarjs");
 var EnemySpawner_1 = require("./Entity/Actor/EnemySpawner");
 var Effects_1 = require("./Effects");
 var Game = /** @class */ (function () {
-    function Game(screens, canvasProps, ctx, player, el, bottomEl) {
+    function Game(screens, player, el, bottomEl) {
         this.easystarClosedTile = 0;
         this.easystarOpenTile = 1;
         if (Game.instance !== null) {
@@ -24494,9 +24494,7 @@ var Game = /** @class */ (function () {
         this.player = player;
         this.screens = screens;
         this.activeScreen = screens[0];
-        this.canvasProps = canvasProps;
         this.keyMap = {};
-        this.ctx = ctx;
         this.messenger = new Message_1.Messenger(el, bottomEl);
         window.onkeydown = this.handleInput.bind(this);
         window.onkeyup = this.handleInput.bind(this);
@@ -24559,7 +24557,7 @@ var Game = /** @class */ (function () {
             // Update internals of the game
             this.update();
             // Finally, render what's changed
-            this.activeScreen.render(this.ctx);
+            this.activeScreen.render();
         }
     };
     Game.prototype.updatePlayerPos = function (player, nextPos) {
@@ -25283,8 +25281,8 @@ var floorData = [
         maxCR: 10,
         variantEnemiesRange: { low: 0, high: 1 },
         pickupsRange: { low: 0, high: 1 },
-        floorHeight: 40,
-        floorWidth: 40,
+        floorHeight: 80,
+        floorWidth: 80,
         roomHeightRange: { low: 5, high: 8 },
         roomWidthRange: { low: 5, high: 8 },
         numRoomsRange: { low: 5, high: 10 },
@@ -25293,21 +25291,21 @@ var floorData = [
         floorPersistance: {
             persistance: { low: 0, high: 2 }
         },
-        name: "{dank|meme} dungeon",
+        name: "{Dank|Meme|Heroic} Dungeon",
         regionName: RegionNames.Burm
     },
     {
         maxCR: 10,
         variantEnemiesRange: { low: 0, high: 1 },
         pickupsRange: { low: 0, high: 1 },
-        floorHeight: 30,
-        floorWidth: 30,
+        floorHeight: 60,
+        floorWidth: 60,
         roomHeightRange: { low: 5, high: 8 },
         roomWidthRange: { low: 5, high: 8 },
         numRoomsRange: { low: 5, high: 10 },
         corridorLengthRange: { low: 3, high: 12 },
         depthRange: { low: 0, high: DungeonGenerator_1.MAX_DUNGEON_DEPTH },
-        name: "{Another|Onge} mire",
+        name: "{Terrible|Awful} Mire",
         regionName: RegionNames.Jirdenth
     }
 ];
@@ -25463,8 +25461,8 @@ var Floor = /** @class */ (function () {
     };
     Floor.prototype.setWalls = function () {
         var _this = this;
+        var tileSpawner = Game_1["default"].instance.dungeonGenerator.tileSpawner;
         this.rooms.forEach(function (room) {
-            var tileSpawner = Game_1["default"].instance.dungeonGenerator.tileSpawner;
             var y;
             var x;
             var row;
@@ -25515,6 +25513,103 @@ var Floor = /** @class */ (function () {
                         isPassible: false,
                         type: Tile_1.TileTypes.WALL
                     });
+                }
+            }
+        });
+        this.corridors.forEach(function (corridor) {
+            var north;
+            var east;
+            var south;
+            var west;
+            for (var i = 0; i < corridor.length; i++) {
+                var _a = corridor.startingPosition, x = _a.x, y = _a.y;
+                switch (corridor.direction) {
+                    case Corridor_1.Direction.North:
+                        y += i;
+                        west = x - 1;
+                        east = x + 1;
+                        if (_this.tiles[y] && _this.tiles[y][west] && _this.tiles[y][west].type === Tile_1.TileTypes.VOID) {
+                            _this.tiles[y][west] = tileSpawner.getTile({
+                                depth: _this.depth,
+                                isPassible: false,
+                                type: Tile_1.TileTypes.WALL
+                            });
+                        }
+                        if (_this.tiles[y] && _this.tiles[y][east] && _this.tiles[y][east].type === Tile_1.TileTypes.VOID) {
+                            _this.tiles[y][east] = tileSpawner.getTile({
+                                depth: _this.depth,
+                                isPassible: false,
+                                type: Tile_1.TileTypes.WALL
+                            });
+                        }
+                        break;
+                    case Corridor_1.Direction.East:
+                        x += i;
+                        north = y - 1;
+                        south = y + 1;
+                        if (_this.tiles[north] && _this.tiles[north][x] && _this.tiles[north][x].type === Tile_1.TileTypes.VOID) {
+                            _this.tiles[north][x] = tileSpawner.getTile({
+                                depth: _this.depth,
+                                isPassible: false,
+                                type: Tile_1.TileTypes.WALL
+                            });
+                        }
+                        if (_this.tiles[south] && _this.tiles[south][x] && _this.tiles[south][x].type === Tile_1.TileTypes.VOID) {
+                            _this.tiles[south][x] = tileSpawner.getTile({
+                                depth: _this.depth,
+                                isPassible: false,
+                                type: Tile_1.TileTypes.WALL
+                            });
+                        }
+                        break;
+                    case Corridor_1.Direction.South:
+                        y -= i;
+                        west = x - 1;
+                        east = x + 1;
+                        if (_this.tiles[y] && _this.tiles[y][west] && _this.tiles[y][west].type === Tile_1.TileTypes.VOID) {
+                            _this.tiles[y][west] = tileSpawner.getTile({
+                                depth: _this.depth,
+                                isPassible: false,
+                                type: Tile_1.TileTypes.WALL
+                            });
+                        }
+                        if (_this.tiles[y] && _this.tiles[y][east] && _this.tiles[y][east].type === Tile_1.TileTypes.VOID) {
+                            _this.tiles[y][east] = tileSpawner.getTile({
+                                depth: _this.depth,
+                                isPassible: false,
+                                type: Tile_1.TileTypes.WALL
+                            });
+                        }
+                        break;
+                    case Corridor_1.Direction.West:
+                        x -= i;
+                        north = y - 1;
+                        south = y + 1;
+                        if (_this.tiles[north] && _this.tiles[north][x] && _this.tiles[north][x].type === Tile_1.TileTypes.VOID) {
+                            _this.tiles[north][x] = tileSpawner.getTile({
+                                depth: _this.depth,
+                                isPassible: false,
+                                type: Tile_1.TileTypes.WALL
+                            });
+                        }
+                        if (_this.tiles[south] && _this.tiles[south][x] && _this.tiles[south][x].type === Tile_1.TileTypes.VOID) {
+                            _this.tiles[south][x] = tileSpawner.getTile({
+                                depth: _this.depth,
+                                isPassible: false,
+                                type: Tile_1.TileTypes.WALL
+                            });
+                        }
+                        break;
+                }
+                // @TODO something isn't right here . . . the start of a corridor should always be
+                // in bounds, right?
+                if (_this.inBounds(_this.floorWidth, _this.floorHeight, new Vector_1["default"](x, y))) {
+                    _this.tiles[y][x] = Game_1["default"].instance.dungeonGenerator.tileSpawner.getTile({
+                        depth: _this.depth,
+                        isPassible: true,
+                        type: Tile_1.TileTypes.FLOOR
+                    });
+                    _this.tiles[y][x].pos = new Vector_1["default"](x, y);
                 }
             }
         });
@@ -26164,6 +26259,7 @@ var Canvas_1 = require("../Canvas/Canvas");
 var Color_1 = require("../Canvas/Color");
 var Player_1 = require("../Entity/Actor/Player");
 var MapScreen_1 = require("./MapScreen");
+var lodash_2 = require("lodash");
 var CommandScreen = /** @class */ (function (_super) {
     __extends(CommandScreen, _super);
     function CommandScreen() {
@@ -26171,16 +26267,13 @@ var CommandScreen = /** @class */ (function (_super) {
         _this.name = Screen_1.ScreenNames.COMMANDS;
         return _this;
     }
-    CommandScreen.prototype.render = function (ctx) {
-        var _a = this.game, canvasProps = _a.canvasProps, messenger = _a.messenger;
+    CommandScreen.prototype.render = function () {
+        var messenger = this.game.messenger;
         this.renderMovement();
         messenger.renderSpaceToContinue();
     };
-    CommandScreen.prototype.renderTitle = function (ctx) {
-        var title = "" + this.name[0].toUpperCase() + this.name.slice(1);
-        ctx.fillStyle = Canvas_1.fontOptions.fontColor;
-        ctx.textAlign = 'center';
-        ctx.fillText(title, this.game.canvasProps.width / 2, Canvas_1.padding);
+    CommandScreen.prototype.renderTitle = function () {
+        var title = "" + lodash_2.titleCase(this.name);
     };
     CommandScreen.prototype.renderMovement = function () {
         var messenger = this.game.messenger;
@@ -26190,17 +26283,13 @@ var CommandScreen = /** @class */ (function (_super) {
                 text: text
             }]);
     };
-    CommandScreen.prototype.renderPlayerInventory = function (ctx) {
+    CommandScreen.prototype.renderPlayerInventory = function () {
         var player = this.game.player;
         var padding = Canvas_1.fontOptions.fontSize * 2;
         var keyCode = 65;
         var i = 0;
-        ctx.textAlign = Canvas_1.fontOptions.defaultFontAlignment;
-        ctx.fillStyle = Canvas_1.fontOptions.fontColor;
         for (var key in Player_1.InventoryItems) {
             player[Player_1.InventoryItems[key]].forEach(function (item) {
-                ctx.fillText(String.fromCharCode(keyCode) + ") " + item.name, padding, Canvas_1.fontOptions.fontSize * i + padding);
-                i++;
                 keyCode++;
             });
         }
@@ -26223,8 +26312,8 @@ var __extends = (this && this.__extends) || (function () {
 })();
 exports.__esModule = true;
 var Screen_1 = require("./Screen");
-var Canvas_1 = require("../Canvas/Canvas");
 var Color_1 = require("../Canvas/Color");
+var lodash_1 = require("lodash");
 var InventoryItemScreen = /** @class */ (function (_super) {
     __extends(InventoryItemScreen, _super);
     function InventoryItemScreen(name, item) {
@@ -26233,17 +26322,14 @@ var InventoryItemScreen = /** @class */ (function (_super) {
         _this.item = item;
         return _this;
     }
-    InventoryItemScreen.prototype.render = function (ctx) {
-        var _a = this.game, canvasProps = _a.canvasProps, messenger = _a.messenger;
-        this.renderTitle(ctx);
+    InventoryItemScreen.prototype.render = function () {
+        var messenger = this.game.messenger;
+        this.renderTitle();
         this.renderInventoryItems();
         messenger.renderSpaceToContinue();
     };
-    InventoryItemScreen.prototype.renderTitle = function (ctx) {
-        var title = "" + this.item[0].toUpperCase() + this.item.slice(1);
-        ctx.fillStyle = Canvas_1.fontOptions.fontColor;
-        ctx.textAlign = 'center';
-        ctx.fillText(title, this.game.canvasProps.width / 2, Canvas_1.padding);
+    InventoryItemScreen.prototype.renderTitle = function () {
+        var title = "" + lodash_1.titleCase(this.item);
     };
     InventoryItemScreen.prototype.renderInventoryItems = function () {
         var player = this.game.player;
@@ -26265,7 +26351,7 @@ var InventoryItemScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryItemScreen;
 
-},{"../Canvas/Canvas":10,"../Canvas/Color":11,"./Screen":41}],39:[function(require,module,exports){
+},{"../Canvas/Color":11,"./Screen":41,"lodash":7}],39:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26279,7 +26365,6 @@ var __extends = (this && this.__extends) || (function () {
 })();
 exports.__esModule = true;
 var Screen_1 = require("./Screen");
-var Canvas_1 = require("../Canvas/Canvas");
 var Player_1 = require("../Entity/Actor/Player");
 var Color_1 = require("../Canvas/Color");
 var InventoryScreen = /** @class */ (function (_super) {
@@ -26289,9 +26374,8 @@ var InventoryScreen = /** @class */ (function (_super) {
         _this.name = Screen_1.ScreenNames.INVENTORY;
         return _this;
     }
-    InventoryScreen.prototype.render = function (ctx) {
-        var _a = this.game, canvasProps = _a.canvasProps, messenger = _a.messenger;
-        Canvas_1.clearCanvas(ctx, canvasProps);
+    InventoryScreen.prototype.render = function () {
+        var messenger = this.game.messenger;
         this.renderPlayerInventory();
         messenger.renderSpaceToContinue();
     };
@@ -26316,7 +26400,7 @@ var InventoryScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Canvas":10,"../Canvas/Color":11,"../Entity/Actor/Player":17,"./Screen":41}],40:[function(require,module,exports){
+},{"../Canvas/Color":11,"../Entity/Actor/Player":17,"./Screen":41}],40:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26395,8 +26479,8 @@ var MapScreen = /** @class */ (function (_super) {
         return _this;
         var _a;
     }
-    MapScreen.prototype.render = function (ctx) {
-        var _a = this.game, currentFloor = _a.currentFloor, canvasProps = _a.canvasProps, messenger = _a.messenger;
+    MapScreen.prototype.render = function () {
+        var _a = this.game, currentFloor = _a.currentFloor, messenger = _a.messenger;
         var tiles = currentFloor.tiles;
         messenger.clearBottomMessages();
         messenger.logBottomMessage({
@@ -26419,10 +26503,6 @@ var MapScreen = /** @class */ (function (_super) {
             html += '<br/>';
         }
         main.innerHTML = html;
-    };
-    MapScreen.prototype.calculateOffset = function (canvasProps, currentFloor, fontSize) {
-        // This centers the map on the canvas
-        return new Vector_1["default"]((canvasProps.width / 2) - (currentFloor.floorWidth / 2 * fontSize), (canvasProps.height / 2) - (currentFloor.floorHeight / 2 * fontSize));
     };
     MapScreen.prototype.attemptPlayerMovement = function (keyValue) {
         var _a = this.game, player = _a.player, currentFloor = _a.currentFloor;
@@ -26573,7 +26653,7 @@ var Screen = /** @class */ (function () {
         var mapScreen = game.screens.filter(function (screen) { return screen.name === ScreenNames.MAP; })[0];
         game.activeScreen = mapScreen;
     };
-    Screen.prototype.render = function (ctx) {
+    Screen.prototype.render = function () {
         return null;
     };
     return Screen;
@@ -26604,7 +26684,6 @@ exports["default"] = Vector2;
 exports.__esModule = true;
 var Game_1 = require("./Game");
 var Screen_1 = require("./Screen/Screen");
-var Canvas_1 = require("./Canvas/Canvas");
 var Player_1 = require("./Entity/Actor/Player");
 var MapScreen_1 = require("./Screen/MapScreen");
 var InventoryScreen_1 = require("./Screen/InventoryScreen");
@@ -26619,12 +26698,6 @@ var Dice_1 = require("./Random/Dice");
 var height = 240;
 var width = 600;
 window.onload = function () {
-    var canvas = document.getElementById('canvas');
-    var ctx = Canvas_1.setupCanvas(canvas, height, width);
-    var canvasProps = {
-        height: height,
-        width: width
-    };
     var el = document.getElementById('messages');
     var bottomEl = document.getElementById('bottomMessage');
     var screens = [
@@ -26707,7 +26780,7 @@ window.onload = function () {
     };
     var sword = new Weapon_1.Weapon(weaponOptions);
     // END TEST DATA ////////////////////
-    var g = new Game_1["default"](screens, canvasProps, ctx, player, el, bottomEl);
+    var g = new Game_1["default"](screens, player, el, bottomEl);
     // Bind the current game to all screens
     g.screens.forEach(function (screen) { return screen.setGame(g); });
     // TESSSSSSSSSSST DATA
@@ -26728,12 +26801,12 @@ window.onload = function () {
     };
     player.addToInventory(pickup);
     player.attemptToEquip({ index: 0, type: Player_1.InventoryItems.WEAPONS }, Player_1.EquipmentSlots.WEAPON);
-    g.activeScreen.render(g.ctx);
+    g.activeScreen.render();
     g.messenger.logMessages([{ text: 'This is the map screen', color: Color_1.Colors.DEFAULT }]);
     window.game = g;
 };
 
-},{"./Canvas/Canvas":10,"./Canvas/Color":11,"./Entity/Actor/Player":17,"./Entity/Prop/Armor":18,"./Entity/Prop/Prop.data":19,"./Entity/Prop/Weapon":21,"./Game":22,"./Random/Dice":34,"./Screen/CommandScreen":37,"./Screen/InventoryItemScreen":38,"./Screen/InventoryScreen":39,"./Screen/MapScreen":40,"./Screen/Screen":41,"./Vector":42}],44:[function(require,module,exports){
+},{"./Canvas/Color":11,"./Entity/Actor/Player":17,"./Entity/Prop/Armor":18,"./Entity/Prop/Prop.data":19,"./Entity/Prop/Weapon":21,"./Game":22,"./Random/Dice":34,"./Screen/CommandScreen":37,"./Screen/InventoryItemScreen":38,"./Screen/InventoryScreen":39,"./Screen/MapScreen":40,"./Screen/Screen":41,"./Vector":42}],44:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 

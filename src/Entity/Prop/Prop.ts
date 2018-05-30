@@ -3,14 +3,14 @@ import Vector2 from '../../Vector';
 import { Color } from '../../Canvas/Color';
 
 interface PropOptions {
-  pos?: Vector2,
-  isActive: boolean,
+  name: string,
   color: Color,
   char: string,
-  canBePickedUp: boolean,
+  pos?: Vector2,
+  isActive?: boolean,
+  canBePickedUp?: boolean,
   weight?: number,
-  name: string,
-  description: string,
+  description?: string,
   descriptionLong?: string
 }
 

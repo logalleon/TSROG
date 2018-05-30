@@ -1,29 +1,23 @@
 import { Prop, PropOptions } from './Prop';
-import { Quality } from './Prop.data';
+import { Quality, Material, Damage } from './Prop.data';
+import { Legendary } from '../../Random/Legendary';
 
 interface WeaponOptions {
-  bonus?: number,
-  material: string,
-  damage: string
+  material: Material,
+  baseDamage: Damage,
+  additionalDamage?: Damage[],
   quality: Quality,
-  weaponType: WeaponType,
   propOptions: PropOptions
-}
-
-interface WeaponType {
-  category: string,
-  modifier: string | null // @TODO this should probably be an interface, too, with magical damage
-  // Maybe even an array of magical damage types?
 }
 
 class Weapon extends Prop {
 
-  public bonus: number = 0;
-  public material: string;
-  public damage: string;
+  public material: Material;
+  
   public quality: Quality;
 
-  public weaponType: WeaponType;
+  public baseDamage: Damage;
+  public additionalDamage: Damage[];
 
   constructor (options: WeaponOptions) {
     super(options.propOptions);
@@ -35,15 +29,29 @@ class Weapon extends Prop {
   }
 
   getDamage (): string {
-    return `${this.damage}+${this.bonus}`;
+    const { damage, bonus } = this.baseDamage;
+    return `${damage}+${bonus || 0}`;
+  }
+
+  getAdditionalDamage (): string[] {
+    return [];
   }
 
   getFormattedName (): string {
     const { name, material } = this;
-    const { modifier } = this.weaponType;
-    return `${modifier} ${material} ${name.toLowerCase()}`;
+    return `${material.subtype} ${name.toLowerCase()}`;
+  }
+
+  generateDescription (): string {
+    return '';
+  }
+
+  debugGenerateDescription (): string {
+    const L = new Legendary();
+    const { parse } = L;
+    return '';
   }
 
 }
 
-export { Weapon, WeaponOptions, WeaponType };
+export { Weapon, WeaponOptions };

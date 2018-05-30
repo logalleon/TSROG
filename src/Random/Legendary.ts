@@ -1,5 +1,6 @@
-import { LegendaryData } from './language.data';
+import { LegendaryData, ArbitraryData } from './language.data';
 import { randomInt, pluck, weightedPluck } from './Dice';
+import { weaponData, materialData } from '../Entity/Prop/Prop.data';
 
 class Legendary {
 
@@ -7,7 +8,37 @@ class Legendary {
 
   constructor () {
     // Load language libraries
-    this.lists = LegendaryData;
+    this.lists = Object.assign({},
+      LegendaryData,
+      weaponData,
+      materialData
+    );
+  }
+
+  /**
+   * Does things similar to parse, but retrieves the arbitrary data object
+   */
+  retrieve (source: string): ArbitraryData {
+    const lists = source.match(/\[.+\]/g);
+    let selection;
+    lists.forEach((listGroup) => {
+      const listReferences = listGroup.split('|');
+      let results = [];
+      let weighted = false;
+      listReferences.forEach((listReference) => {
+        let [accessor] = listReference.match(/([a-zA-Z\^\.[0-9])+/);
+        accessor = accessor.replace('[', '').replace(']', '');
+        const result = this.deepDiveRetrieve(accessor);
+        results.push(result);
+        if (result.val && result.val.indexOf('^') !== -1) {
+
+        } else if (result.indexOf('^') !== -1) {
+          weighted = true;
+        }
+      });
+      selection = weighted ? weightedPluck(results) : pluck(results);
+    });
+    return selection;
   }
 
   /**
@@ -92,12 +123,47 @@ class Legendary {
       if (Array.isArray(swimmingPool)) {
         selections = selections.concat(swimmingPool);
       } else if (typeof swimmingPool === 'object') {
-        const keys = Object.keys(swimmingPool);
-        keys.forEach((key) => {
-          diveIn(swimmingPool[key]);
-        });
+          const keys = Object.keys(swimmingPool);
+          keys.forEach((key) => {
+            diveIn(swimmingPool[key]);
+          });
       } else {
-        console.log('Huh?');
+      }
+    }
+    diveIn(ref);
+    return pluck(selections);
+  }
+
+  /**
+   * Recursively unfurl and object
+   * @param accessor {string}
+   */
+  deepDiveRetrieve (accessor: string): ArbitraryData {
+    let selections = [];
+    let a: string|string[];
+    let ref: any = this.lists;
+    if (accessor.indexOf('.') !== -1) {
+      a = accessor.split('.');
+      a.forEach((k) => {
+        ref = ref[k];
+      });
+    } else {
+      ref = ref[accessor];
+    }
+    const diveIn = (swimmingPool: any) => {
+      if (Array.isArray(swimmingPool)) {
+        selections = selections.concat(swimmingPool);
+      } else if (typeof swimmingPool === 'object') {
+          // This is for fetching datastructures from legendary
+          if (swimmingPool.val) {
+            selections.push(swimmingPool);
+          } else {
+            const keys = Object.keys(swimmingPool);
+            keys.forEach((key) => {
+              diveIn(swimmingPool[key]);
+            });
+          }
+      } else {
       }
     }
     diveIn(ref);

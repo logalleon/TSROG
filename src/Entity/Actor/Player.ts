@@ -172,6 +172,10 @@ class Player extends Actor {
     }
   }
 
+  debugInitializePlayer () {
+    
+  }
+
 }
 
 export { Player, PlayerOptions, Pickup, EquipmentSlots, EquippedItemAccessor, EquippedItems, InventoryItems };

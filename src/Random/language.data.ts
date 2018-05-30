@@ -1,3 +1,8 @@
+interface ArbitraryData {
+  val: string,
+  [key: string]: any
+}
+
 const LegendaryData = {
   animals: {
     mammals: [
@@ -16,4 +21,4 @@ const LegendaryData = {
     'lizard'
   ]
 };
-export { LegendaryData };
+export { LegendaryData, ArbitraryData };

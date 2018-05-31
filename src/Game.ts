@@ -239,10 +239,14 @@ class Game {
     this.currentFloor.tiles[y][x].occupiers = this.currentFloor.tiles[y][x].occupiers.filter(occupier => !occupier.isEnemy);
     this.currentFloor.tiles[y][x].isOccupied = false;
     // Add to the next position
+    try {
     Array.isArray(this.currentFloor.tiles[newPos.y][newPos.x].occupiers) ? 
     this.currentFloor.tiles[newPos.y][newPos.x].occupiers.push(enemy) :
     this.currentFloor.tiles[newPos.y][newPos.x].occupiers = [enemy];
     this.currentFloor.tiles[newPos.y][newPos.x].isOccupied = true;
+    } catch (e) {
+      console.log(oldPos, newPos, this.currentFloor.tiles );
+    }
   }
 
   playerDescend () {

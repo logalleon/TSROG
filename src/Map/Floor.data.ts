@@ -15,9 +15,10 @@ enum RegionNames {
   Burm = 'Burm'
 }
 
-const floorData = <FloorOptions[]>[
-  <FloorOptions>{
+const floorData: FloorOptions[] = [
+  {
     maxCR: 10,
+    floorCRRange: { low: 1, high: 1 },
     variantEnemiesRange: { low: 0, high: 1 },
     pickupsRange: { low: 0, high: 1 },
     floorHeight: 80,
@@ -33,8 +34,9 @@ const floorData = <FloorOptions[]>[
     name: `{Dank|Meme|Heroic} Dungeon`,
     regionName: RegionNames.Burm
   },
-  <FloorOptions>{
+  {
       maxCR: 10,
+      floorCRRange: { low: 1, high: 2 },
       variantEnemiesRange: { low: 0, high: 1 },
       pickupsRange: { low: 0, high: 1 },
       floorHeight: 60,

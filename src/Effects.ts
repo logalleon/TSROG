@@ -1,6 +1,6 @@
 import Game from './Game';
 
-const TITLE_TIME = 5000;
+const TITLE_TIME = 2000;
 
 class Effects {
 
@@ -30,7 +30,7 @@ class Effects {
       this.el.classList.add('fade');
       setTimeout(() => {
         player.canMove = true;
-      }, 600); // fade animation time
+      }, TITLE_TIME / 6); // fade animation time
     }, TITLE_TIME)
   }
 

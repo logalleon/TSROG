@@ -20,6 +20,7 @@ interface FloorPersistance {
 // @TODO there are probably many more options that will go into this
 interface FloorOptions {
   maxCR: number,
+  floorCRRange: Range,
   variantEnemiesRange: Range,
   pickupsRange: Range,
   roomWidthRange: Range,
@@ -28,7 +29,8 @@ interface FloorOptions {
   floorWidth: number,
   floorHeight: number,
   numRoomsRange: Range,
-  depth: number,
+  // This is assigned by the dungeon generator
+  depth?: number,
   // Floors with a persistance value will persist for RANGE number of floors
   floorPersistance?: FloorPersistance,
   // Range at which first generation can occur
@@ -46,6 +48,7 @@ class Floor {
   public activeEnemies: Enemy[] = [];
   public variantEnemiesRange: Range;
   public maxCR: number;
+  public floorCRRange: Range;
 
   public pickupsRange: Range;
 
@@ -434,14 +437,42 @@ class Floor {
 
   spawnEnemies (): void {
     const { enemySpawner } = Game.instance;
-    // DEBUG
-    const e = enemySpawner.createEnemyByCreatureType(CreatureTypes.UNDEAD, defaultVariations[Variations.FEROCIOUS]);
-    e.pos = this.getRandomPointInRoom(this.rooms[2]);
-    e.isActive = true;
-    this.activeEnemies.push(e);
-    this.tiles[e.pos.y][e.pos.x].isOccupied = true;
-    this.tiles[e.pos.y][e.pos.x].occupiers.push(e);;
-    //
+    let currentCR = 0;
+    while (currentCR < this.maxCR) {
+      const e = enemySpawner.createEnemyByCr(
+        randomIntR(this.floorCRRange),
+        null,
+        this.regionName
+      );
+      currentCR += e.cr;
+      // If the enemy can't be placed, don't place it
+      if (this.placeEnemyOnMap(e)) {
+        this.enemies.push(e);
+      }
+    }
+
+    this.enemies.forEach((enemy) => {
+      enemy.isActive = true; // debug
+      this.activeEnemies.push(enemy); //debug
+    });
+  }
+
+  placeEnemyOnMap (enemy: Enemy): boolean {
+    // @TODO maybe make this smarter
+    let tries = 5;
+    const placementRange: Range = { low: 1, high: this.rooms.length - 1 };
+    const possiblePosition = this.getRandomPointInRoom(this.rooms[randomIntR(placementRange)]);
+    while (tries) {
+      const { x, y } = possiblePosition;
+      if (!this.tiles[y][x].isOccupied) {
+        enemy.pos = possiblePosition;
+        this.tiles[y][x].isOccupied = true;
+        this.tiles[y][x].occupiers = [enemy];
+        return true;
+      }
+      tries--;
+    }
+    return false;
   }
 
   getFormattedName (): string {

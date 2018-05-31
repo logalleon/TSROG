@@ -23833,7 +23833,7 @@ exports.Colors = Colors;
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("./Game");
-var TITLE_TIME = 5000;
+var TITLE_TIME = 2000;
 var Effects = /** @class */ (function () {
     function Effects(el) {
         this.el = el;
@@ -23859,7 +23859,7 @@ var Effects = /** @class */ (function () {
             _this.el.classList.add('fade');
             setTimeout(function () {
                 player.canMove = true;
-            }, 600); // fade animation time
+            }, TITLE_TIME / 6); // fade animation time
         }, TITLE_TIME);
     };
     return Effects;
@@ -23989,6 +23989,23 @@ var baseEnemies = [
         }
     },
     {
+        name: 'Fierce Iguana',
+        cr: 2,
+        xp: 25,
+        enemyType: {
+            creatureType: BEAST,
+            variant: null,
+            descriptor: 'Lurid'
+        },
+        actorOptions: {
+            color: new Color_1.Color({ html: 'indigo' }),
+            hp: 6,
+            ac: 7,
+            char: 'L',
+            damage: Dice_1.StandardDice.d2
+        }
+    },
+    {
         name: 'Skeleton',
         cr: 1,
         xp: 40,
@@ -24075,6 +24092,10 @@ var Enemy = /** @class */ (function (_super) {
                 }
                 else {
                     this.path = this.getUpdatedPath();
+                    // Could calculate a new path, maybe something is blocking
+                    if (this.path.length === 0) {
+                        return [];
+                    }
                     var nextPos = this.path[this.path.length - 2];
                     // Make sure to adjust the length of the path after moving in case it isn't recalculated later
                     this.path.pop();
@@ -24086,11 +24107,16 @@ var Enemy = /** @class */ (function (_super) {
             else {
                 this.path = this.getUpdatedPath();
                 // The player has moved into range
+                console.log('here');
                 if (this.inRange()) {
                     return this.targetAndAttemptAttackPlayer(player);
                     // The player is still too far away
                 }
                 else {
+                    // Could calculate a new path, maybe something is blocking
+                    if (this.path.length === 0) {
+                        return [];
+                    }
                     var nextPos = this.path[this.path.length - 2];
                     // Make sure to adjust the length of the path after moving in case it isn't recalculated later
                     this.path.pop();
@@ -24121,7 +24147,8 @@ var Enemy = /** @class */ (function (_super) {
         variation.modifications.forEach(function (attribute) { return _this.applyModification(attribute); });
     };
     Enemy.prototype.inRange = function () {
-        return this.path && this.path.length <= this.attackRange + 1;
+        console.log(this.path, this.path.length, this.attackRange);
+        return this.path && this.path.length !== 0 && this.path.length <= this.attackRange + 1;
     };
     Enemy.prototype.applyModification = function (modification) {
         var attribute = Object.keys(modification)[0];
@@ -24133,6 +24160,7 @@ var Enemy = /** @class */ (function (_super) {
      * @param destination
      */
     Enemy.prototype.move = function (destination) {
+        console.log(this.pos, destination);
         // Update the tile references to the enemy
         Game_1["default"].instance.updateEnemyPosition(this.pos, destination, this);
         // Update the open / closed tiles for pathfinding
@@ -24204,16 +24232,25 @@ var EnemySpawner = /** @class */ (function () {
     EnemySpawner.prototype.generateVariantEnemy = function (base) {
         return base;
     };
-    EnemySpawner.prototype.createEnemyByCr = function (cr, variant) {
+    EnemySpawner.prototype.createEnemyByCr = function (cr, variant, region) {
         if (this.enemiesByCR[cr]) {
-            var options = Dice_1.pluck(this.enemiesByCR[cr]);
+            var options = void 0;
+            if (region) {
+                options = Dice_1.pluck(this.enemiesByCR[cr].filter(function (enemyOptions) {
+                    var regions = enemyOptions.regions;
+                    return (typeof regions === 'undefined' || regions.includes(region));
+                }));
+            }
+            else {
+                options = Dice_1.pluck(this.enemiesByCR[cr]);
+            }
             return new Enemy_1.Enemy(options, variant);
         }
         else {
             console.log('No enemies by that cr');
         }
     };
-    EnemySpawner.prototype.createEnemyByCreatureType = function (creatureType, variant) {
+    EnemySpawner.prototype.createEnemyByCreatureType = function (creatureType, variant, region) {
         if (this.enemiesByCreatureType[creatureType]) {
             var options = Dice_1.pluck(this.enemiesByCreatureType[creatureType]);
             return new Enemy_1.Enemy(options, variant);
@@ -24358,6 +24395,8 @@ var Player = /** @class */ (function (_super) {
             text: "\n        You attempt to attack the \n        " + target.formattedName() + " " + target.formattedChar() + "\n        " + colorize(" but it evades your blows!", Color_1.Colors.MISS_DEFAULT) + "\n      "
         };
     };
+    Player.prototype.debugInitializePlayer = function () {
+    };
     return Player;
 }(Actor_1.Actor));
 InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
@@ -24407,18 +24446,110 @@ var Quality;
     Quality["MYTHICAL"] = "mythical";
 })(Quality || (Quality = {}));
 exports.Quality = Quality;
-var EMaterialType;
-(function (EMaterialType) {
-    EMaterialType[EMaterialType["METAL"] = 0] = "METAL";
-    EMaterialType[EMaterialType["WOOD"] = 1] = "WOOD";
-    EMaterialType[EMaterialType["STONE"] = 2] = "STONE";
-    EMaterialType[EMaterialType["BONE"] = 3] = "BONE";
-    EMaterialType[EMaterialType["LEATHER"] = 4] = "LEATHER";
-    EMaterialType[EMaterialType["CLOTH"] = 5] = "CLOTH";
-})(EMaterialType || (EMaterialType = {}));
-var EMaterialSubtype;
-(function (EMaterialSubtype) {
-})(EMaterialSubtype || (EMaterialSubtype = {}));
+var MaterialType;
+(function (MaterialType) {
+    MaterialType["METAL"] = "metal";
+    MaterialType["WOOD"] = "wood";
+    MaterialType["STONE"] = "stone";
+    MaterialType["BONE"] = "bone";
+    MaterialType["LEATHER"] = "leather";
+    MaterialType["CLOTH"] = "cloth";
+})(MaterialType || (MaterialType = {}));
+exports.MaterialType = MaterialType;
+var MaterialSubtype;
+(function (MaterialSubtype) {
+    // Metals
+    MaterialSubtype["IRON"] = "iron";
+    MaterialSubtype["STEEL"] = "steel";
+    MaterialSubtype["COPPER"] = "copper";
+    MaterialSubtype["BRASS"] = "brass";
+    MaterialSubtype["BRONZE"] = "bronze";
+    // Wood
+    MaterialSubtype["CHERRY"] = "cherry";
+    MaterialSubtype["OAK"] = "oak";
+    MaterialSubtype["DARK_OAK"] = "dark oak";
+    MaterialSubtype["MAHOGANY"] = "mahogany";
+    MaterialSubtype["MAPLE"] = "maple";
+    // Stone
+    MaterialSubtype["GRANITE"] = "granite";
+    MaterialSubtype["MARBLE"] = "marble";
+    MaterialSubtype["OBSIDIAN"] = "obsidian";
+    // Bone
+    // Leather
+    // Cloth
+    MaterialSubtype["FLAX"] = "flax";
+    MaterialSubtype["LINEN"] = "linen";
+})(MaterialSubtype || (MaterialSubtype = {}));
+exports.MaterialSubtype = MaterialSubtype;
+var T = MaterialType;
+var S = MaterialSubtype;
+var materialData = {
+    materials: (_a = {},
+        _a[T.METAL] = [
+            S.IRON,
+            S.STEEL
+        ],
+        _a[T.STONE] = [
+            S.GRANITE,
+            S.MARBLE,
+            S.OBSIDIAN
+        ],
+        _a[T.WOOD] = [
+            S.CHERRY,
+            S.OAK,
+            S.DARK_OAK,
+            S.MAHOGANY,
+            S.MAPLE
+        ],
+        _a[T.BONE] = [],
+        _a[T.LEATHER] = [],
+        _a[T.CLOTH] = [
+            S.FLAX,
+            S.LINEN
+        ],
+        _a)
+};
+exports.materialData = materialData;
+var WeaponType;
+(function (WeaponType) {
+    WeaponType["MELEE"] = "melee";
+})(WeaponType || (WeaponType = {}));
+exports.WeaponType = WeaponType;
+var DamageType;
+(function (DamageType) {
+    DamageType["SLASH"] = "slash";
+    DamageType["STRIKE"] = "strike";
+    DamageType["PIERCE"] = "pierce";
+    DamageType["FIRE"] = "fire";
+    DamageType["COLD"] = "cold";
+    DamageType["HOLY"] = "holy";
+    DamageType["SHADOW"] = "shadow";
+    DamageType["SHOCK"] = "shock";
+    DamageType["POISON"] = "poison";
+    DamageType["ARCANE"] = "arcane";
+    DamageType["NECROTIC"] = "necrotic";
+})(DamageType || (DamageType = {}));
+exports.DamageType = DamageType;
+// For consumption by Legendary
+var weaponData = {
+    weapons: (_b = {},
+        _b[WeaponType.MELEE] = (_c = {},
+            _c[DamageType.SLASH] = [
+                'short sword',
+                'scimitar'
+            ],
+            _c[DamageType.STRIKE] = [
+                'mace',
+                'warhammer'
+            ],
+            _c[DamageType.PIERCE] = [
+                'rapier'
+            ],
+            _c),
+        _b)
+};
+exports.weaponData = weaponData;
+var _a, _b, _c;
 
 },{}],20:[function(require,module,exports){
 "use strict";
@@ -24447,11 +24578,11 @@ var __extends = (this && this.__extends) || (function () {
 })();
 exports.__esModule = true;
 var Prop_1 = require("./Prop");
+var Legendary_1 = require("../../Random/Legendary");
 var Weapon = /** @class */ (function (_super) {
     __extends(Weapon, _super);
     function Weapon(options) {
         var _this = _super.call(this, options.propOptions) || this;
-        _this.bonus = 0;
         for (var key in options) {
             if (key !== 'propOptions') {
                 _this[key] = options[key];
@@ -24460,18 +24591,29 @@ var Weapon = /** @class */ (function (_super) {
         return _this;
     }
     Weapon.prototype.getDamage = function () {
-        return this.damage + "+" + this.bonus;
+        var _a = this.baseDamage, damage = _a.damage, bonus = _a.bonus;
+        return damage + "+" + (bonus || 0);
+    };
+    Weapon.prototype.getAdditionalDamage = function () {
+        return [];
     };
     Weapon.prototype.getFormattedName = function () {
         var _a = this, name = _a.name, material = _a.material;
-        var modifier = this.weaponType.modifier;
-        return modifier + " " + material + " " + name.toLowerCase();
+        return material.subtype + " " + name.toLowerCase();
+    };
+    Weapon.prototype.generateDescription = function () {
+        return '';
+    };
+    Weapon.prototype.debugGenerateDescription = function () {
+        var L = new Legendary_1.Legendary();
+        var parse = L.parse;
+        return '';
     };
     return Weapon;
 }(Prop_1.Prop));
 exports.Weapon = Weapon;
 
-},{"./Prop":20}],22:[function(require,module,exports){
+},{"../../Random/Legendary":35,"./Prop":20}],22:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Input_1 = require("./Input");
@@ -24651,10 +24793,15 @@ var Game = /** @class */ (function () {
         this.currentFloor.tiles[y][x].occupiers = this.currentFloor.tiles[y][x].occupiers.filter(function (occupier) { return !occupier.isEnemy; });
         this.currentFloor.tiles[y][x].isOccupied = false;
         // Add to the next position
-        Array.isArray(this.currentFloor.tiles[newPos.y][newPos.x].occupiers) ?
-            this.currentFloor.tiles[newPos.y][newPos.x].occupiers.push(enemy) :
-            this.currentFloor.tiles[newPos.y][newPos.x].occupiers = [enemy];
-        this.currentFloor.tiles[newPos.y][newPos.x].isOccupied = true;
+        try {
+            Array.isArray(this.currentFloor.tiles[newPos.y][newPos.x].occupiers) ?
+                this.currentFloor.tiles[newPos.y][newPos.x].occupiers.push(enemy) :
+                this.currentFloor.tiles[newPos.y][newPos.x].occupiers = [enemy];
+            this.currentFloor.tiles[newPos.y][newPos.x].isOccupied = true;
+        }
+        catch (e) {
+            console.log(oldPos, newPos, this.currentFloor.tiles);
+        }
     };
     Game.prototype.playerDescend = function () {
         var _a = this.dungeonGenerator, floors = _a.floors, currentDepth = _a.currentDepth;
@@ -25279,6 +25426,7 @@ exports.RegionNames = RegionNames;
 var floorData = [
     {
         maxCR: 10,
+        floorCRRange: { low: 1, high: 1 },
         variantEnemiesRange: { low: 0, high: 1 },
         pickupsRange: { low: 0, high: 1 },
         floorHeight: 80,
@@ -25296,6 +25444,7 @@ var floorData = [
     },
     {
         maxCR: 10,
+        floorCRRange: { low: 1, high: 2 },
         variantEnemiesRange: { low: 0, high: 1 },
         pickupsRange: { low: 0, high: 1 },
         floorHeight: 60,
@@ -25320,7 +25469,6 @@ var Corridor_1 = require("./Corridor");
 var Dice_1 = require("../Random/Dice");
 var Game_1 = require("../Game");
 var Vector_1 = require("../Vector");
-var Enemy_data_1 = require("../Entity/Actor/Enemy.data");
 var roman_numeral_1 = require("roman-numeral");
 var Floor = /** @class */ (function () {
     function Floor(options) {
@@ -25647,16 +25795,38 @@ var Floor = /** @class */ (function () {
         }
     };
     Floor.prototype.spawnEnemies = function () {
+        var _this = this;
         var enemySpawner = Game_1["default"].instance.enemySpawner;
-        // DEBUG
-        var e = enemySpawner.createEnemyByCreatureType(Enemy_data_1.CreatureTypes.UNDEAD, Enemy_data_1.defaultVariations[Enemy_data_1.Variations.FEROCIOUS]);
-        e.pos = this.getRandomPointInRoom(this.rooms[2]);
-        e.isActive = true;
-        this.activeEnemies.push(e);
-        this.tiles[e.pos.y][e.pos.x].isOccupied = true;
-        this.tiles[e.pos.y][e.pos.x].occupiers.push(e);
-        ;
-        //
+        var currentCR = 0;
+        while (currentCR < this.maxCR) {
+            var e = enemySpawner.createEnemyByCr(Dice_1.randomIntR(this.floorCRRange), null, this.regionName);
+            currentCR += e.cr;
+            // If the enemy can't be placed, don't place it
+            if (this.placeEnemyOnMap(e)) {
+                this.enemies.push(e);
+            }
+        }
+        this.enemies.forEach(function (enemy) {
+            enemy.isActive = true; // debug
+            _this.activeEnemies.push(enemy); //debug
+        });
+    };
+    Floor.prototype.placeEnemyOnMap = function (enemy) {
+        // @TODO maybe make this smarter
+        var tries = 5;
+        var placementRange = { low: 1, high: this.rooms.length - 1 };
+        var possiblePosition = this.getRandomPointInRoom(this.rooms[Dice_1.randomIntR(placementRange)]);
+        while (tries) {
+            var x = possiblePosition.x, y = possiblePosition.y;
+            if (!this.tiles[y][x].isOccupied) {
+                enemy.pos = possiblePosition;
+                this.tiles[y][x].isOccupied = true;
+                this.tiles[y][x].occupiers = [enemy];
+                return true;
+            }
+            tries--;
+        }
+        return false;
     };
     Floor.prototype.getFormattedName = function () {
         return "\n      " + this.name + (this.nameInSequence ? " - " + roman_numeral_1.convert(this.nameInSequence) : '') + " of " + this.regionName + " - " + this.depth + "\n    ";
@@ -25665,7 +25835,7 @@ var Floor = /** @class */ (function () {
 }());
 exports.Floor = Floor;
 
-},{"../Entity/Actor/Enemy.data":14,"../Game":22,"../Map/Tile":31,"../Random/Dice":34,"../Vector":42,"./Corridor":24,"./Room":29,"roman-numeral":9}],28:[function(require,module,exports){
+},{"../Game":22,"../Map/Tile":31,"../Random/Dice":34,"../Vector":42,"./Corridor":24,"./Room":29,"roman-numeral":9}],28:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../Random/Dice");
@@ -26114,11 +26284,38 @@ exports.randomIntR = randomIntR;
 exports.__esModule = true;
 var language_data_1 = require("./language.data");
 var Dice_1 = require("./Dice");
+var Prop_data_1 = require("../Entity/Prop/Prop.data");
 var Legendary = /** @class */ (function () {
     function Legendary() {
         // Load language libraries
-        this.lists = language_data_1.LegendaryData;
+        this.lists = Object.assign({}, language_data_1.LegendaryData, Prop_data_1.weaponData, Prop_data_1.materialData);
     }
+    /**
+     * Does things similar to parse, but retrieves the arbitrary data object
+     */
+    Legendary.prototype.retrieve = function (source) {
+        var _this = this;
+        var lists = source.match(/\[.+\]/g);
+        var selection;
+        lists.forEach(function (listGroup) {
+            var listReferences = listGroup.split('|');
+            var results = [];
+            var weighted = false;
+            listReferences.forEach(function (listReference) {
+                var accessor = listReference.match(/([a-zA-Z\^\.[0-9])+/)[0];
+                accessor = accessor.replace('[', '').replace(']', '');
+                var result = _this.deepDiveRetrieve(accessor);
+                results.push(result);
+                if (result.val && result.val.indexOf('^') !== -1) {
+                }
+                else if (result.indexOf('^') !== -1) {
+                    weighted = true;
+                }
+            });
+            selection = weighted ? Dice_1.weightedPluck(results) : Dice_1.pluck(results);
+        });
+        return selection;
+    };
     /**
      * [list] - selects from list, same as ...
      * [list:unique(1)] - selects 1, unique, from list
@@ -26207,7 +26404,45 @@ var Legendary = /** @class */ (function () {
                 });
             }
             else {
-                console.log('Huh?');
+            }
+        };
+        diveIn(ref);
+        return Dice_1.pluck(selections);
+    };
+    /**
+     * Recursively unfurl and object
+     * @param accessor {string}
+     */
+    Legendary.prototype.deepDiveRetrieve = function (accessor) {
+        var selections = [];
+        var a;
+        var ref = this.lists;
+        if (accessor.indexOf('.') !== -1) {
+            a = accessor.split('.');
+            a.forEach(function (k) {
+                ref = ref[k];
+            });
+        }
+        else {
+            ref = ref[accessor];
+        }
+        var diveIn = function (swimmingPool) {
+            if (Array.isArray(swimmingPool)) {
+                selections = selections.concat(swimmingPool);
+            }
+            else if (typeof swimmingPool === 'object') {
+                // This is for fetching datastructures from legendary
+                if (swimmingPool.val) {
+                    selections.push(swimmingPool);
+                }
+                else {
+                    var keys = Object.keys(swimmingPool);
+                    keys.forEach(function (key) {
+                        diveIn(swimmingPool[key]);
+                    });
+                }
+            }
+            else {
             }
         };
         diveIn(ref);
@@ -26217,7 +26452,7 @@ var Legendary = /** @class */ (function () {
 }());
 exports.Legendary = Legendary;
 
-},{"./Dice":34,"./language.data":36}],36:[function(require,module,exports){
+},{"../Entity/Prop/Prop.data":19,"./Dice":34,"./language.data":36}],36:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var LegendaryData = {

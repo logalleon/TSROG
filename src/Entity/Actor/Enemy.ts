@@ -6,6 +6,7 @@ import Game from '../../Game';
 import { Promise as Bluebird } from 'bluebird';
 import { Player } from './Player';
 import { Variation, Variations, VariantModification } from './Enemy.data';
+import { RegionNames } from '../../Map/Floor.data';
 
 const { colorize } = Messenger;
 
@@ -17,6 +18,7 @@ interface EnemyOptions {
   name: string,
   cr: number
   xp: number
+  regions?: RegionNames[]
 }
 
 interface IEnemyType {
@@ -32,6 +34,7 @@ class Enemy extends Actor {
 
   public name: string;
   public enemyType: IEnemyType;
+  public regions: RegionNames[];
 
   public cr: number;
   public xp: number;
@@ -68,6 +71,10 @@ class Enemy extends Actor {
         // If the player hasn't moved but is still too far away, attempt to move closer
         } else {
           this.path = this.getUpdatedPath();
+          // Could calculate a new path, maybe something is blocking
+          if (this.path.length === 0) {
+            return [];
+          }
           const nextPos: Vector2 = this.path[this.path.length - 2];
           // Make sure to adjust the length of the path after moving in case it isn't recalculated later
           this.path.pop();
@@ -78,10 +85,15 @@ class Enemy extends Actor {
       } else {
         this.path = this.getUpdatedPath();
         // The player has moved into range
+        console.log('here');
         if (this.inRange()) {
           return this.targetAndAttemptAttackPlayer(player);
         // The player is still too far away
         } else {
+          // Could calculate a new path, maybe something is blocking
+          if (this.path.length === 0) {
+            return [];
+          }
           const nextPos: Vector2 = this.path[this.path.length - 2];
           // Make sure to adjust the length of the path after moving in case it isn't recalculated later
           this.path.pop();
@@ -116,7 +128,8 @@ class Enemy extends Actor {
   }
 
   inRange (): boolean {
-    return this.path && this.path.length <= this.attackRange + 1;
+    console.log(this.path, this.path.length, this.attackRange);
+    return this.path && this.path.length !== 0 && this.path.length <= this.attackRange + 1;
   }
 
   applyModification (modification: VariantModification): void {
@@ -132,6 +145,7 @@ class Enemy extends Actor {
    * @param destination
    */
   move (destination: Vector2): void {
+    console.log(this.pos, destination);
     // Update the tile references to the enemy
     Game.instance.updateEnemyPosition(this.pos, destination, this);
     // Update the open / closed tiles for pathfinding

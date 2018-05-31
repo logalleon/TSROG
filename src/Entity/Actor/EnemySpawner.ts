@@ -1,6 +1,7 @@
 import { Enemy, IEnemyType, EnemyOptions } from '../Actor/Enemy';
 import { baseEnemies, CreatureTypes, Variation } from './Enemy.data';
 import { randomInt, pluck } from '../../Random/Dice';
+import { RegionNames } from '../../Map/Floor.data';
 
 interface EnemyHashMap {
   [key: string]: EnemyOptions[]
@@ -38,16 +39,24 @@ class EnemySpawner {
     return base;
   }
 
-  createEnemyByCr (cr: number, variant?: Variation): Enemy {
+  createEnemyByCr (cr: number, variant?: Variation, region?: RegionNames): Enemy {
     if (this.enemiesByCR[cr]) {
-      const options = pluck(this.enemiesByCR[cr]);
+      let options;
+      if (region) {
+        options = pluck(this.enemiesByCR[cr].filter((enemyOptions) => {
+          const regions: RegionNames[] = enemyOptions.regions;
+          return (typeof regions === 'undefined' || regions.includes(region));
+        }));
+      } else {
+        options = pluck(this.enemiesByCR[cr]);
+      }
       return new Enemy(options, variant);
     } else {
       console.log('No enemies by that cr');
     }
   }
 
-  createEnemyByCreatureType (creatureType: CreatureTypes, variant?: Variation) {
+  createEnemyByCreatureType (creatureType: CreatureTypes, variant?: Variation, region?: RegionNames) {
     if (this.enemiesByCreatureType[creatureType]) {
       const options = pluck(this.enemiesByCreatureType[creatureType]);
       return new Enemy(options, variant);

@@ -2,6 +2,7 @@ import { IEnemyType, EnemyOptions } from './Enemy';
 import { ActorOptions } from './Actor';
 import { randomInt, StandardDice } from '../../Random/Dice';
 import { Color, Colors } from '../../Canvas/Color';
+import { RegionNames } from '../../Map/Floor.data';
 
 enum CreatureTypes {
   UNDEAD = 'undead',
@@ -91,6 +92,23 @@ const baseEnemies: EnemyOptions[] = [
       hp: 6,
       ac: 7,
       char: 'l',
+      damage: StandardDice.d2
+    }
+  },
+  <EnemyOptions>{
+    name: 'Fierce Iguana',
+    cr: 2,
+    xp: 25,
+    enemyType: {
+      creatureType: BEAST,
+      variant: null,
+      descriptor: 'Lurid'
+    },
+    actorOptions: {
+      color: new Color({ html: 'indigo' }),
+      hp: 6,
+      ac: 7,
+      char: 'L',
       damage: StandardDice.d2
     }
   },

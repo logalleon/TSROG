@@ -76,10 +76,14 @@ class Enemy extends Actor {
             return [];
           }
           const nextPos: Vector2 = this.path[this.path.length - 2];
-          // Make sure to adjust the length of the path after moving in case it isn't recalculated later
-          this.path.pop();
-          this.move(nextPos);
-          return [];
+          if (!Game.instance.currentFloor.isOccupied(nextPos)) {
+            // Make sure to adjust the length of the path after moving in case it isn't recalculated later
+            this.path.pop();
+            this.move(nextPos);
+            return [];
+          } else {
+            return [];
+          }
         }
       // Always update the path if the player has moved
       } else {
@@ -95,10 +99,14 @@ class Enemy extends Actor {
             return [];
           }
           const nextPos: Vector2 = this.path[this.path.length - 2];
-          // Make sure to adjust the length of the path after moving in case it isn't recalculated later
-          this.path.pop();
-          this.move(nextPos);
-          return [];
+          if (!Game.instance.currentFloor.isOccupied(nextPos)) {
+            // Make sure to adjust the length of the path after moving in case it isn't recalculated later
+            this.path.pop();
+            this.move(nextPos);
+            return [];
+          } else {
+            return [];
+          }
         }
       }
     }

@@ -481,5 +481,14 @@ class Floor {
     `;
   }
 
+  isOccupied (pos: Vector2): boolean {
+    const { x, y } = pos;
+    return (
+      this.tiles[y] &&
+      this.tiles[y][x] &&
+      this.tiles[y][x].isOccupied
+    );
+  }
+
 }
 export { Floor, FloorOptions, FloorPersistance }

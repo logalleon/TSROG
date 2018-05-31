@@ -24097,10 +24097,15 @@ var Enemy = /** @class */ (function (_super) {
                         return [];
                     }
                     var nextPos = this.path[this.path.length - 2];
-                    // Make sure to adjust the length of the path after moving in case it isn't recalculated later
-                    this.path.pop();
-                    this.move(nextPos);
-                    return [];
+                    if (!Game_1["default"].instance.currentFloor.isOccupied(nextPos)) {
+                        // Make sure to adjust the length of the path after moving in case it isn't recalculated later
+                        this.path.pop();
+                        this.move(nextPos);
+                        return [];
+                    }
+                    else {
+                        return [];
+                    }
                 }
                 // Always update the path if the player has moved
             }
@@ -24118,10 +24123,15 @@ var Enemy = /** @class */ (function (_super) {
                         return [];
                     }
                     var nextPos = this.path[this.path.length - 2];
-                    // Make sure to adjust the length of the path after moving in case it isn't recalculated later
-                    this.path.pop();
-                    this.move(nextPos);
-                    return [];
+                    if (!Game_1["default"].instance.currentFloor.isOccupied(nextPos)) {
+                        // Make sure to adjust the length of the path after moving in case it isn't recalculated later
+                        this.path.pop();
+                        this.move(nextPos);
+                        return [];
+                    }
+                    else {
+                        return [];
+                    }
                 }
             }
         }
@@ -24627,6 +24637,7 @@ var Game = /** @class */ (function () {
     function Game(screens, player, el, bottomEl) {
         this.easystarClosedTile = 0;
         this.easystarOpenTile = 1;
+        this.easystarOccupiedTile = 2;
         if (Game.instance !== null) {
             throw 'Critical error! Two game instances';
         }
@@ -24736,7 +24747,7 @@ var Game = /** @class */ (function () {
         this.easystar = new easystarjs_1.js();
         this.easystarTiles = this.generateEasystarTiles();
         this.easystar.setGrid(this.easystarTiles);
-        this.easystar.setAcceptableTiles([this.easystarOpenTile]);
+        this.easystar.setAcceptableTiles([this.easystarOpenTile, this.easystarOccupiedTile]);
         this.easystar.enableDiagonals();
         this.easystar.enableSync();
     };
@@ -24754,9 +24765,11 @@ var Game = /** @class */ (function () {
             easystarTiles[y_1] = [];
             for (var x_1 = 0; x_1 < this.currentFloor.tiles[y_1].length; x_1++) {
                 var currentTile = this.currentFloor.tiles[y_1][x_1];
-                easystarTiles[y_1].push(currentTile.isPassible && !currentTile.isOccupied ?
-                    this.easystarOpenTile :
-                    this.easystarClosedTile);
+                easystarTiles[y_1].push(!currentTile.isPassible ?
+                    this.easystarClosedTile :
+                    currentTile.isOccupied ?
+                        this.easystarOccupiedTile :
+                        this.easystarOpenTile);
             }
         }
         // Set the player's location to open so the AI can "move" there
@@ -25830,6 +25843,12 @@ var Floor = /** @class */ (function () {
     };
     Floor.prototype.getFormattedName = function () {
         return "\n      " + this.name + (this.nameInSequence ? " - " + roman_numeral_1.convert(this.nameInSequence) : '') + " of " + this.regionName + " - " + this.depth + "\n    ";
+    };
+    Floor.prototype.isOccupied = function (pos) {
+        var x = pos.x, y = pos.y;
+        return (this.tiles[y] &&
+            this.tiles[y][x] &&
+            this.tiles[y][x].isOccupied);
     };
     return Floor;
 }());

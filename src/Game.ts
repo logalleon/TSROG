@@ -40,6 +40,7 @@ class Game {
   public easystarTiles: number[][];
   private easystarClosedTile: number = 0;
   private easystarOpenTile: number = 1;
+  private easystarOccupiedTile: number = 2;
 
   constructor (
       screens: Screen[],
@@ -174,7 +175,7 @@ class Game {
     this.easystar = new EasyStar();
     this.easystarTiles = this.generateEasystarTiles();
     this.easystar.setGrid(this.easystarTiles);
-    this.easystar.setAcceptableTiles([this.easystarOpenTile]);
+    this.easystar.setAcceptableTiles([this.easystarOpenTile, this.easystarOccupiedTile]);
     this.easystar.enableDiagonals();
     this.easystar.enableSync();
   }
@@ -195,9 +196,11 @@ class Game {
       for (let x = 0; x < this.currentFloor.tiles[y].length; x++) {
         const currentTile = this.currentFloor.tiles[y][x];
         easystarTiles[y].push(
-          currentTile.isPassible && !currentTile.isOccupied ?
-          this.easystarOpenTile :
-          this.easystarClosedTile
+          !currentTile.isPassible ?
+            this.easystarClosedTile : 
+            currentTile.isOccupied ?
+              this.easystarOccupiedTile :
+              this.easystarOpenTile
         );
       }
     }

@@ -5,7 +5,7 @@
   "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "local": "http-server ./ -p 1337"
+    "local": "http-server ./ -p 1337 & watch make"
   },
   "author": "Logan H. Sobczak",
   "license": "MIT",

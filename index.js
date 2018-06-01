@@ -23901,6 +23901,7 @@ var Actor = /** @class */ (function () {
         return (Dice_1.rollDice(dice) >= target.ac);
     };
     Actor.prototype.attack = function (target) {
+        console.log(this.damage);
         var damage = Dice_1.rollDice(this.damage);
         target.hp -= damage;
         return damage;
@@ -24112,7 +24113,6 @@ var Enemy = /** @class */ (function (_super) {
             else {
                 this.path = this.getUpdatedPath();
                 // The player has moved into range
-                console.log('here');
                 if (this.inRange()) {
                     return this.targetAndAttemptAttackPlayer(player);
                     // The player is still too far away
@@ -24134,6 +24134,10 @@ var Enemy = /** @class */ (function (_super) {
                     }
                 }
             }
+        }
+        else {
+            // This has to return something or it breaks logging
+            return [];
         }
     };
     Enemy.prototype.targetAndAttemptAttackPlayer = function (player) {
@@ -24157,7 +24161,6 @@ var Enemy = /** @class */ (function (_super) {
         variation.modifications.forEach(function (attribute) { return _this.applyModification(attribute); });
     };
     Enemy.prototype.inRange = function () {
-        console.log(this.path, this.path.length, this.attackRange);
         return this.path && this.path.length !== 0 && this.path.length <= this.attackRange + 1;
     };
     Enemy.prototype.applyModification = function (modification) {
@@ -24170,7 +24173,6 @@ var Enemy = /** @class */ (function (_super) {
      * @param destination
      */
     Enemy.prototype.move = function (destination) {
-        console.log(this.pos, destination);
         // Update the tile references to the enemy
         Game_1["default"].instance.updateEnemyPosition(this.pos, destination, this);
         // Update the open / closed tiles for pathfinding
@@ -24699,6 +24701,7 @@ var Game = /** @class */ (function () {
              */
             if (player.hasMoveInteracted && this.currentFloor.activeEnemies.length) {
                 var enemyActions = this.currentFloor.activeEnemies.map(function (enemy) { return enemy.act(); }).reduce(function (actions, action) { return actions.concat(action); });
+                console.log(enemyActions);
                 var enemyUpdates = this.currentFloor.activeEnemies.map(function (enemy) { return enemy.update(); }).reduce(function (updates, update) { return updates.concat(update); });
                 messages = messages.concat(Array.isArray(enemyActions) ? enemyActions : [], Array.isArray(enemyUpdates) ? enemyUpdates : []);
             }

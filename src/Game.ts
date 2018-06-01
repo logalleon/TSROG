@@ -117,6 +117,7 @@ class Game {
        */
       if (player.hasMoveInteracted && this.currentFloor.activeEnemies.length) {
         const enemyActions = this.currentFloor.activeEnemies.map(enemy => enemy.act()).reduce((actions, action) => actions.concat(action));
+        console.log(enemyActions);
         const enemyUpdates = this.currentFloor.activeEnemies.map(enemy => enemy.update()).reduce((updates, update) => updates.concat(update));
         messages = messages.concat(
           Array.isArray(enemyActions) ? enemyActions : [],

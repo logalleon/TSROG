@@ -64,6 +64,7 @@ class Actor implements Entity {
   }
 
   attack (target: Actor): number {
+    console.log(this.damage);
     const damage = rollDice(this.damage);
     target.hp -= damage;
     return damage;

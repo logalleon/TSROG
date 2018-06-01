@@ -89,7 +89,6 @@ class Enemy extends Actor {
       } else {
         this.path = this.getUpdatedPath();
         // The player has moved into range
-        console.log('here');
         if (this.inRange()) {
           return this.targetAndAttemptAttackPlayer(player);
         // The player is still too far away
@@ -109,6 +108,9 @@ class Enemy extends Actor {
           }
         }
       }
+    } else {
+      // This has to return something or it breaks logging
+      return [];
     }
   }
 
@@ -136,7 +138,6 @@ class Enemy extends Actor {
   }
 
   inRange (): boolean {
-    console.log(this.path, this.path.length, this.attackRange);
     return this.path && this.path.length !== 0 && this.path.length <= this.attackRange + 1;
   }
 
@@ -153,7 +154,6 @@ class Enemy extends Actor {
    * @param destination
    */
   move (destination: Vector2): void {
-    console.log(this.pos, destination);
     // Update the tile references to the enemy
     Game.instance.updateEnemyPosition(this.pos, destination, this);
     // Update the open / closed tiles for pathfinding

@@ -12,6 +12,7 @@ import { js as EasyStar, js } from '../custom_modules/easystarjs';
 import { Promise } from 'bluebird';
 import { EnemySpawner } from './Entity/Actor/EnemySpawner';
 import { Effects } from './Effects';
+import { StatusMenu } from './UI/StatusMenu';
 
 class Game {
 
@@ -35,6 +36,8 @@ class Game {
   public enemySpawner: EnemySpawner;
 
   public effects: Effects;
+
+  public statusMenu: StatusMenu;
 
   public easystar: EasyStar;
   public easystarTiles: number[][];
@@ -73,6 +76,10 @@ class Game {
     });
 
     this.effects = new Effects(<HTMLDivElement>document.getElementById('transition-wrapper'));
+
+    // Create and render the status menu
+    this.statusMenu = new StatusMenu(document.getElementById('status-menu'));
+    this.statusMenu.render();
 
     // Debug
     //this.dungeonGenerator.debugAndGenerateAllFloors();
@@ -117,7 +124,6 @@ class Game {
        */
       if (player.hasMoveInteracted && this.currentFloor.activeEnemies.length) {
         const enemyActions = this.currentFloor.activeEnemies.map(enemy => enemy.act()).reduce((actions, action) => actions.concat(action));
-        console.log(enemyActions);
         const enemyUpdates = this.currentFloor.activeEnemies.map(enemy => enemy.update()).reduce((updates, update) => updates.concat(update));
         messages = messages.concat(
           Array.isArray(enemyActions) ? enemyActions : [],
@@ -162,6 +168,9 @@ class Game {
 
   update () {
     this.currentFloor.activeEnemies = this.currentFloor.activeEnemies.filter(this.corpsify.bind(this));
+    if (this.player.isDead()) {
+      this.playerDeath();
+    }
   }
 
   corpsify (enemy: Enemy): boolean {
@@ -266,6 +275,12 @@ class Game {
       this.initializeEasyStar();
     }
     this.effects.transitionToNextFloor();
+  }
+
+  playerDeath () {
+    this.player.canMove = false;
+    // @TODO other things need to happen here
+    this.effects.showDeathScreen();
   }
 }
 

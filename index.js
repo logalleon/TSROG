@@ -6224,7 +6224,7 @@ module.exports = ret;
 },{"./es5":13}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":44}],5:[function(require,module,exports){
+},{"_process":45}],5:[function(require,module,exports){
 module.exports = require('./lib/heap');
 
 },{"./lib/heap":6}],6:[function(require,module,exports){
@@ -23862,6 +23862,10 @@ var Effects = /** @class */ (function () {
             }, TITLE_TIME / 6); // fade animation time
         }, TITLE_TIME);
     };
+    Effects.prototype.showDeathScreen = function () {
+        // @TODO this
+        alert('You have died of dysentary.');
+    };
     return Effects;
 }());
 exports.Effects = Effects;
@@ -24180,6 +24184,8 @@ var Enemy = /** @class */ (function (_super) {
         _super.prototype.move.call(this, destination);
     };
     Enemy.prototype.update = function () {
+        // Render any changes (damage) to the player
+        Game_1["default"].instance.statusMenu.render();
         if (this.isDead()) {
             // Set the flag for this object to be removed from game.activeEnemies
             this.isActive = false;
@@ -24292,6 +24298,7 @@ var Actor_1 = require("./Actor");
 var Message_1 = require("../../Message/Message");
 var Color_1 = require("../../Canvas/Color");
 var Game_1 = require("../../Game");
+var Dice_1 = require("../../Random/Dice");
 var colorize = Message_1.Messenger.colorize;
 var InventoryItems;
 (function (InventoryItems) {
@@ -24327,6 +24334,8 @@ var Player = /** @class */ (function (_super) {
             _a[EquipmentSlots.RIGHT_HAND] = null,
             _a[EquipmentSlots.WEAPON] = null,
             _a);
+        _this.regenDelay = 6;
+        _this.regenDelayCounter = 0;
         for (var key in InventoryItems) {
             _this[InventoryItems[key]] = [];
         }
@@ -24344,9 +24353,26 @@ var Player = /** @class */ (function (_super) {
      * reset any flags
      */
     Player.prototype.update = function () {
-        this.hasMoveInteracted = false;
-        this.hasMoved = false;
+        if (this.isDead()) {
+            if (this.hasMoveInteracted) {
+                this.updateHp();
+                // Update the regen counter after updating the hp
+                if (this.regenDelayCounter) {
+                    this.regenDelayCounter--;
+                }
+            }
+            this.hasMoveInteracted = false;
+            this.hasMoved = false;
+            // Render any status changes
+            Game_1["default"].instance.statusMenu.render();
+        }
         return [];
+    };
+    Player.prototype.updateHp = function () {
+        if (this.regenDelayCounter === 0) {
+            this.hp += this.hpRegen;
+            this.hp = Dice_1.clamp(this.hp, 0, this.maxHp);
+        }
     };
     Player.prototype.addToInventory = function (pickup) {
         this[pickup.type] = [].concat(this[pickup.type], pickup.item);
@@ -24382,6 +24408,9 @@ var Player = /** @class */ (function (_super) {
      */
     Player.prototype.attemptAttack = function (target) {
         this.hasMoveInteracted = true;
+        // Set the regen delay
+        // @TODO should this be set on attack attempt or when taking damage
+        this.regenDelayCounter = this.regenDelay;
         return _super.prototype.attemptAttack.call(this, target);
     };
     Player.prototype.formatSuccessfulAttack = function (damage, target, isCritical) {
@@ -24414,7 +24443,7 @@ var Player = /** @class */ (function (_super) {
 InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
 exports.Player = Player;
 
-},{"../../Canvas/Color":11,"../../Game":22,"../../Message/Message":33,"./Actor":13}],18:[function(require,module,exports){
+},{"../../Canvas/Color":11,"../../Game":22,"../../Message/Message":33,"../../Random/Dice":34,"./Actor":13}],18:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24635,6 +24664,7 @@ var Legendary_1 = require("./Random/Legendary");
 var easystarjs_1 = require("../custom_modules/easystarjs");
 var EnemySpawner_1 = require("./Entity/Actor/EnemySpawner");
 var Effects_1 = require("./Effects");
+var StatusMenu_1 = require("./UI/StatusMenu");
 var Game = /** @class */ (function () {
     function Game(screens, player, el, bottomEl) {
         this.easystarClosedTile = 0;
@@ -24660,6 +24690,9 @@ var Game = /** @class */ (function () {
             depth: 15
         });
         this.effects = new Effects_1.Effects(document.getElementById('transition-wrapper'));
+        // Create and render the status menu
+        this.statusMenu = new StatusMenu_1.StatusMenu(document.getElementById('status-menu'));
+        this.statusMenu.render();
         // Debug
         //this.dungeonGenerator.debugAndGenerateAllFloors();
         this.dungeonGenerator.generateNewFloor();
@@ -24701,7 +24734,6 @@ var Game = /** @class */ (function () {
              */
             if (player.hasMoveInteracted && this.currentFloor.activeEnemies.length) {
                 var enemyActions = this.currentFloor.activeEnemies.map(function (enemy) { return enemy.act(); }).reduce(function (actions, action) { return actions.concat(action); });
-                console.log(enemyActions);
                 var enemyUpdates = this.currentFloor.activeEnemies.map(function (enemy) { return enemy.update(); }).reduce(function (updates, update) { return updates.concat(update); });
                 messages = messages.concat(Array.isArray(enemyActions) ? enemyActions : [], Array.isArray(enemyUpdates) ? enemyUpdates : []);
             }
@@ -24738,6 +24770,9 @@ var Game = /** @class */ (function () {
     };
     Game.prototype.update = function () {
         this.currentFloor.activeEnemies = this.currentFloor.activeEnemies.filter(this.corpsify.bind(this));
+        if (this.player.isDead()) {
+            this.playerDeath();
+        }
     };
     Game.prototype.corpsify = function (enemy) {
         if (enemy.isDead()) {
@@ -24834,12 +24869,17 @@ var Game = /** @class */ (function () {
         }
         this.effects.transitionToNextFloor();
     };
+    Game.prototype.playerDeath = function () {
+        this.player.canMove = false;
+        // @TODO other things need to happen here
+        this.effects.showDeathScreen();
+    };
     Game.instance = null;
     return Game;
 }());
 exports["default"] = Game;
 
-},{"../custom_modules/easystarjs":1,"./Effects":12,"./Entity/Actor/EnemySpawner":16,"./Input":23,"./Map/DungeonGenerator":25,"./Message/Message":33,"./Random/Legendary":35}],23:[function(require,module,exports){
+},{"../custom_modules/easystarjs":1,"./Effects":12,"./Entity/Actor/EnemySpawner":16,"./Input":23,"./Map/DungeonGenerator":25,"./Message/Message":33,"./Random/Legendary":35,"./UI/StatusMenu":42}],23:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var keyCodeToChar = {
@@ -25329,7 +25369,7 @@ var Corridor = /** @class */ (function () {
 }());
 exports.Corridor = Corridor;
 
-},{"../Random/Dice":34,"../Vector":42}],25:[function(require,module,exports){
+},{"../Random/Dice":34,"../Vector":43}],25:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var FloorGenerator_1 = require("./FloorGenerator");
@@ -25857,7 +25897,7 @@ var Floor = /** @class */ (function () {
 }());
 exports.Floor = Floor;
 
-},{"../Game":22,"../Map/Tile":31,"../Random/Dice":34,"../Vector":42,"./Corridor":24,"./Room":29,"roman-numeral":9}],28:[function(require,module,exports){
+},{"../Game":22,"../Map/Tile":31,"../Random/Dice":34,"../Vector":43,"./Corridor":24,"./Room":29,"roman-numeral":9}],28:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../Random/Dice");
@@ -25956,7 +25996,7 @@ var Room = /** @class */ (function () {
 }());
 exports.Room = Room;
 
-},{"../Random/Dice":34,"../Vector":42,"./Corridor":24}],30:[function(require,module,exports){
+},{"../Random/Dice":34,"../Vector":43,"./Corridor":24}],30:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Tile_1 = require("./Tile");
@@ -26865,7 +26905,7 @@ var MapScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = MapScreen;
 
-},{"../Canvas/Color":11,"../Game":22,"../Map/Tile":31,"../Vector":42,"./Screen":41,"roman-numeral":9}],41:[function(require,module,exports){
+},{"../Canvas/Color":11,"../Game":22,"../Map/Tile":31,"../Vector":43,"./Screen":41,"roman-numeral":9}],41:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Message_1 = require("../Message/Message");
@@ -26920,6 +26960,25 @@ exports.Screen = Screen;
 },{"../Message/Message":33}],42:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+var Game_1 = require("../Game");
+var StatusMenu = /** @class */ (function () {
+    function StatusMenu(el) {
+        this.el = el;
+    }
+    StatusMenu.prototype.render = function () {
+        var player = Game_1["default"].instance.player;
+        var level = "<span id=\"player-level\">Level " + player.level + "</span>";
+        var hp = "<span id=\"player-hp\">HP " + Math.round(player.hp) + "/" + player.maxHp + "</span>";
+        var regen = "<span id=\"player-regen\">Regen " + player.hpRegen + "</span>";
+        this.el.innerHTML = "" + level + hp + regen;
+    };
+    return StatusMenu;
+}());
+exports.StatusMenu = StatusMenu;
+
+},{"../Game":22}],43:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
 var Vector2 = /** @class */ (function () {
     function Vector2(x, y) {
         this.x = x;
@@ -26936,7 +26995,7 @@ var Vector2 = /** @class */ (function () {
 }());
 exports["default"] = Vector2;
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("./Game");
@@ -26976,13 +27035,16 @@ window.onload = function () {
         char: '@',
         isActive: true,
         color: new Color_1.Color({ html: 'rebeccapurple' }),
-        hp: 17,
+        hp: 10,
         ac: 10,
         damage: '1d4',
         cth: 0
     };
     var options = {
-        actorOptions: actorOptions
+        actorOptions: actorOptions,
+        level: 1,
+        maxHp: 10,
+        hpRegen: 0.5
     };
     var player = new Player_1.Player(options);
     // Some test equipment for the player
@@ -27024,15 +27086,18 @@ window.onload = function () {
         canBePickedUp: true,
         description: 'A short sword'
     };
-    var weaponType = {
-        category: 'sword',
-        modifier: 'simple'
+    var baseDamage = {
+        damage: Dice_1.StandardDice.d6,
+        type: Prop_data_1.DamageType.SLASH
+    };
+    var material = {
+        type: Prop_data_1.MaterialType.METAL,
+        subtype: Prop_data_1.MaterialSubtype.BRASS
     };
     var weaponOptions = {
-        damage: Dice_1.StandardDice.d6,
-        material: 'iron',
+        baseDamage: baseDamage,
+        material: material,
         quality: Prop_data_1.Quality.FAIR,
-        weaponType: weaponType,
         propOptions: weaponPropOptions
     };
     var sword = new Weapon_1.Weapon(weaponOptions);
@@ -27063,7 +27128,7 @@ window.onload = function () {
     window.game = g;
 };
 
-},{"./Canvas/Color":11,"./Entity/Actor/Player":17,"./Entity/Prop/Armor":18,"./Entity/Prop/Prop.data":19,"./Entity/Prop/Weapon":21,"./Game":22,"./Random/Dice":34,"./Screen/CommandScreen":37,"./Screen/InventoryItemScreen":38,"./Screen/InventoryScreen":39,"./Screen/MapScreen":40,"./Screen/Screen":41,"./Vector":42}],44:[function(require,module,exports){
+},{"./Canvas/Color":11,"./Entity/Actor/Player":17,"./Entity/Prop/Armor":18,"./Entity/Prop/Prop.data":19,"./Entity/Prop/Weapon":21,"./Game":22,"./Random/Dice":34,"./Screen/CommandScreen":37,"./Screen/InventoryItemScreen":38,"./Screen/InventoryScreen":39,"./Screen/MapScreen":40,"./Screen/Screen":41,"./Vector":43}],45:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -27249,4 +27314,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},[43]);
+},{}]},{},[44]);

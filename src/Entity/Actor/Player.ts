@@ -12,6 +12,7 @@ import { Message, Messenger } from '../../Message/Message';
 import { Enemy } from './Enemy';
 import { Colors } from '../../Canvas/Color';
 import Game from '../../Game';
+import { clamp } from '../../Random/Dice';
 
 const { colorize } = Messenger;
 
@@ -36,6 +37,9 @@ enum EquipmentSlots {
 
 interface PlayerOptions {
   actorOptions: ActorOptions
+  maxHp: number,
+  level: number,
+  hpRegen: number
 }
 
 interface EquippedItems {
@@ -58,6 +62,10 @@ interface EquippedItemAccessor {
 
 class Player extends Actor {
 
+  public level: number;
+  public maxHp: number;
+  public hpRegen: number;
+
   public hasMoveInteracted: boolean = false;
   public hasMoved: boolean = false;
 
@@ -77,6 +85,9 @@ class Player extends Actor {
     [EquipmentSlots.WEAPON]: null
   };
 
+  private regenDelay = 6;
+  private regenDelayCounter = 0;
+
   constructor (options: PlayerOptions) {
     super(options.actorOptions);
     for (let key in InventoryItems) {
@@ -95,9 +106,27 @@ class Player extends Actor {
    * reset any flags
    */
   update (): Message[] {
-    this.hasMoveInteracted = false;
-    this.hasMoved = false;
+    if (this.isDead()) {
+      if (this.hasMoveInteracted) {
+        this.updateHp();
+        // Update the regen counter after updating the hp
+        if (this.regenDelayCounter) {
+          this.regenDelayCounter--;
+        }
+      }
+      this.hasMoveInteracted = false;
+      this.hasMoved = false;
+      // Render any status changes
+      Game.instance.statusMenu.render();
+    }
     return [];
+  }
+
+  updateHp () {
+    if (this.regenDelayCounter === 0) {
+      this.hp += this.hpRegen;
+      this.hp = clamp(this.hp, 0, this.maxHp);
+    }
   }
 
   addToInventory (pickup: Pickup) {
@@ -136,6 +165,9 @@ class Player extends Actor {
    */
   attemptAttack (target: Actor): boolean {
     this.hasMoveInteracted = true;
+    // Set the regen delay
+    // @TODO should this be set on attack attempt or when taking damage
+    this.regenDelayCounter = this.regenDelay;
     return super.attemptAttack(target);
   }
 

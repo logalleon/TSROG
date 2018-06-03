@@ -13,6 +13,9 @@
     <p id="messages"></p>
     <div id="main-window"></div>
   </div>
+  <div id="status-menu">
+
+  </div>
   <h2 id="bottomMessage">Press '?' for command list.</h2>
   <!-- <p style="color: white; font-size: 10px; cursor: pointer;" id="tiles"></p> -->
   <div style="display: none;" id="transition-wrapper"></div>
@@ -41,7 +44,6 @@
     width: 70%;
   }
   #main-window {
-    overflow-y: scroll;
   }
   body {
     background-color: darkgray;
@@ -110,6 +112,11 @@
   .fade {
     transition: .5s;
     opacity: 0;
+  }
+  #status-menu {
+    color: white;
+    /* display: flex;
+    justify-content: space-between; */
   }
 </style>
 </html>

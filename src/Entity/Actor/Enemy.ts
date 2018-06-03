@@ -162,6 +162,8 @@ class Enemy extends Actor {
   }
 
   update (): Message[] | null {
+    // Render any changes (damage) to the player
+    Game.instance.statusMenu.render();
     if (this.isDead()) {
       // Set the flag for this object to be removed from game.activeEnemies
       this.isActive = false;

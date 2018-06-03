@@ -9,9 +9,9 @@ import Vector2 from './Vector';
 import { fontOptions } from './Canvas/Canvas';
 import { ActorOptions } from './Entity/Actor/Actor';
 import { Armor, ArmorOptions } from './Entity/Prop/Armor';
-import { Weapon, WeaponOptions, WeaponType } from './Entity/Prop/Weapon';
+import { Weapon, WeaponOptions } from './Entity/Prop/Weapon';
 import { PropOptions } from './Entity/Prop/Prop';
-import { Quality } from './Entity/Prop/Prop.data';
+import { Quality, Damage, DamageType, Material, MaterialType, MaterialSubtype } from './Entity/Prop/Prop.data';
 import InventoryItemScreen from './Screen/InventoryItemScreen';
 import CommandScreen from './Screen/CommandScreen';
 import { Color, Colors } from './Canvas/Color';
@@ -19,6 +19,7 @@ import { Enemy, IEnemyType, EnemyOptions } from './Entity/Actor/Enemy';
 import { StandardDice } from './Random/Dice';
 import { EnemySpawner } from './Entity/Actor/EnemySpawner';
 import { CreatureTypes, Variations, defaultVariations } from './Entity/Actor/Enemy.data';
+import { StatusMenu } from './UI/StatusMenu';
 
 const height = 240;
 const width = 600;
@@ -45,13 +46,16 @@ window.onload = () => {
     char: '@',
     isActive: true,
     color: new Color({ html: 'rebeccapurple' }),
-    hp: 17,
+    hp: 10,
     ac: 10,
     damage: '1d4',
     cth: 0
   }
   const options: PlayerOptions = {
-    actorOptions
+    actorOptions,
+    level: 1,
+    maxHp: 10,
+    hpRegen: 0.5
   };
   
   const player: Player = new Player(options);
@@ -98,16 +102,20 @@ window.onload = () => {
     description: 'A short sword'
   }
 
-  const weaponType: WeaponType = {
-    category: 'sword',
-    modifier: 'simple'
-  }
+  const baseDamage: Damage = {
+    damage: StandardDice.d6,
+    type: DamageType.SLASH
+  };
+
+  const material: Material = {
+    type: MaterialType.METAL,
+    subtype: MaterialSubtype.BRASS
+  };
 
   const weaponOptions: WeaponOptions = {
-    damage: StandardDice.d6,
-    material: 'iron',
+    baseDamage,
+    material,
     quality: Quality.FAIR,
-    weaponType,
     propOptions: weaponPropOptions
   };
 

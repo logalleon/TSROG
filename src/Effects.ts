@@ -34,5 +34,10 @@ class Effects {
     }, TITLE_TIME)
   }
 
+  showDeathScreen () {
+    // @TODO this
+    alert('You have died of dysentary.');
+  }
+
 }
 export { Effects };

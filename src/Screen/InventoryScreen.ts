@@ -28,6 +28,8 @@ class InventoryScreen extends Screen {
     let keyCode = 65;
     let i = 0;
     this.game.messenger.clearMessages();
+    const title = [{ text: 'Inventory' }];
+    this.game.messenger.logMessages(title);
     for (let key in InventoryItems) {
       this.game.messenger.logMessages(
         player[InventoryItems[key]].map((item: Prop): Message => {

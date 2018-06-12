@@ -18,8 +18,8 @@ const L = new Legendary();
 
 const source1 = '[animals] is my favorite animal.';
 const source2 = '[mammals|reptiles] is cool, too.';
-const source3 = '[animals.mammals|mammals] is a mammal.';
-const source4 = '{something|anything^10|nothing^.1} will happen.';
+const source3 = '[animals.mammals|mammals^10] is a mammal.';
+const source4 = '{something cool|anything^10|nothing^.1} will happen.';
 
 console.log(L.parse(source1));
 console.log(L.parse(source2));

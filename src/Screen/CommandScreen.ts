@@ -38,10 +38,10 @@ class CommandScreen extends Screen {
       ${MapScreenInputs.MOVE_LEFT}- -${MapScreenInputs.MOVE_RIGHT}<br/>
       &nbsp;/|\\<br/>
       ${MapScreenInputs.MOVE_DOWN_LEFT} ${MapScreenInputs.MOVE_DOWN} ${MapScreenInputs.MOVE_DOWN_RIGHT}<br/>
+      ${MapScreenInputs.AMULET} - ${ScreenNames.AMULET}<br/>
     `;
     messenger.logMessages([{
-      color: Colors.DEFAULT,
-      text,
+      text
     }]);
   }
 

@@ -106,7 +106,7 @@ class Player extends Actor {
    * reset any flags
    */
   update (): Message[] {
-    if (this.isDead()) {
+    if (!this.isDead()) {
       if (this.hasMoveInteracted) {
         this.updateHp();
         // Update the regen counter after updating the hp
@@ -114,11 +114,11 @@ class Player extends Actor {
           this.regenDelayCounter--;
         }
       }
-      this.hasMoveInteracted = false;
-      this.hasMoved = false;
       // Render any status changes
       Game.instance.statusMenu.render();
     }
+    this.hasMoveInteracted = false;
+    this.hasMoved = false;
     return [];
   }
 

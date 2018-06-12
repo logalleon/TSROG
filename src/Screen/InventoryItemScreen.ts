@@ -6,7 +6,7 @@ import { Player, InventoryItems } from '../Entity/Actor/Player';
 import { Prop } from '../Entity/Prop/Prop';
 import { Colors } from '../Canvas/Color';
 import { Message } from '../Message/Message';
-import { titleCase } from 'lodash';
+import { startCase } from 'lodash';
 
 class InventoryItemScreen extends Screen {
 
@@ -23,13 +23,15 @@ class InventoryItemScreen extends Screen {
 
   render() {
     const { messenger } = this.game;
-    this.renderTitle();
     this.renderInventoryItems();
     messenger.renderSpaceToContinue();
   }
 
-  renderTitle() {
-    const title = `${titleCase(this.item)}`;
+  renderTitle (): Message[] {
+    const message: Message = {
+      text: `${startCase(this.item)}`
+    };
+    return [message];
   }
 
   renderInventoryItems () {
@@ -38,11 +40,11 @@ class InventoryItemScreen extends Screen {
     let keyCode = 65;
     let i = 0;
     this.game.messenger.clearMessages();
+    this.game.messenger.logMessages(this.renderTitle());
     this.game.messenger.logMessages(
       player[this.item].map((item: Prop): Message => {
         const message: Message = {
           text: `${String.fromCharCode(keyCode)}) ${item.name}`,
-          color: Colors.DEFAULT
         };
         i++;
         keyCode++;

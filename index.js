@@ -24353,7 +24353,7 @@ var Player = /** @class */ (function (_super) {
      * reset any flags
      */
     Player.prototype.update = function () {
-        if (this.isDead()) {
+        if (!this.isDead()) {
             if (this.hasMoveInteracted) {
                 this.updateHp();
                 // Update the regen counter after updating the hp
@@ -24361,11 +24361,11 @@ var Player = /** @class */ (function (_super) {
                     this.regenDelayCounter--;
                 }
             }
-            this.hasMoveInteracted = false;
-            this.hasMoved = false;
             // Render any status changes
             Game_1["default"].instance.statusMenu.render();
         }
+        this.hasMoveInteracted = false;
+        this.hasMoved = false;
         return [];
     };
     Player.prototype.updateHp = function () {
@@ -24723,6 +24723,7 @@ var Game = /** @class */ (function () {
             if (!char) {
                 char = Input_1.keyCodeToChar[keyCode];
             }
+            console.log(char, this.activeScreen);
             // Handle the player input first. The player gets priority for everything
             var inputMessages = this.activeScreen.handleInput(char);
             var messages = Array.isArray(inputMessages) ? inputMessages : [];
@@ -26553,7 +26554,6 @@ exports.__esModule = true;
 var lodash_1 = require("lodash");
 var Screen_1 = require("./Screen");
 var Canvas_1 = require("../Canvas/Canvas");
-var Color_1 = require("../Canvas/Color");
 var Player_1 = require("../Entity/Actor/Player");
 var MapScreen_1 = require("./MapScreen");
 var lodash_2 = require("lodash");
@@ -26574,9 +26574,8 @@ var CommandScreen = /** @class */ (function (_super) {
     };
     CommandScreen.prototype.renderMovement = function () {
         var messenger = this.game.messenger;
-        var text = "\n      " + lodash_1.startCase(this.name) + "<br/>\n      " + MapScreen_1.MapScreenInputs.MOVE_UP_LEFT + " " + MapScreen_1.MapScreenInputs.MOVE_UP + " " + MapScreen_1.MapScreenInputs.MOVE_UP_RIGHT + "<br/>\n      &nbsp;\\|/<br/>\n      " + MapScreen_1.MapScreenInputs.MOVE_LEFT + "- -" + MapScreen_1.MapScreenInputs.MOVE_RIGHT + "<br/>\n      &nbsp;/|\\<br/>\n      " + MapScreen_1.MapScreenInputs.MOVE_DOWN_LEFT + " " + MapScreen_1.MapScreenInputs.MOVE_DOWN + " " + MapScreen_1.MapScreenInputs.MOVE_DOWN_RIGHT + "<br/>\n    ";
+        var text = "\n      " + lodash_1.startCase(this.name) + "<br/>\n      " + MapScreen_1.MapScreenInputs.MOVE_UP_LEFT + " " + MapScreen_1.MapScreenInputs.MOVE_UP + " " + MapScreen_1.MapScreenInputs.MOVE_UP_RIGHT + "<br/>\n      &nbsp;\\|/<br/>\n      " + MapScreen_1.MapScreenInputs.MOVE_LEFT + "- -" + MapScreen_1.MapScreenInputs.MOVE_RIGHT + "<br/>\n      &nbsp;/|\\<br/>\n      " + MapScreen_1.MapScreenInputs.MOVE_DOWN_LEFT + " " + MapScreen_1.MapScreenInputs.MOVE_DOWN + " " + MapScreen_1.MapScreenInputs.MOVE_DOWN_RIGHT + "<br/>\n      " + MapScreen_1.MapScreenInputs.AMULET + " - " + Screen_1.ScreenNames.AMULET + "<br/>\n    ";
         messenger.logMessages([{
-                color: Color_1.Colors.DEFAULT,
                 text: text
             }]);
     };
@@ -26595,7 +26594,7 @@ var CommandScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = CommandScreen;
 
-},{"../Canvas/Canvas":10,"../Canvas/Color":11,"../Entity/Actor/Player":17,"./MapScreen":40,"./Screen":41,"lodash":7}],38:[function(require,module,exports){
+},{"../Canvas/Canvas":10,"../Entity/Actor/Player":17,"./MapScreen":40,"./Screen":41,"lodash":7}],38:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26609,7 +26608,6 @@ var __extends = (this && this.__extends) || (function () {
 })();
 exports.__esModule = true;
 var Screen_1 = require("./Screen");
-var Color_1 = require("../Canvas/Color");
 var lodash_1 = require("lodash");
 var InventoryItemScreen = /** @class */ (function (_super) {
     __extends(InventoryItemScreen, _super);
@@ -26621,12 +26619,14 @@ var InventoryItemScreen = /** @class */ (function (_super) {
     }
     InventoryItemScreen.prototype.render = function () {
         var messenger = this.game.messenger;
-        this.renderTitle();
         this.renderInventoryItems();
         messenger.renderSpaceToContinue();
     };
     InventoryItemScreen.prototype.renderTitle = function () {
-        var title = "" + lodash_1.titleCase(this.item);
+        var message = {
+            text: "" + lodash_1.startCase(this.item)
+        };
+        return [message];
     };
     InventoryItemScreen.prototype.renderInventoryItems = function () {
         var player = this.game.player;
@@ -26634,10 +26634,10 @@ var InventoryItemScreen = /** @class */ (function (_super) {
         var keyCode = 65;
         var i = 0;
         this.game.messenger.clearMessages();
+        this.game.messenger.logMessages(this.renderTitle());
         this.game.messenger.logMessages(player[this.item].map(function (item) {
             var message = {
-                text: String.fromCharCode(keyCode) + ") " + item.name,
-                color: Color_1.Colors.DEFAULT
+                text: String.fromCharCode(keyCode) + ") " + item.name
             };
             i++;
             keyCode++;
@@ -26648,7 +26648,7 @@ var InventoryItemScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryItemScreen;
 
-},{"../Canvas/Color":11,"./Screen":41,"lodash":7}],39:[function(require,module,exports){
+},{"./Screen":41,"lodash":7}],39:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26681,6 +26681,8 @@ var InventoryScreen = /** @class */ (function (_super) {
         var keyCode = 65;
         var i = 0;
         this.game.messenger.clearMessages();
+        var title = [{ text: 'Inventory' }];
+        this.game.messenger.logMessages(title);
         for (var key in Player_1.InventoryItems) {
             this.game.messenger.logMessages(player[Player_1.InventoryItems[key]].map(function (item) {
                 var message = {

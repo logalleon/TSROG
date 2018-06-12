@@ -73,12 +73,19 @@ class Legendary {
       let results = [];
       let weighted = false;
       listReferences.forEach((listReference) => {
-        let [accessor] = listReference.match(/([a-zA-Z\^\.[0-9])+/);
+        let [accessor] = listReference.match(/([a-zA-Z\s\^\.[0-9])+/);
+        let scalar;
+        // Parse out the scalar for frequency
+        if (accessor.indexOf('^')) {
+          [accessor, scalar] = accessor.split('^');
+        }
         accessor = accessor.replace('[', '').replace(']', '');
         const result = this.deepDive(accessor);
-        results.push(result);
-        if (result.indexOf('^') !== -1) {
+        if (scalar) {
           weighted = true;
+          results.push(`${result}^${scalar}`);
+        } else {
+          results.push(result);
         }
       });
       source = source.replace(listGroup, weighted ? weightedPluck(results) : pluck(results));
@@ -92,7 +99,7 @@ class Legendary {
       let results = [];
       let weighted = false;
       choices.forEach((choice) => {
-        const [result] = choice.match(/([a-zA-Z\^\.[0-9])+/);
+        const [result] = choice.match(/([a-zA-Z\s\^\.[0-9])+/);
         results.push(result);
         if (result.indexOf('^') !== -1) {
           weighted = true;
@@ -104,7 +111,7 @@ class Legendary {
   }
 
   /**
-   * Recursively unfurl and object
+   * Recursively unfurl an object
    * @param accessor {string}
    */
   deepDive (accessor: string): string {

@@ -95,11 +95,11 @@ class Legendary {
 
   parseAdHocLists (adHocLists: string[], source: string): string {
     adHocLists.forEach((listGroup) => {
-      const choices = listGroup.split('|');
+      const choices = listGroup.replace(/\{/g, '').replace(/\}/g, '').split('|');
       let results = [];
       let weighted = false;
       choices.forEach((choice) => {
-        const [result] = choice.match(/([a-zA-Z\s\^\.[0-9])+/);
+        const [result] = choice.match(/([a-zA-Z\s\^\.0-9])+/);
         results.push(result);
         if (result.indexOf('^') !== -1) {
           weighted = true;

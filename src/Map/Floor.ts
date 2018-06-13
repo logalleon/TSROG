@@ -10,31 +10,32 @@ import Vector2 from '../Vector';
 import { RegionNames } from './Floor.data';
 import { CreatureTypes, defaultVariations, Variations } from '../Entity/Actor/Enemy.data';
 import { convert } from 'roman-numeral';
+import { RRange } from '../Random/RRange';
 
 interface FloorPersistance {
   // A reference to the starting index to see how long the persistance should keep up
   startIndex?: number,
-  persistance?: Range
+  persistance?: RRange
 }
 
 // @TODO there are probably many more options that will go into this
 interface FloorOptions {
   maxCR: number,
-  floorCRRange: Range,
-  variantEnemiesRange: Range,
-  pickupsRange: Range,
-  roomWidthRange: Range,
-  roomHeightRange: Range,
-  corridorLengthRange: Range,
+  floorCRRange: RRange,
+  variantEnemiesRange: RRange,
+  pickupsRange: RRange,
+  roomWidthRange: RRange,
+  roomHeightRange: RRange,
+  corridorLengthRange: RRange,
   floorWidth: number,
   floorHeight: number,
-  numRoomsRange: Range,
+  numRoomsRange: RRange,
   // This is assigned by the dungeon generator
   depth?: number,
   // Floors with a persistance value will persist for RANGE number of floors
   floorPersistance?: FloorPersistance,
   // Range at which first generation can occur
-  depthRange: Range,
+  depthRange: RRange,
   name: string,
   regionName: RegionNames
 }
@@ -46,16 +47,16 @@ class Floor {
   public corridors: Corridor[] = [];
   public enemies: Enemy[] = [];
   public activeEnemies: Enemy[] = [];
-  public variantEnemiesRange: Range;
+  public variantEnemiesRange: RRange;
   public maxCR: number;
-  public floorCRRange: Range;
+  public floorCRRange: RRange;
 
-  public pickupsRange: Range;
+  public pickupsRange: RRange;
 
-  public roomWidthRange: Range;
-  public roomHeightRange: Range;
-  public corridorLengthRange: Range;
-  public numRoomsRange: Range;
+  public roomWidthRange: RRange;
+  public roomHeightRange: RRange;
+  public corridorLengthRange: RRange;
+  public numRoomsRange: RRange;
 
   public depth: number;
 
@@ -460,7 +461,7 @@ class Floor {
   placeEnemyOnMap (enemy: Enemy): boolean {
     // @TODO maybe make this smarter
     let tries = 5;
-    const placementRange: Range = { low: 1, high: this.rooms.length - 1 };
+    const placementRange: RRange = new RRange(1, this.rooms.length - 1);
     const possiblePosition = this.getRandomPointInRoom(this.rooms[randomIntR(placementRange)]);
     while (tries) {
       const { x, y } = possiblePosition;

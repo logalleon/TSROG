@@ -6224,7 +6224,7 @@ module.exports = ret;
 },{"./es5":13}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":45}],5:[function(require,module,exports){
+},{"_process":48}],5:[function(require,module,exports){
 module.exports = require('./lib/heap');
 
 },{"./lib/heap":6}],6:[function(require,module,exports){
@@ -23917,7 +23917,7 @@ var Actor = /** @class */ (function () {
 }());
 exports.Actor = Actor;
 
-},{"../../Random/Dice":34,"bluebird":4}],14:[function(require,module,exports){
+},{"../../Random/Dice":36,"bluebird":4}],14:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../../Random/Dice");
@@ -24048,7 +24048,7 @@ var baseEnemies = [
 exports.baseEnemies = baseEnemies;
 var _a;
 
-},{"../../Canvas/Color":11,"../../Random/Dice":34}],15:[function(require,module,exports){
+},{"../../Canvas/Color":11,"../../Random/Dice":36}],15:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24220,7 +24220,7 @@ var Enemy = /** @class */ (function (_super) {
 }(Actor_1.Actor));
 exports.Enemy = Enemy;
 
-},{"../../Canvas/Color":11,"../../Game":22,"../../Message/Message":33,"./Actor":13}],16:[function(require,module,exports){
+},{"../../Canvas/Color":11,"../../Game":22,"../../Message/Message":35,"./Actor":13}],16:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Enemy_1 = require("../Actor/Enemy");
@@ -24281,7 +24281,7 @@ var EnemySpawner = /** @class */ (function () {
 }());
 exports.EnemySpawner = EnemySpawner;
 
-},{"../../Random/Dice":34,"../Actor/Enemy":15,"./Enemy.data":14}],17:[function(require,module,exports){
+},{"../../Random/Dice":36,"../Actor/Enemy":15,"./Enemy.data":14}],17:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24443,7 +24443,7 @@ var Player = /** @class */ (function (_super) {
 InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
 exports.Player = Player;
 
-},{"../../Canvas/Color":11,"../../Game":22,"../../Message/Message":33,"../../Random/Dice":34,"./Actor":13}],18:[function(require,module,exports){
+},{"../../Canvas/Color":11,"../../Game":22,"../../Message/Message":35,"../../Random/Dice":36,"./Actor":13}],18:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24654,7 +24654,7 @@ var Weapon = /** @class */ (function (_super) {
 }(Prop_1.Prop));
 exports.Weapon = Weapon;
 
-},{"../../Random/Legendary":35,"./Prop":20}],22:[function(require,module,exports){
+},{"../../Random/Legendary":37,"./Prop":20}],22:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Input_1 = require("./Input");
@@ -24880,7 +24880,7 @@ var Game = /** @class */ (function () {
 }());
 exports["default"] = Game;
 
-},{"../custom_modules/easystarjs":1,"./Effects":12,"./Entity/Actor/EnemySpawner":16,"./Input":23,"./Map/DungeonGenerator":25,"./Message/Message":33,"./Random/Legendary":35,"./UI/StatusMenu":42}],23:[function(require,module,exports){
+},{"../custom_modules/easystarjs":1,"./Effects":12,"./Entity/Actor/EnemySpawner":16,"./Input":23,"./Map/DungeonGenerator":25,"./Message/Message":35,"./Random/Legendary":37,"./UI/StatusMenu":45}],23:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var keyCodeToChar = {
@@ -25370,7 +25370,7 @@ var Corridor = /** @class */ (function () {
 }());
 exports.Corridor = Corridor;
 
-},{"../Random/Dice":34,"../Vector":43}],25:[function(require,module,exports){
+},{"../Random/Dice":36,"../Vector":46}],25:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var FloorGenerator_1 = require("./FloorGenerator");
@@ -25463,61 +25463,15 @@ var DungeonGenerator = /** @class */ (function () {
 }());
 exports.DungeonGenerator = DungeonGenerator;
 
-},{"../Random/Dice":34,"./FloorGenerator":28,"./TileSpawner":32}],26:[function(require,module,exports){
+},{"../Random/Dice":36,"./FloorGenerator":28,"./TileSpawner":34}],26:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-var DungeonGenerator_1 = require("./DungeonGenerator");
-var RegionNames;
-(function (RegionNames) {
-    RegionNames["Lorlerach"] = "Lorlerach";
-    RegionNames["Jirdenth"] = "Jirdenth";
-    RegionNames["Emdynusk"] = "Emdynusk";
-    RegionNames["Peruskkal"] = "Peruskkal";
-    RegionNames["Oughmoren"] = "Oughmoren";
-    RegionNames["Ranwarir"] = "Ranwarir";
-    RegionNames["Lytandel"] = "Lytandel";
-    RegionNames["Ydra"] = "Ydra";
-    RegionNames["Burm"] = "Burm";
-})(RegionNames || (RegionNames = {}));
-exports.RegionNames = RegionNames;
-var floorData = [
-    {
-        maxCR: 10,
-        floorCRRange: { low: 1, high: 1 },
-        variantEnemiesRange: { low: 0, high: 1 },
-        pickupsRange: { low: 0, high: 1 },
-        floorHeight: 80,
-        floorWidth: 80,
-        roomHeightRange: { low: 5, high: 8 },
-        roomWidthRange: { low: 5, high: 8 },
-        numRoomsRange: { low: 5, high: 10 },
-        corridorLengthRange: { low: 3, high: 12 },
-        depthRange: { low: 0, high: 4 },
-        floorPersistance: {
-            persistance: { low: 0, high: 2 }
-        },
-        name: "{Dank|Meme|Heroic} Dungeon",
-        regionName: RegionNames.Burm
-    },
-    {
-        maxCR: 10,
-        floorCRRange: { low: 1, high: 2 },
-        variantEnemiesRange: { low: 0, high: 1 },
-        pickupsRange: { low: 0, high: 1 },
-        floorHeight: 60,
-        floorWidth: 60,
-        roomHeightRange: { low: 5, high: 8 },
-        roomWidthRange: { low: 5, high: 8 },
-        numRoomsRange: { low: 5, high: 10 },
-        corridorLengthRange: { low: 3, high: 12 },
-        depthRange: { low: 0, high: DungeonGenerator_1.MAX_DUNGEON_DEPTH },
-        name: "{Terrible|Awful} Mire",
-        regionName: RegionNames.Jirdenth
-    }
-];
+var Lorlerach_1 = require("./Regions/Lorlerach");
+var floorData = [];
 exports.floorData = floorData;
+exports.floorData = floorData = floorData.concat(Lorlerach_1.floorOptions);
 
-},{"./DungeonGenerator":25}],27:[function(require,module,exports){
+},{"./Regions/Lorlerach":29}],27:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Tile_1 = require("../Map/Tile");
@@ -25527,6 +25481,7 @@ var Dice_1 = require("../Random/Dice");
 var Game_1 = require("../Game");
 var Vector_1 = require("../Vector");
 var roman_numeral_1 = require("roman-numeral");
+var RRange_1 = require("../Random/RRange");
 var Floor = /** @class */ (function () {
     function Floor(options) {
         this.rooms = [];
@@ -25871,7 +25826,7 @@ var Floor = /** @class */ (function () {
     Floor.prototype.placeEnemyOnMap = function (enemy) {
         // @TODO maybe make this smarter
         var tries = 5;
-        var placementRange = { low: 1, high: this.rooms.length - 1 };
+        var placementRange = new RRange_1.RRange(1, this.rooms.length - 1);
         var possiblePosition = this.getRandomPointInRoom(this.rooms[Dice_1.randomIntR(placementRange)]);
         while (tries) {
             var x = possiblePosition.x, y = possiblePosition.y;
@@ -25898,7 +25853,7 @@ var Floor = /** @class */ (function () {
 }());
 exports.Floor = Floor;
 
-},{"../Game":22,"../Map/Tile":31,"../Random/Dice":34,"../Vector":43,"./Corridor":24,"./Room":29,"roman-numeral":9}],28:[function(require,module,exports){
+},{"../Game":22,"../Map/Tile":33,"../Random/Dice":36,"../Random/RRange":38,"../Vector":46,"./Corridor":24,"./Room":31,"roman-numeral":9}],28:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../Random/Dice");
@@ -25952,7 +25907,93 @@ var FloorGenerator = /** @class */ (function () {
 }());
 exports.FloorGenerator = FloorGenerator;
 
-},{"../Game":22,"../Random/Dice":34,"./Floor":27,"./Floor.data":26}],29:[function(require,module,exports){
+},{"../Game":22,"../Random/Dice":36,"./Floor":27,"./Floor.data":26}],29:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var Regions_1 = require("./Regions");
+var RRange_1 = require("../../Random/RRange");
+var regionData = {
+    name: Regions_1.RegionNames.Lorlerach,
+    description: "\n    The crypts of Lorlerach quickly descend into lightless tunnels\n    and labyrinthine passageways. The walls of this place are decorated\n    with horrid depictions of skeletal uprisings and apocalyptic\n    raptures where the likes of the living are overthrown by wave\n    after wave of the undead.\n  "
+};
+exports.regionData = regionData;
+var floorOptions = [
+    {
+        regionName: Regions_1.RegionNames.Lorlerach,
+        name: "\n        {Halls|Corridors|Catacombs|Rooms}\n        of\n        {Hungry|Haunting|Unending|Sunless}\n        {Woe|Yearning|Sorrow|Loss|Rust|Dust}\n      ",
+        maxCR: 4,
+        floorCRRange: new RRange_1.RRange(1, 1),
+        variantEnemiesRange: new RRange_1.RRange(0, 1),
+        pickupsRange: new RRange_1.RRange(1, 2),
+        roomWidthRange: new RRange_1.RRange(3, 7),
+        roomHeightRange: new RRange_1.RRange(3, 7),
+        corridorLengthRange: new RRange_1.RRange(4, 10),
+        floorHeight: 80,
+        floorWidth: 80,
+        numRoomsRange: new RRange_1.RRange(4, 8),
+        floorPersistance: {
+            persistance: new RRange_1.RRange(1, 4)
+        },
+        depthRange: new RRange_1.RRange(0, 10)
+    },
+    {
+        regionName: Regions_1.RegionNames.Lorlerach,
+        name: "\n        The\n        {Skeleton|Skull|Bone|Femur|Torrid|Grim|Undying|Zombie}\n        {Caves|Caverns|Grounds|Maze|Wastes|Passages|Blight}\n      ",
+        maxCR: 4,
+        floorCRRange: new RRange_1.RRange(1, 1),
+        variantEnemiesRange: new RRange_1.RRange(0, 1),
+        pickupsRange: new RRange_1.RRange(1, 2),
+        roomWidthRange: new RRange_1.RRange(3, 7),
+        roomHeightRange: new RRange_1.RRange(3, 7),
+        corridorLengthRange: new RRange_1.RRange(4, 10),
+        floorHeight: 80,
+        floorWidth: 80,
+        numRoomsRange: new RRange_1.RRange(4, 8),
+        floorPersistance: {
+            persistance: new RRange_1.RRange(1, 4)
+        },
+        depthRange: new RRange_1.RRange(0, 10)
+    },
+    {
+        regionName: Regions_1.RegionNames.Lorlerach,
+        name: "\n        The\n        {Sanctum|Cloisters|Altars|Pillars}\n        of\n        {Bones|Skulls|Fractures|Dust|Fear|Undying|Gravefrost|Death Chill}\n      ",
+        maxCR: 4,
+        floorCRRange: new RRange_1.RRange(1, 1),
+        variantEnemiesRange: new RRange_1.RRange(0, 1),
+        pickupsRange: new RRange_1.RRange(1, 2),
+        roomWidthRange: new RRange_1.RRange(3, 7),
+        roomHeightRange: new RRange_1.RRange(3, 7),
+        corridorLengthRange: new RRange_1.RRange(4, 10),
+        floorHeight: 80,
+        floorWidth: 80,
+        numRoomsRange: new RRange_1.RRange(4, 8),
+        floorPersistance: {
+            persistance: new RRange_1.RRange(1, 4)
+        },
+        depthRange: new RRange_1.RRange(0, 10)
+    }
+];
+exports.floorOptions = floorOptions;
+
+},{"../../Random/RRange":38,"./Regions":30}],30:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var RegionNames;
+(function (RegionNames) {
+    RegionNames["Lorlerach"] = "Lorlerach";
+    RegionNames["Jirdenth"] = "Jirdenth";
+    RegionNames["Emdynusk"] = "Emdynusk";
+    RegionNames["Peruskkal"] = "Peruskkal";
+    RegionNames["Oughmoren"] = "Oughmoren";
+    RegionNames["Ranwarir"] = "Ranwarir";
+    RegionNames["Lytandel"] = "Lytandel";
+    RegionNames["Ydra"] = "Ydra";
+    RegionNames["Burm"] = "Burm";
+    RegionNames["Iltara"] = "Iltara";
+})(RegionNames || (RegionNames = {}));
+exports.RegionNames = RegionNames;
+
+},{}],31:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../Random/Dice");
@@ -25997,7 +26038,7 @@ var Room = /** @class */ (function () {
 }());
 exports.Room = Room;
 
-},{"../Random/Dice":34,"../Vector":43,"./Corridor":24}],30:[function(require,module,exports){
+},{"../Random/Dice":36,"../Vector":46,"./Corridor":24}],32:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Tile_1 = require("./Tile");
@@ -26104,7 +26145,7 @@ var voidTiles = [
 var tileData = [].concat(generalTiles, floorUpDown, voidTiles);
 exports.tileData = tileData;
 
-},{"../Canvas/Color":11,"./Tile":31}],31:[function(require,module,exports){
+},{"../Canvas/Color":11,"./Tile":33}],33:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var TileTypes;
@@ -26134,7 +26175,7 @@ var Tile = /** @class */ (function () {
 }());
 exports.Tile = Tile;
 
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Tile_1 = require("./Tile");
@@ -26173,7 +26214,7 @@ var TileSpawner = /** @class */ (function () {
 }());
 exports.TileSpawner = TileSpawner;
 
-},{"../Random/Dice":34,"./Tile":31,"./Tile.data":30}],33:[function(require,module,exports){
+},{"../Random/Dice":36,"./Tile":33,"./Tile.data":32}],35:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Color_1 = require("../Canvas/Color");
@@ -26264,7 +26305,7 @@ var Messenger = /** @class */ (function () {
 }());
 exports.Messenger = Messenger;
 
-},{"../Canvas/Canvas":10,"../Canvas/Color":11}],34:[function(require,module,exports){
+},{"../Canvas/Canvas":10,"../Canvas/Color":11}],36:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var StandardDice;
@@ -26342,7 +26383,7 @@ var randomIntR = function (range) {
 };
 exports.randomIntR = randomIntR;
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var language_data_1 = require("./language.data");
@@ -26411,13 +26452,22 @@ var Legendary = /** @class */ (function () {
             var results = [];
             var weighted = false;
             listReferences.forEach(function (listReference) {
-                var accessor = listReference.match(/([a-zA-Z\^\.[0-9])+/)[0];
+                var accessor = listReference.match(/([a-zA-Z\s\^\.[0-9])+/)[0];
+                var scalar;
+                // Parse out the scalar for frequency
+                if (accessor.indexOf('^')) {
+                    _a = accessor.split('^'), accessor = _a[0], scalar = _a[1];
+                }
                 accessor = accessor.replace('[', '').replace(']', '');
                 var result = _this.deepDive(accessor);
-                results.push(result);
-                if (result.indexOf('^') !== -1) {
+                if (scalar) {
                     weighted = true;
+                    results.push(result + "^" + scalar);
                 }
+                else {
+                    results.push(result);
+                }
+                var _a;
             });
             source = source.replace(listGroup, weighted ? Dice_1.weightedPluck(results) : Dice_1.pluck(results));
         });
@@ -26425,11 +26475,11 @@ var Legendary = /** @class */ (function () {
     };
     Legendary.prototype.parseAdHocLists = function (adHocLists, source) {
         adHocLists.forEach(function (listGroup) {
-            var choices = listGroup.split('|');
+            var choices = listGroup.replace(/\{/g, '').replace(/\}/g, '').split('|');
             var results = [];
             var weighted = false;
             choices.forEach(function (choice) {
-                var result = choice.match(/([a-zA-Z\^\.[0-9])+/)[0];
+                var result = choice.match(/([a-zA-Z\s\^\.0-9])+/)[0];
                 results.push(result);
                 if (result.indexOf('^') !== -1) {
                     weighted = true;
@@ -26440,7 +26490,7 @@ var Legendary = /** @class */ (function () {
         return source;
     };
     /**
-     * Recursively unfurl and object
+     * Recursively unfurl an object
      * @param accessor {string}
      */
     Legendary.prototype.deepDive = function (accessor) {
@@ -26515,7 +26565,22 @@ var Legendary = /** @class */ (function () {
 }());
 exports.Legendary = Legendary;
 
-},{"../Entity/Prop/Prop.data":19,"./Dice":34,"./language.data":36}],36:[function(require,module,exports){
+},{"../Entity/Prop/Prop.data":19,"./Dice":36,"./language.data":39}],38:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var RRange = /** @class */ (function () {
+    function RRange(low, high) {
+        this.low = low;
+        this.high = high;
+    }
+    RRange.prototype.diff = function () {
+        return this.high - this.low;
+    };
+    return RRange;
+}());
+exports.RRange = RRange;
+
+},{}],39:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var LegendaryData = {
@@ -26538,7 +26603,7 @@ var LegendaryData = {
 };
 exports.LegendaryData = LegendaryData;
 
-},{}],37:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26594,7 +26659,7 @@ var CommandScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = CommandScreen;
 
-},{"../Canvas/Canvas":10,"../Entity/Actor/Player":17,"./MapScreen":40,"./Screen":41,"lodash":7}],38:[function(require,module,exports){
+},{"../Canvas/Canvas":10,"../Entity/Actor/Player":17,"./MapScreen":43,"./Screen":44,"lodash":7}],41:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26648,7 +26713,7 @@ var InventoryItemScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryItemScreen;
 
-},{"./Screen":41,"lodash":7}],39:[function(require,module,exports){
+},{"./Screen":44,"lodash":7}],42:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26699,7 +26764,7 @@ var InventoryScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Color":11,"../Entity/Actor/Player":17,"./Screen":41}],40:[function(require,module,exports){
+},{"../Canvas/Color":11,"../Entity/Actor/Player":17,"./Screen":44}],43:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26907,7 +26972,7 @@ var MapScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = MapScreen;
 
-},{"../Canvas/Color":11,"../Game":22,"../Map/Tile":31,"../Vector":43,"./Screen":41,"roman-numeral":9}],41:[function(require,module,exports){
+},{"../Canvas/Color":11,"../Game":22,"../Map/Tile":33,"../Vector":46,"./Screen":44,"roman-numeral":9}],44:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Message_1 = require("../Message/Message");
@@ -26959,7 +27024,7 @@ var Screen = /** @class */ (function () {
 }());
 exports.Screen = Screen;
 
-},{"../Message/Message":33}],42:[function(require,module,exports){
+},{"../Message/Message":35}],45:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("../Game");
@@ -26978,7 +27043,7 @@ var StatusMenu = /** @class */ (function () {
 }());
 exports.StatusMenu = StatusMenu;
 
-},{"../Game":22}],43:[function(require,module,exports){
+},{"../Game":22}],46:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Vector2 = /** @class */ (function () {
@@ -26997,7 +27062,7 @@ var Vector2 = /** @class */ (function () {
 }());
 exports["default"] = Vector2;
 
-},{}],44:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("./Game");
@@ -27130,7 +27195,7 @@ window.onload = function () {
     window.game = g;
 };
 
-},{"./Canvas/Color":11,"./Entity/Actor/Player":17,"./Entity/Prop/Armor":18,"./Entity/Prop/Prop.data":19,"./Entity/Prop/Weapon":21,"./Game":22,"./Random/Dice":34,"./Screen/CommandScreen":37,"./Screen/InventoryItemScreen":38,"./Screen/InventoryScreen":39,"./Screen/MapScreen":40,"./Screen/Screen":41,"./Vector":43}],45:[function(require,module,exports){
+},{"./Canvas/Color":11,"./Entity/Actor/Player":17,"./Entity/Prop/Armor":18,"./Entity/Prop/Prop.data":19,"./Entity/Prop/Weapon":21,"./Game":22,"./Random/Dice":36,"./Screen/CommandScreen":40,"./Screen/InventoryItemScreen":41,"./Screen/InventoryScreen":42,"./Screen/MapScreen":43,"./Screen/Screen":44,"./Vector":46}],48:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -27316,4 +27381,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},[44]);
+},{}]},{},[47]);

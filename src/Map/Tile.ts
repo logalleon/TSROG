@@ -19,7 +19,6 @@ interface TileOptions {
   depthRange: Range,
   occupiers?: any[],
   isOccupied?: boolean,
-  pos?: Vector2,
   type: TileTypes
 }
 
@@ -36,8 +35,6 @@ class Tile {
 
   public depthRange: Range;
   
-  public pos: Vector2;
-
   public type: TileTypes;
 
   constructor (options: TileOptions) {

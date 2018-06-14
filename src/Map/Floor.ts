@@ -7,7 +7,7 @@ import { fontOptions } from '../Canvas/Canvas';
 import { Enemy } from '../Entity/Actor/Enemy';
 import Game from '../Game';
 import Vector2 from '../Vector';
-import { RegionNames } from './Floor.data';
+import { RegionNames } from './Regions/Regions';
 import { CreatureTypes, defaultVariations, Variations } from '../Entity/Actor/Enemy.data';
 import { convert } from 'roman-numeral';
 import { RRange } from '../Random/RRange';
@@ -135,8 +135,13 @@ class Floor {
     // Walls are added around rooms and corridors, so this has to be called afterwards
     this.setWalls();
     this.setDoorTiles();
-    this.setStaircaseTiles();
+
+    // This cuts of "extra" void tiles around the map
+    this.trimFloor();
+
+    // Make sure to call placement of items with a pos after trim so the positions are correct
     this.spawnEnemies();
+    this.setStaircaseTiles();
     if (this.floorPersistance && this.floorPersistance.persistance) {
       this.willPersistFor = randomIntR(this.floorPersistance.persistance);
       this.floorPersistance.startIndex = this.depth;
@@ -166,7 +171,6 @@ class Floor {
             isPassible: true,
             type: TileTypes.FLOOR
           });
-          p_row[x].pos = new Vector2(col, row);
         }
       }
     });
@@ -198,7 +202,6 @@ class Floor {
             isPassible: true,
             type: TileTypes.FLOOR
           });
-          this.tiles[y][x].pos = new Vector2(x, y);
         }
       }
     });
@@ -213,7 +216,6 @@ class Floor {
           depth: this.depth,
           type: TileTypes.DOOR
         });
-        this.tiles[y][x].pos = new Vector2(x, y);
       }
     });
   }
@@ -390,14 +392,14 @@ class Floor {
             isPassible: true,
             type: TileTypes.FLOOR
           });
-          this.tiles[y][x].pos = new Vector2(x, y);
         }
       }
     });
   }
 
-  hasAdjacentFloorTiles (tile: Tile): boolean {
-    const { x, y } = tile.pos;
+  // @TODO not sure where this is used
+  hasAdjacentFloorTiles (tile: Tile, pos: Vector2): boolean {
+    const { x, y } = pos;
     const { FLOOR } = TileTypes;
     return (
       (this.tiles[y - 1] && this.tiles[y - 1][x].type === TileTypes.FLOOR) ||
@@ -411,6 +413,7 @@ class Floor {
     const x = randomInt(room.pos.x, room.roomWidth + room.pos.x);
     const y = randomInt(room.pos.y, room.roomHeight + room.pos.y);
     // Just fucking clamp to the bounds of the map
+    console.log(this.floorHeight);
     return new Vector2(
       clamp(x, 0, this.floorWidth - 1),
       clamp(y, 0, this.floorHeight - 1)
@@ -463,6 +466,7 @@ class Floor {
     let tries = 5;
     const placementRange: RRange = new RRange(1, this.rooms.length - 1);
     const possiblePosition = this.getRandomPointInRoom(this.rooms[randomIntR(placementRange)]);
+    console.log(possiblePosition);
     while (tries) {
       const { x, y } = possiblePosition;
       if (!this.tiles[y][x].isOccupied) {
@@ -489,6 +493,55 @@ class Floor {
       this.tiles[y][x] &&
       this.tiles[y][x].isOccupied
     );
+  }
+
+  // Trim off void tiles
+  trimFloor (): void {
+    let top;
+    let left;
+    let right;
+    let bottom;
+    for (let row = 0; row < this.floorHeight; row++) {
+      for (let col = 0; col < this.floorWidth; col++) {
+        if (this.tiles[row][col].type !== TileTypes.VOID) {
+          bottom = row;
+          break;
+        }
+      }
+    }
+    for (let row = this.floorHeight - 1; row > 0; row--) {
+      for (let col = this.floorWidth - 1; col > 0; col--) {
+        if (this.tiles[row][col].type !== TileTypes.VOID) {
+          top = row;
+          break;
+        }
+      }
+    }
+    let trimmedTiles = [];
+    for (let row = top; row <= bottom + 1; row++) {
+      trimmedTiles[row - top] = [];
+      for (let col = 0; col < this.floorWidth; col++) {
+        trimmedTiles[row - top][col] = this.tiles[row][col];
+        if(trimmedTiles[row - top][col].pos) {
+          trimmedTiles[row - top][col].pos.y = [row - top];
+        }
+      }
+    }
+    this.tiles = trimmedTiles;
+    this.floorHeight = bottom - top;
+    // Adjust the position of the rooms
+    this.rooms.forEach((room) => {
+      console.log(room.pos.y, ';:', (top));
+      room.pos.y -= (top);
+      console.log('after::', room.pos.y);
+      // -= top - bottom
+    });
+    console.log(this.tiles);
+    console.log(top, bottom);
+    this.corridors.forEach((corridor) => {
+      corridor.startingPosition.y -= (bottom - top);
+      corridor.endPosition.y -= top - bottom;
+    });
   }
 
 }

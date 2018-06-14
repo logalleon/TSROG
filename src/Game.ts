@@ -112,7 +112,6 @@ class Game {
       if (!char) {
         char = keyCodeToChar[keyCode];
       }
-      console.log(char, this.activeScreen);
       // Handle the player input first. The player gets priority for everything
       const inputMessages = this.activeScreen.handleInput(char);
       let messages: Message[] = Array.isArray(inputMessages) ? inputMessages : [];

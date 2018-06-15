@@ -1,5 +1,4 @@
 import { FloorOptions, FloorPersistance } from './Floor';
-import { Range } from '../Random/Dice';
 import Game from '../Game';
 import { MAX_DUNGEON_DEPTH } from './DungeonGenerator';
 import { DeityNames } from '../Data/Deity';

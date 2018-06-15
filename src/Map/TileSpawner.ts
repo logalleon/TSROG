@@ -1,11 +1,13 @@
 import { TileOptions, Tile, TileTypes } from './Tile';
 import { tileData } from './Tile.data';
-import { pluck } from '../Random/Dice';
+import { pluck } from '../Random/Random';
+import { RegionNames } from './Regions/Regions';
 
 interface TileRequestOptions {
   depth?: number,
   isPassible?: boolean,
-  type?: TileTypes
+  type?: TileTypes,
+  region?: RegionNames
 }
 
 class TileSpawner {
@@ -37,8 +39,17 @@ class TileSpawner {
           return false;
         }
       }
+      if (options.region) {
+        if (typeof tile.region == 'undefined' || tile.region !== options.region) {
+          return false;
+        }
+      }
       return allowed;
     });
+    console.log(possibleTiles);
+    if (!possibleTiles.length) {
+      throw new Error('No tile selected? Uh ooh . . .');
+    }
     const tileOptions = pluck(possibleTiles);
     const tile: Tile = new Tile(pluck(possibleTiles));
     return tile;

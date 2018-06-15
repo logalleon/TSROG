@@ -12,7 +12,7 @@ import { Message, Messenger } from '../../Message/Message';
 import { Enemy } from './Enemy';
 import { Colors } from '../../Canvas/Color';
 import Game from '../../Game';
-import { clamp } from '../../Random/Dice';
+import { clamp } from '../../Random/Random';
 
 const { colorize } = Messenger;
 

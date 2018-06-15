@@ -1,10 +1,11 @@
 import Game from '../../Game';
 import { WeaponOptions, Weapon } from './Weapon';
 import { DamageType, Quality, Material, MaterialType, MaterialSubtype, Damage } from './Prop.data';
-import { Range, randomIntR, pluck } from '../../Random/Dice';
+import { randomIntR, pluck } from '../../Random/Random';
 import { PropOptions } from './Prop';
 import { Colors } from '../../Canvas/Color';
 import { Legendary } from '../../Random/Legendary';
+import { RRange } from '../../Random/RRange';
 
 interface WeaponParams {
   baseDamage: DamageRange,
@@ -14,8 +15,8 @@ interface WeaponParams {
 }
 
 interface DamageRange {
-  bonusRange: Range,
-  damageRange: Range,
+  bonusRange: RRange,
+  damageRange: RRange,
   type: DamageType
 }
 

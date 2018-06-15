@@ -1,7 +1,7 @@
 import { Enemy, IEnemyType, EnemyOptions } from '../Actor/Enemy';
 import { baseEnemies, CreatureTypes, Variation } from './Enemy.data';
-import { randomInt, pluck } from '../../Random/Dice';
-import { RegionNames } from '../../Map/Floor.data';
+import { randomInt, pluck } from '../../Random/Random';
+import { RegionNames } from '../../Map/Regions/Regions';
 
 interface EnemyHashMap {
   [key: string]: EnemyOptions[]

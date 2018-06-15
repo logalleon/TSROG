@@ -1,8 +1,8 @@
 import { IEnemyType, EnemyOptions } from './Enemy';
 import { ActorOptions } from './Actor';
-import { randomInt, StandardDice } from '../../Random/Dice';
+import { StandardDice } from '../../Random/Dice';
 import { Color, Colors } from '../../Canvas/Color';
-import { RegionNames } from '../../Map/Floor.data';
+import { RegionNames } from '../../Map/Regions/Regions';
 
 enum CreatureTypes {
   UNDEAD = 'undead',

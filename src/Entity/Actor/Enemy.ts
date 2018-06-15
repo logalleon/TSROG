@@ -6,7 +6,7 @@ import Game from '../../Game';
 import { Promise as Bluebird } from 'bluebird';
 import { Player } from './Player';
 import { Variation, Variations, VariantModification } from './Enemy.data';
-import { RegionNames } from '../../Map/Floor.data';
+import { RegionNames } from '../../Map/Regions/Regions';
 
 const { colorize } = Messenger;
 

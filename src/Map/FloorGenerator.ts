@@ -1,6 +1,6 @@
 import { Room } from './Room';
 import { Corridor, Direction } from './Corridor';
-import { randomInt, Range, pluck } from '../Random/Dice';
+import { randomInt, pluck } from '../Random/Random';
 import { Color } from '../Canvas/Color';
 import { fontOptions } from '../Canvas/Canvas';
 import { Enemy } from '../Entity/Actor/Enemy';

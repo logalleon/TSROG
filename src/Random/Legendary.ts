@@ -1,5 +1,5 @@
 import { LegendaryData, ArbitraryData } from './language.data';
-import { randomInt, pluck, weightedPluck } from './Dice';
+import { randomInt, pluck, weightedPluck } from './Random';
 import { weaponData, materialData } from '../Entity/Prop/Prop.data';
 
 class Legendary {

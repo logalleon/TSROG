@@ -1,7 +1,7 @@
 import { Tile, TileTypes } from '../Map/Tile';
 import { Room } from './Room';
 import { Corridor, Direction } from './Corridor';
-import { randomInt, Range, randomIntR, clamp } from '../Random/Dice';
+import { randomInt, randomIntR, clamp } from '../Random/Random';
 import { Color } from '../Canvas/Color';
 import { fontOptions } from '../Canvas/Canvas';
 import { Enemy } from '../Entity/Actor/Enemy';
@@ -137,7 +137,7 @@ class Floor {
     this.setDoorTiles();
 
     // This cuts of "extra" void tiles around the map
-    this.trimFloor();
+    //this.trimFloor();
 
     // Make sure to call placement of items with a pos after trim so the positions are correct
     this.spawnEnemies();
@@ -167,7 +167,7 @@ class Floor {
         for (let col = 0; col < room.roomWidth; col++) {
           const x = room.pos.x + col;
           p_row[x] = Game.instance.dungeonGenerator.tileSpawner.getTile({
-            depth: this.depth,
+            region: this.regionName,
             isPassible: true,
             type: TileTypes.FLOOR
           });
@@ -198,7 +198,7 @@ class Floor {
         // in bounds, right?
         if (this.inBounds(this.floorWidth, this.floorHeight, new Vector2(x, y))) {
           this.tiles[y][x] = Game.instance.dungeonGenerator.tileSpawner.getTile({
-            depth: this.depth,
+            region: this.regionName,
             isPassible: true,
             type: TileTypes.FLOOR
           });
@@ -245,6 +245,9 @@ class Floor {
 
   setWalls (): void {
     const { tileSpawner } = Game.instance.dungeonGenerator;
+    const { regionName: region } = this;
+    const isPassible = false;
+    const type = TileTypes.WALL;
     this.rooms.forEach((room) => {
       let y;
       let x;
@@ -255,11 +258,7 @@ class Floor {
         x = room.pos.x - 1;
         y = room.pos.y + row;
         if (this.tiles[y] && this.tiles[y][x] && this.tiles[y][x].type === TileTypes.VOID) {
-          this.tiles[y][x] = tileSpawner.getTile({
-            depth: this.depth,
-            isPassible: false,
-            type: TileTypes.WALL
-          });
+          this.tiles[y][x] = tileSpawner.getTile({ region, isPassible, type });
         }
       }
       // North wall
@@ -267,11 +266,7 @@ class Floor {
         x = room.pos.x + col;
         y = room.pos.y - 1;
         if (this.tiles[y] && this.tiles[y][x] && this.tiles[y][x].type === TileTypes.VOID) {
-          this.tiles[y][x] = tileSpawner.getTile({
-            depth: this.depth,
-            isPassible: false,
-            type: TileTypes.WALL
-          });
+          this.tiles[y][x] = tileSpawner.getTile({ region, isPassible, type });
         }
       }
       // East wall
@@ -279,11 +274,7 @@ class Floor {
         x = room.pos.x + room.roomWidth;
         y = room.pos.y + row;
         if (this.tiles[y] && this.tiles[y][x] && this.tiles[y][x].type === TileTypes.VOID) {
-          this.tiles[y][x] = tileSpawner.getTile({
-            depth: this.depth,
-            isPassible: false,
-            type: TileTypes.WALL
-          });
+          this.tiles[y][x] = tileSpawner.getTile({ region, isPassible, type });
         }
       }
       // South wall
@@ -291,11 +282,7 @@ class Floor {
         x = room.pos.x + col;
         y = room.pos.y + room.roomHeight;
         if (this.tiles[y] && this.tiles[y][x] && this.tiles[y][x].type === TileTypes.VOID) {
-          this.tiles[y][x] = tileSpawner.getTile({
-            depth: this.depth,
-            isPassible: false,
-            type: TileTypes.WALL
-          });
+          this.tiles[y][x] = tileSpawner.getTile({ region, isPassible, type });
         }
       }
     });
@@ -312,18 +299,10 @@ class Floor {
             west = x - 1;
             east = x + 1;
             if (this.tiles[y] && this.tiles[y][west] && this.tiles[y][west].type === TileTypes.VOID) {
-              this.tiles[y][west] = tileSpawner.getTile({
-                depth: this.depth,
-                isPassible: false,
-                type: TileTypes.WALL
-              });
+              this.tiles[y][west] = tileSpawner.getTile({ region, isPassible, type });
             }
             if (this.tiles[y] && this.tiles[y][east] && this.tiles[y][east].type === TileTypes.VOID) {
-              this.tiles[y][east] = tileSpawner.getTile({
-                depth: this.depth,
-                isPassible: false,
-                type: TileTypes.WALL
-              });
+              this.tiles[y][east] = tileSpawner.getTile({ region, isPassible, type });
             }
             break;
           case Direction.East:
@@ -331,18 +310,10 @@ class Floor {
             north = y - 1;
             south = y + 1;
             if (this.tiles[north] && this.tiles[north][x] && this.tiles[north][x].type === TileTypes.VOID) {
-              this.tiles[north][x] = tileSpawner.getTile({
-                depth: this.depth,
-                isPassible: false,
-                type: TileTypes.WALL
-              });
+              this.tiles[north][x] = tileSpawner.getTile({ region, isPassible, type });
             }
             if (this.tiles[south] && this.tiles[south][x] && this.tiles[south][x].type === TileTypes.VOID) {
-              this.tiles[south][x] = tileSpawner.getTile({
-                depth: this.depth,
-                isPassible: false,
-                type: TileTypes.WALL
-              });
+              this.tiles[south][x] = tileSpawner.getTile({ region, isPassible, type });
             }
             break;
           case Direction.South:
@@ -350,18 +321,10 @@ class Floor {
             west = x - 1;
             east = x + 1;
             if (this.tiles[y] && this.tiles[y][west] && this.tiles[y][west].type === TileTypes.VOID) {
-              this.tiles[y][west] = tileSpawner.getTile({
-                depth: this.depth,
-                isPassible: false,
-                type: TileTypes.WALL
-              });
+              this.tiles[y][west] = tileSpawner.getTile({ region, isPassible, type });
             }
             if (this.tiles[y] && this.tiles[y][east] && this.tiles[y][east].type === TileTypes.VOID) {
-              this.tiles[y][east] = tileSpawner.getTile({
-                depth: this.depth,
-                isPassible: false,
-                type: TileTypes.WALL
-              });
+              this.tiles[y][east] = tileSpawner.getTile({ region, isPassible, type });
             }
             break;
           case Direction.West:
@@ -369,18 +332,10 @@ class Floor {
             north = y - 1;
             south = y + 1;
             if (this.tiles[north] && this.tiles[north][x] && this.tiles[north][x].type === TileTypes.VOID) {
-              this.tiles[north][x] = tileSpawner.getTile({
-                depth: this.depth,
-                isPassible: false,
-                type: TileTypes.WALL
-              });
+              this.tiles[north][x] = tileSpawner.getTile({ region, isPassible, type });
             }
             if (this.tiles[south] && this.tiles[south][x] && this.tiles[south][x].type === TileTypes.VOID) {
-              this.tiles[south][x] = tileSpawner.getTile({
-                depth: this.depth,
-                isPassible: false,
-                type: TileTypes.WALL
-              });
+              this.tiles[south][x] = tileSpawner.getTile({ region, isPassible, type });
             }
             break;
         }
@@ -482,7 +437,7 @@ class Floor {
 
   getFormattedName (): string {
     return `
-      ${this.name}${this.nameInSequence ? ` - ${convert(this.nameInSequence) }` : ''} of ${this.regionName} - ${this.depth}
+      ${this.name}${this.nameInSequence ? ` - ${convert(this.nameInSequence) }` : ''} of ${this.regionName} <br> Depth ${this.depth}
     `;
   }
 

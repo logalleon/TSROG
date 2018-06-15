@@ -1,6 +1,10 @@
 import { RegionData, RegionNames } from './Regions';
 import { FloorOptions } from '../Floor';
 import { RRange } from '../../Random/RRange';
+import { TileOptions, TileTypes } from '../Tile';
+import { Color } from '../../Canvas/Color';
+
+const MAX_DUNGEON_DEPTH = 100; // @TODO proper import
 
 const regionData: RegionData = {
   name: RegionNames.Lorlerach,
@@ -84,4 +88,52 @@ const floorOptions: FloorOptions[] = [
     }
 ];
 
-export { regionData, floorOptions };
+const tileData: TileOptions[] = [
+  // Floor
+  {
+    isPassible: true,
+    description: 'Rough hewn wall',
+    char: '.',
+    color: new Color({ hex: '#555' }),
+    depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+    type: TileTypes.FLOOR
+  },
+  {
+    isPassible: true,
+    description: 'Rough hewn wall',
+    char: '.',
+    color: new Color({ hex: '#333' }),
+    depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+    type: TileTypes.FLOOR
+  },
+  {
+    isPassible: true,
+    description: 'Rough hewn wall',
+    char: '.',
+    color: new Color({ hex: '#444' }),
+    depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+    type: TileTypes.FLOOR
+  },
+  // Walls
+  {
+  isPassible: false,
+    description: 'Rough hewn wall',
+    char: '░',
+    color: new Color({ hex: '#363636' }),
+    depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+    type: TileTypes.WALL
+  },
+  {
+    isPassible: false,
+      description: 'Rough hewn wall',
+      char: '░',
+      color: new Color({ hex: '#363535' }),
+      depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+      type: TileTypes.WALL
+    }
+];
+tileData.forEach((tile) => {
+  tile.region = RegionNames.Lorlerach;
+});
+
+export { regionData, floorOptions, tileData };

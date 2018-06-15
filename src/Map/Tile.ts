@@ -1,6 +1,7 @@
 import { Color } from '../Canvas/Color';
 import Vector2 from '../Vector';
 import { Range } from '../Random/Dice';
+import { RegionNames } from './Regions/Regions';
 
 enum TileTypes {
   WALL = 'wall',
@@ -16,10 +17,11 @@ interface TileOptions {
   description: string,
   char: string,
   color: Color,
-  depthRange: Range,
+  depthRange?: Range,
   occupiers?: any[],
   isOccupied?: boolean,
-  type: TileTypes
+  type: TileTypes,
+  region?: RegionNames
 }
 
 class Tile {
@@ -37,10 +39,13 @@ class Tile {
   
   public type: TileTypes;
 
+  public region: RegionNames;
+
   constructor (options: TileOptions) {
     for (let key in options) {
       this[key] = options[key];
     }
+    console.log(options);
     if (!options.type || !options.char || !options.color) {
       throw 'Error: tile is borked';
     }

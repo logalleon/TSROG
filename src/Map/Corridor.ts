@@ -1,6 +1,7 @@
 import { Room } from './Room';
-import { Range, randomInt, clamp } from '../Random/Dice';
+import { randomInt, clamp } from '../Random/Random';
 import Vector2 from '../Vector';
+import { RRange } from '../Random/RRange';
 
 enum Direction {
   North,
@@ -24,9 +25,9 @@ class Corridor {
 
   setup (
     room: Room,
-    corridorLength: Range,
-    widthRange: Range,
-    heightRange: Range,
+    corridorLength: RRange,
+    widthRange: RRange,
+    heightRange: RRange,
     columns: number,
     rows: number,
     isInitialCorridor: boolean

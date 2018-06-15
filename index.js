@@ -6224,7 +6224,7 @@ module.exports = ret;
 },{"./es5":13}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":48}],5:[function(require,module,exports){
+},{"_process":49}],5:[function(require,module,exports){
 module.exports = require('./lib/heap');
 
 },{"./lib/heap":6}],6:[function(require,module,exports){
@@ -24225,7 +24225,7 @@ exports.Enemy = Enemy;
 exports.__esModule = true;
 var Enemy_1 = require("../Actor/Enemy");
 var Enemy_data_1 = require("./Enemy.data");
-var Dice_1 = require("../../Random/Dice");
+var Random_1 = require("../../Random/Random");
 var EnemySpawner = /** @class */ (function () {
     function EnemySpawner() {
         // this.baseEnemies = this.loadEnemies();
@@ -24254,13 +24254,13 @@ var EnemySpawner = /** @class */ (function () {
         if (this.enemiesByCR[cr]) {
             var options = void 0;
             if (region) {
-                options = Dice_1.pluck(this.enemiesByCR[cr].filter(function (enemyOptions) {
+                options = Random_1.pluck(this.enemiesByCR[cr].filter(function (enemyOptions) {
                     var regions = enemyOptions.regions;
                     return (typeof regions === 'undefined' || regions.includes(region));
                 }));
             }
             else {
-                options = Dice_1.pluck(this.enemiesByCR[cr]);
+                options = Random_1.pluck(this.enemiesByCR[cr]);
             }
             return new Enemy_1.Enemy(options, variant);
         }
@@ -24270,7 +24270,7 @@ var EnemySpawner = /** @class */ (function () {
     };
     EnemySpawner.prototype.createEnemyByCreatureType = function (creatureType, variant, region) {
         if (this.enemiesByCreatureType[creatureType]) {
-            var options = Dice_1.pluck(this.enemiesByCreatureType[creatureType]);
+            var options = Random_1.pluck(this.enemiesByCreatureType[creatureType]);
             return new Enemy_1.Enemy(options, variant);
         }
         else {
@@ -24281,7 +24281,7 @@ var EnemySpawner = /** @class */ (function () {
 }());
 exports.EnemySpawner = EnemySpawner;
 
-},{"../../Random/Dice":36,"../Actor/Enemy":15,"./Enemy.data":14}],17:[function(require,module,exports){
+},{"../../Random/Random":39,"../Actor/Enemy":15,"./Enemy.data":14}],17:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24298,7 +24298,7 @@ var Actor_1 = require("./Actor");
 var Message_1 = require("../../Message/Message");
 var Color_1 = require("../../Canvas/Color");
 var Game_1 = require("../../Game");
-var Dice_1 = require("../../Random/Dice");
+var Random_1 = require("../../Random/Random");
 var colorize = Message_1.Messenger.colorize;
 var InventoryItems;
 (function (InventoryItems) {
@@ -24371,7 +24371,7 @@ var Player = /** @class */ (function (_super) {
     Player.prototype.updateHp = function () {
         if (this.regenDelayCounter === 0) {
             this.hp += this.hpRegen;
-            this.hp = Dice_1.clamp(this.hp, 0, this.maxHp);
+            this.hp = Random_1.clamp(this.hp, 0, this.maxHp);
         }
     };
     Player.prototype.addToInventory = function (pickup) {
@@ -24443,7 +24443,7 @@ var Player = /** @class */ (function (_super) {
 InventoryItems.AMULETS, InventoryItems.ARMOR, InventoryItems.FOOD, InventoryItems.POTIONS, InventoryItems.RINGS, InventoryItems.SCROLLS, InventoryItems.WEAPONS;
 exports.Player = Player;
 
-},{"../../Canvas/Color":11,"../../Game":22,"../../Message/Message":35,"../../Random/Dice":36,"./Actor":13}],18:[function(require,module,exports){
+},{"../../Canvas/Color":11,"../../Game":22,"../../Message/Message":35,"../../Random/Random":39,"./Actor":13}],18:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24879,7 +24879,7 @@ var Game = /** @class */ (function () {
 }());
 exports["default"] = Game;
 
-},{"../custom_modules/easystarjs":1,"./Effects":12,"./Entity/Actor/EnemySpawner":16,"./Input":23,"./Map/DungeonGenerator":25,"./Message/Message":35,"./Random/Legendary":37,"./UI/StatusMenu":45}],23:[function(require,module,exports){
+},{"../custom_modules/easystarjs":1,"./Effects":12,"./Entity/Actor/EnemySpawner":16,"./Input":23,"./Map/DungeonGenerator":25,"./Message/Message":35,"./Random/Legendary":37,"./UI/StatusMenu":46}],23:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var keyCodeToChar = {
@@ -25306,7 +25306,7 @@ exports.mapKeyPressToActualCharacter = mapKeyPressToActualCharacter;
 },{}],24:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-var Dice_1 = require("../Random/Dice");
+var Random_1 = require("../Random/Random");
 var Vector_1 = require("../Vector");
 var Direction;
 (function (Direction) {
@@ -25320,7 +25320,7 @@ var Corridor = /** @class */ (function () {
     function Corridor() {
     }
     Corridor.prototype.setup = function (room, corridorLength, widthRange, heightRange, columns, rows, isInitialCorridor) {
-        this.direction = Dice_1.randomInt(0, 3);
+        this.direction = Random_1.randomInt(0, 3);
         // See unity video, but this makes sure the map doesn't double back on itself constantly
         var oppositeDirection = ((room.enteringCorridor + 2) % 4);
         // If the room is doubling back, "turn" the map
@@ -25330,28 +25330,28 @@ var Corridor = /** @class */ (function () {
             correctedDirection = correctedDirection % 4;
             this.direction = correctedDirection;
         }
-        this.length = Dice_1.randomInt(corridorLength.low, corridorLength.high);
+        this.length = Random_1.randomInt(corridorLength.low, corridorLength.high);
         var maxLength = corridorLength.high;
         switch (this.direction) {
             case Direction.North:
-                this.startingPosition = new Vector_1["default"](Dice_1.randomInt(room.pos.x, room.pos.x + room.roomWidth - 1), room.pos.y + room.roomHeight);
+                this.startingPosition = new Vector_1["default"](Random_1.randomInt(room.pos.x, room.pos.x + room.roomWidth - 1), room.pos.y + room.roomHeight);
                 // The maximum length is the height of the board from the top of the room it's coming from
                 maxLength = rows - this.startingPosition.y - heightRange.low;
                 break;
             case Direction.East:
-                this.startingPosition = new Vector_1["default"](room.pos.x + room.roomWidth, Dice_1.randomInt(room.pos.y, room.pos.y + room.roomHeight - 1));
+                this.startingPosition = new Vector_1["default"](room.pos.x + room.roomWidth, Random_1.randomInt(room.pos.y, room.pos.y + room.roomHeight - 1));
                 maxLength = columns - this.startingPosition.x - widthRange.low;
                 break;
             case Direction.South:
-                this.startingPosition = new Vector_1["default"](Dice_1.randomInt(room.pos.x, room.pos.x + room.roomWidth), room.pos.y);
+                this.startingPosition = new Vector_1["default"](Random_1.randomInt(room.pos.x, room.pos.x + room.roomWidth), room.pos.y);
                 maxLength = this.startingPosition.y - heightRange.low;
                 break;
             case Direction.West:
-                this.startingPosition = new Vector_1["default"](room.pos.x, Dice_1.randomInt(room.pos.y, room.pos.y + room.roomHeight));
+                this.startingPosition = new Vector_1["default"](room.pos.x, Random_1.randomInt(room.pos.y, room.pos.y + room.roomHeight));
                 maxLength = this.startingPosition.x - widthRange.low;
                 break;
         }
-        this.length = Dice_1.clamp(this.length, 1, maxLength);
+        this.length = Random_1.clamp(this.length, 1, maxLength);
         this.setEndPosition();
     };
     Corridor.prototype.setEndPosition = function () {
@@ -25369,12 +25369,12 @@ var Corridor = /** @class */ (function () {
 }());
 exports.Corridor = Corridor;
 
-},{"../Random/Dice":36,"../Vector":46}],25:[function(require,module,exports){
+},{"../Random/Random":39,"../Vector":47}],25:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var FloorGenerator_1 = require("./FloorGenerator");
 var TileSpawner_1 = require("./TileSpawner");
-var Dice_1 = require("../Random/Dice");
+var Random_1 = require("../Random/Random");
 var MAX_DUNGEON_DEPTH = 100;
 exports.MAX_DUNGEON_DEPTH = MAX_DUNGEON_DEPTH;
 var DungeonGenerator = /** @class */ (function () {
@@ -25385,7 +25385,7 @@ var DungeonGenerator = /** @class */ (function () {
         for (var key in options) {
             this[key] = options[key];
         }
-        this.maxDepth = Dice_1.clamp(options.depth, 1, DungeonGenerator.MAX_DUNGEON_DEPTH);
+        this.maxDepth = Random_1.clamp(options.depth, 1, DungeonGenerator.MAX_DUNGEON_DEPTH);
         this.floorGenerator = new FloorGenerator_1.FloorGenerator({});
         this.tileSpawner = new TileSpawner_1.TileSpawner();
     }
@@ -25462,7 +25462,7 @@ var DungeonGenerator = /** @class */ (function () {
 }());
 exports.DungeonGenerator = DungeonGenerator;
 
-},{"../Random/Dice":36,"./FloorGenerator":28,"./TileSpawner":34}],26:[function(require,module,exports){
+},{"../Random/Random":39,"./FloorGenerator":28,"./TileSpawner":34}],26:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Lorlerach_1 = require("./Regions/Lorlerach");
@@ -25476,7 +25476,7 @@ exports.__esModule = true;
 var Tile_1 = require("../Map/Tile");
 var Room_1 = require("./Room");
 var Corridor_1 = require("./Corridor");
-var Dice_1 = require("../Random/Dice");
+var Random_1 = require("../Random/Random");
 var Game_1 = require("../Game");
 var Vector_1 = require("../Vector");
 var roman_numeral_1 = require("roman-numeral");
@@ -25495,7 +25495,7 @@ var Floor = /** @class */ (function () {
         this.generateName();
         this.rooms = [];
         this.corridors = [];
-        var numRooms = Dice_1.randomIntR(this.numRoomsRange);
+        var numRooms = Random_1.randomIntR(this.numRoomsRange);
         var numCorridors = numRooms - 1;
         this.rooms.push(new Room_1.Room());
         this.corridors.push(new Corridor_1.Corridor());
@@ -25516,12 +25516,12 @@ var Floor = /** @class */ (function () {
         this.setWalls();
         this.setDoorTiles();
         // This cuts of "extra" void tiles around the map
-        this.trimFloor();
+        //this.trimFloor();
         // Make sure to call placement of items with a pos after trim so the positions are correct
         this.spawnEnemies();
         this.setStaircaseTiles();
         if (this.floorPersistance && this.floorPersistance.persistance) {
-            this.willPersistFor = Dice_1.randomIntR(this.floorPersistance.persistance);
+            this.willPersistFor = Random_1.randomIntR(this.floorPersistance.persistance);
             this.floorPersistance.startIndex = this.depth;
         }
     };
@@ -25544,7 +25544,7 @@ var Floor = /** @class */ (function () {
                 for (var col = 0; col < room.roomWidth; col++) {
                     var x = room.pos.x + col;
                     p_row[x] = Game_1["default"].instance.dungeonGenerator.tileSpawner.getTile({
-                        depth: _this.depth,
+                        region: _this.regionName,
                         isPassible: true,
                         type: Tile_1.TileTypes.FLOOR
                     });
@@ -25575,7 +25575,7 @@ var Floor = /** @class */ (function () {
                 // in bounds, right?
                 if (_this.inBounds(_this.floorWidth, _this.floorHeight, new Vector_1["default"](x, y))) {
                     _this.tiles[y][x] = Game_1["default"].instance.dungeonGenerator.tileSpawner.getTile({
-                        depth: _this.depth,
+                        region: _this.regionName,
                         isPassible: true,
                         type: Tile_1.TileTypes.FLOOR
                     });
@@ -25600,19 +25600,19 @@ var Floor = /** @class */ (function () {
         var startingRoom = this.rooms[0];
         var startingPosition = this.getRandomPointInRoom(startingRoom);
         // Don't set staircases near the edge of rooms.
-        Dice_1.clamp(startingPosition.x, startingRoom.pos.x + 1, startingRoom.pos.x + startingRoom.roomWidth - 2);
-        Dice_1.clamp(startingPosition.y, startingRoom.pos.y + 1, startingRoom.pos.y + startingRoom.roomHeight - 2);
+        Random_1.clamp(startingPosition.x, startingRoom.pos.x + 1, startingRoom.pos.x + startingRoom.roomWidth - 2);
+        Random_1.clamp(startingPosition.y, startingRoom.pos.y + 1, startingRoom.pos.y + startingRoom.roomHeight - 2);
         this.tiles[startingPosition.y][startingPosition.x] = Game_1["default"].instance.dungeonGenerator.tileSpawner.getTile({
             type: Tile_1.TileTypes.FLOOR_UP
         });
         this.floorStart = startingPosition;
         if (this.depth !== Game_1["default"].instance.dungeonGenerator.maxDepth - 1) {
             // @TODO hard-coded? maybe the location of ending staircase should depend on floor options
-            var endingRoom = this.rooms[Dice_1.randomInt(this.rooms.length - 3, this.rooms.length - 1)];
+            var endingRoom = this.rooms[Random_1.randomInt(this.rooms.length - 3, this.rooms.length - 1)];
             var endingPosition = this.getRandomPointInRoom(endingRoom);
             // Don't set staircases near the edge of rooms.
-            Dice_1.clamp(endingPosition.x, endingRoom.pos.x + 1, endingRoom.pos.x + endingRoom.roomWidth - 2);
-            Dice_1.clamp(endingPosition.y, endingRoom.pos.y + 1, endingRoom.pos.y + endingRoom.roomHeight - 2);
+            Random_1.clamp(endingPosition.x, endingRoom.pos.x + 1, endingRoom.pos.x + endingRoom.roomWidth - 2);
+            Random_1.clamp(endingPosition.y, endingRoom.pos.y + 1, endingRoom.pos.y + endingRoom.roomHeight - 2);
             this.tiles[endingPosition.y][endingPosition.x] = Game_1["default"].instance.dungeonGenerator.tileSpawner.getTile({
                 type: Tile_1.TileTypes.FLOOR_DOWN
             });
@@ -25621,6 +25621,9 @@ var Floor = /** @class */ (function () {
     Floor.prototype.setWalls = function () {
         var _this = this;
         var tileSpawner = Game_1["default"].instance.dungeonGenerator.tileSpawner;
+        var region = this.regionName;
+        var isPassible = false;
+        var type = Tile_1.TileTypes.WALL;
         this.rooms.forEach(function (room) {
             var y;
             var x;
@@ -25631,11 +25634,7 @@ var Floor = /** @class */ (function () {
                 x = room.pos.x - 1;
                 y = room.pos.y + row;
                 if (_this.tiles[y] && _this.tiles[y][x] && _this.tiles[y][x].type === Tile_1.TileTypes.VOID) {
-                    _this.tiles[y][x] = tileSpawner.getTile({
-                        depth: _this.depth,
-                        isPassible: false,
-                        type: Tile_1.TileTypes.WALL
-                    });
+                    _this.tiles[y][x] = tileSpawner.getTile({ region: region, isPassible: isPassible, type: type });
                 }
             }
             // North wall
@@ -25643,11 +25642,7 @@ var Floor = /** @class */ (function () {
                 x = room.pos.x + col;
                 y = room.pos.y - 1;
                 if (_this.tiles[y] && _this.tiles[y][x] && _this.tiles[y][x].type === Tile_1.TileTypes.VOID) {
-                    _this.tiles[y][x] = tileSpawner.getTile({
-                        depth: _this.depth,
-                        isPassible: false,
-                        type: Tile_1.TileTypes.WALL
-                    });
+                    _this.tiles[y][x] = tileSpawner.getTile({ region: region, isPassible: isPassible, type: type });
                 }
             }
             // East wall
@@ -25655,11 +25650,7 @@ var Floor = /** @class */ (function () {
                 x = room.pos.x + room.roomWidth;
                 y = room.pos.y + row;
                 if (_this.tiles[y] && _this.tiles[y][x] && _this.tiles[y][x].type === Tile_1.TileTypes.VOID) {
-                    _this.tiles[y][x] = tileSpawner.getTile({
-                        depth: _this.depth,
-                        isPassible: false,
-                        type: Tile_1.TileTypes.WALL
-                    });
+                    _this.tiles[y][x] = tileSpawner.getTile({ region: region, isPassible: isPassible, type: type });
                 }
             }
             // South wall
@@ -25667,11 +25658,7 @@ var Floor = /** @class */ (function () {
                 x = room.pos.x + col;
                 y = room.pos.y + room.roomHeight;
                 if (_this.tiles[y] && _this.tiles[y][x] && _this.tiles[y][x].type === Tile_1.TileTypes.VOID) {
-                    _this.tiles[y][x] = tileSpawner.getTile({
-                        depth: _this.depth,
-                        isPassible: false,
-                        type: Tile_1.TileTypes.WALL
-                    });
+                    _this.tiles[y][x] = tileSpawner.getTile({ region: region, isPassible: isPassible, type: type });
                 }
             }
         });
@@ -25688,18 +25675,10 @@ var Floor = /** @class */ (function () {
                         west = x - 1;
                         east = x + 1;
                         if (_this.tiles[y] && _this.tiles[y][west] && _this.tiles[y][west].type === Tile_1.TileTypes.VOID) {
-                            _this.tiles[y][west] = tileSpawner.getTile({
-                                depth: _this.depth,
-                                isPassible: false,
-                                type: Tile_1.TileTypes.WALL
-                            });
+                            _this.tiles[y][west] = tileSpawner.getTile({ region: region, isPassible: isPassible, type: type });
                         }
                         if (_this.tiles[y] && _this.tiles[y][east] && _this.tiles[y][east].type === Tile_1.TileTypes.VOID) {
-                            _this.tiles[y][east] = tileSpawner.getTile({
-                                depth: _this.depth,
-                                isPassible: false,
-                                type: Tile_1.TileTypes.WALL
-                            });
+                            _this.tiles[y][east] = tileSpawner.getTile({ region: region, isPassible: isPassible, type: type });
                         }
                         break;
                     case Corridor_1.Direction.East:
@@ -25707,18 +25686,10 @@ var Floor = /** @class */ (function () {
                         north = y - 1;
                         south = y + 1;
                         if (_this.tiles[north] && _this.tiles[north][x] && _this.tiles[north][x].type === Tile_1.TileTypes.VOID) {
-                            _this.tiles[north][x] = tileSpawner.getTile({
-                                depth: _this.depth,
-                                isPassible: false,
-                                type: Tile_1.TileTypes.WALL
-                            });
+                            _this.tiles[north][x] = tileSpawner.getTile({ region: region, isPassible: isPassible, type: type });
                         }
                         if (_this.tiles[south] && _this.tiles[south][x] && _this.tiles[south][x].type === Tile_1.TileTypes.VOID) {
-                            _this.tiles[south][x] = tileSpawner.getTile({
-                                depth: _this.depth,
-                                isPassible: false,
-                                type: Tile_1.TileTypes.WALL
-                            });
+                            _this.tiles[south][x] = tileSpawner.getTile({ region: region, isPassible: isPassible, type: type });
                         }
                         break;
                     case Corridor_1.Direction.South:
@@ -25726,18 +25697,10 @@ var Floor = /** @class */ (function () {
                         west = x - 1;
                         east = x + 1;
                         if (_this.tiles[y] && _this.tiles[y][west] && _this.tiles[y][west].type === Tile_1.TileTypes.VOID) {
-                            _this.tiles[y][west] = tileSpawner.getTile({
-                                depth: _this.depth,
-                                isPassible: false,
-                                type: Tile_1.TileTypes.WALL
-                            });
+                            _this.tiles[y][west] = tileSpawner.getTile({ region: region, isPassible: isPassible, type: type });
                         }
                         if (_this.tiles[y] && _this.tiles[y][east] && _this.tiles[y][east].type === Tile_1.TileTypes.VOID) {
-                            _this.tiles[y][east] = tileSpawner.getTile({
-                                depth: _this.depth,
-                                isPassible: false,
-                                type: Tile_1.TileTypes.WALL
-                            });
+                            _this.tiles[y][east] = tileSpawner.getTile({ region: region, isPassible: isPassible, type: type });
                         }
                         break;
                     case Corridor_1.Direction.West:
@@ -25745,18 +25708,10 @@ var Floor = /** @class */ (function () {
                         north = y - 1;
                         south = y + 1;
                         if (_this.tiles[north] && _this.tiles[north][x] && _this.tiles[north][x].type === Tile_1.TileTypes.VOID) {
-                            _this.tiles[north][x] = tileSpawner.getTile({
-                                depth: _this.depth,
-                                isPassible: false,
-                                type: Tile_1.TileTypes.WALL
-                            });
+                            _this.tiles[north][x] = tileSpawner.getTile({ region: region, isPassible: isPassible, type: type });
                         }
                         if (_this.tiles[south] && _this.tiles[south][x] && _this.tiles[south][x].type === Tile_1.TileTypes.VOID) {
-                            _this.tiles[south][x] = tileSpawner.getTile({
-                                depth: _this.depth,
-                                isPassible: false,
-                                type: Tile_1.TileTypes.WALL
-                            });
+                            _this.tiles[south][x] = tileSpawner.getTile({ region: region, isPassible: isPassible, type: type });
                         }
                         break;
                 }
@@ -25782,11 +25737,11 @@ var Floor = /** @class */ (function () {
             (this.tiles[y][x + 1] && this.tiles[y][x + 1].type === Tile_1.TileTypes.FLOOR));
     };
     Floor.prototype.getRandomPointInRoom = function (room) {
-        var x = Dice_1.randomInt(room.pos.x, room.roomWidth + room.pos.x);
-        var y = Dice_1.randomInt(room.pos.y, room.roomHeight + room.pos.y);
+        var x = Random_1.randomInt(room.pos.x, room.roomWidth + room.pos.x);
+        var y = Random_1.randomInt(room.pos.y, room.roomHeight + room.pos.y);
         // Just fucking clamp to the bounds of the map
         console.log(this.floorHeight);
-        return new Vector_1["default"](Dice_1.clamp(x, 0, this.floorWidth - 1), Dice_1.clamp(y, 0, this.floorHeight - 1));
+        return new Vector_1["default"](Random_1.clamp(x, 0, this.floorWidth - 1), Random_1.clamp(y, 0, this.floorHeight - 1));
     };
     Floor.prototype.inBounds = function (width, height, v) {
         return v.x >= 0 &&
@@ -25811,7 +25766,7 @@ var Floor = /** @class */ (function () {
         var enemySpawner = Game_1["default"].instance.enemySpawner;
         var currentCR = 0;
         while (currentCR < this.maxCR) {
-            var e = enemySpawner.createEnemyByCr(Dice_1.randomIntR(this.floorCRRange), null, this.regionName);
+            var e = enemySpawner.createEnemyByCr(Random_1.randomIntR(this.floorCRRange), null, this.regionName);
             currentCR += e.cr;
             // If the enemy can't be placed, don't place it
             if (this.placeEnemyOnMap(e)) {
@@ -25827,7 +25782,7 @@ var Floor = /** @class */ (function () {
         // @TODO maybe make this smarter
         var tries = 5;
         var placementRange = new RRange_1.RRange(1, this.rooms.length - 1);
-        var possiblePosition = this.getRandomPointInRoom(this.rooms[Dice_1.randomIntR(placementRange)]);
+        var possiblePosition = this.getRandomPointInRoom(this.rooms[Random_1.randomIntR(placementRange)]);
         console.log(possiblePosition);
         while (tries) {
             var x = possiblePosition.x, y = possiblePosition.y;
@@ -25842,7 +25797,7 @@ var Floor = /** @class */ (function () {
         return false;
     };
     Floor.prototype.getFormattedName = function () {
-        return "\n      " + this.name + (this.nameInSequence ? " - " + roman_numeral_1.convert(this.nameInSequence) : '') + " of " + this.regionName + " - " + this.depth + "\n    ";
+        return "\n      " + this.name + (this.nameInSequence ? " - " + roman_numeral_1.convert(this.nameInSequence) : '') + " of " + this.regionName + " <br> Depth " + this.depth + "\n    ";
     };
     Floor.prototype.isOccupied = function (pos) {
         var x = pos.x, y = pos.y;
@@ -25902,10 +25857,10 @@ var Floor = /** @class */ (function () {
 }());
 exports.Floor = Floor;
 
-},{"../Game":22,"../Map/Tile":33,"../Random/Dice":36,"../Random/RRange":38,"../Vector":46,"./Corridor":24,"./Room":31,"roman-numeral":9}],28:[function(require,module,exports){
+},{"../Game":22,"../Map/Tile":33,"../Random/RRange":38,"../Random/Random":39,"../Vector":47,"./Corridor":24,"./Room":31,"roman-numeral":9}],28:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-var Dice_1 = require("../Random/Dice");
+var Random_1 = require("../Random/Random");
 var Floor_1 = require("./Floor");
 var Game_1 = require("../Game");
 var Floor_data_1 = require("./Floor.data");
@@ -25923,7 +25878,7 @@ var FloorGenerator = /** @class */ (function () {
             }
             return allowed;
         });
-        return new Floor_1.Floor(Dice_1.pluck(possibleFloors));
+        return new Floor_1.Floor(Random_1.pluck(possibleFloors));
     };
     /**
      * Generates similar persistance floor
@@ -25956,11 +25911,14 @@ var FloorGenerator = /** @class */ (function () {
 }());
 exports.FloorGenerator = FloorGenerator;
 
-},{"../Game":22,"../Random/Dice":36,"./Floor":27,"./Floor.data":26}],29:[function(require,module,exports){
+},{"../Game":22,"../Random/Random":39,"./Floor":27,"./Floor.data":26}],29:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Regions_1 = require("./Regions");
 var RRange_1 = require("../../Random/RRange");
+var Tile_1 = require("../Tile");
+var Color_1 = require("../../Canvas/Color");
+var MAX_DUNGEON_DEPTH = 100; // @TODO proper import
 var regionData = {
     name: Regions_1.RegionNames.Lorlerach,
     description: "\n    The crypts of Lorlerach quickly descend into lightless tunnels\n    and labyrinthine passageways. The walls of this place are decorated\n    with horrid depictions of skeletal uprisings and apocalyptic\n    raptures where the likes of the living are overthrown by wave\n    after wave of the undead.\n  "
@@ -26023,8 +25981,56 @@ var floorOptions = [
     }
 ];
 exports.floorOptions = floorOptions;
+var tileData = [
+    // Floor
+    {
+        isPassible: true,
+        description: 'Rough hewn wall',
+        char: '.',
+        color: new Color_1.Color({ hex: '#555' }),
+        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+        type: Tile_1.TileTypes.FLOOR
+    },
+    {
+        isPassible: true,
+        description: 'Rough hewn wall',
+        char: '.',
+        color: new Color_1.Color({ hex: '#333' }),
+        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+        type: Tile_1.TileTypes.FLOOR
+    },
+    {
+        isPassible: true,
+        description: 'Rough hewn wall',
+        char: '.',
+        color: new Color_1.Color({ hex: '#444' }),
+        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+        type: Tile_1.TileTypes.FLOOR
+    },
+    // Walls
+    {
+        isPassible: false,
+        description: 'Rough hewn wall',
+        char: '░',
+        color: new Color_1.Color({ hex: '#363636' }),
+        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+        type: Tile_1.TileTypes.WALL
+    },
+    {
+        isPassible: false,
+        description: 'Rough hewn wall',
+        char: '░',
+        color: new Color_1.Color({ hex: '#363535' }),
+        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+        type: Tile_1.TileTypes.WALL
+    }
+];
+exports.tileData = tileData;
+tileData.forEach(function (tile) {
+    tile.region = Regions_1.RegionNames.Lorlerach;
+});
 
-},{"../../Random/RRange":38,"./Regions":30}],30:[function(require,module,exports){
+},{"../../Canvas/Color":11,"../../Random/RRange":38,"../Tile":33,"./Regions":30}],30:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var RegionNames;
@@ -26045,41 +26051,41 @@ exports.RegionNames = RegionNames;
 },{}],31:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-var Dice_1 = require("../Random/Dice");
+var Random_1 = require("../Random/Random");
 var Vector_1 = require("../Vector");
 var Corridor_1 = require("./Corridor");
 var Room = /** @class */ (function () {
     function Room() {
     }
     Room.prototype.initialRoom = function (widthRange, heightRange, columns, rows) {
-        this.roomWidth = Dice_1.randomInt(widthRange.low, widthRange.high);
-        this.roomHeight = Dice_1.randomInt(heightRange.low, heightRange.high);
+        this.roomWidth = Random_1.randomInt(widthRange.low, widthRange.high);
+        this.roomHeight = Random_1.randomInt(heightRange.low, heightRange.high);
         this.pos = new Vector_1["default"](Math.round(columns / 2 - this.roomWidth / 2), Math.round(columns / 2 - this.roomHeight / 2));
     };
     Room.prototype.subsequentRoom = function (widthRange, heightRange, columns, rows, corridor) {
         this.enteringCorridor = corridor.direction;
-        this.roomWidth = Dice_1.randomInt(widthRange.low, widthRange.high);
-        this.roomHeight = Dice_1.randomInt(heightRange.low, heightRange.high);
+        this.roomWidth = Random_1.randomInt(widthRange.low, widthRange.high);
+        this.roomHeight = Random_1.randomInt(heightRange.low, heightRange.high);
         switch (corridor.direction) {
             case Corridor_1.Direction.North:
-                this.roomHeight = Dice_1.clamp(this.roomHeight, 1, rows - corridor.endPosition.y);
-                this.pos = new Vector_1["default"](Dice_1.randomInt(corridor.endPosition.x - this.roomWidth + 1, corridor.endPosition.x), corridor.endPosition.y);
-                this.pos.x = Dice_1.clamp(this.pos.x, 0, columns - this.roomWidth);
+                this.roomHeight = Random_1.clamp(this.roomHeight, 1, rows - corridor.endPosition.y);
+                this.pos = new Vector_1["default"](Random_1.randomInt(corridor.endPosition.x - this.roomWidth + 1, corridor.endPosition.x), corridor.endPosition.y);
+                this.pos.x = Random_1.clamp(this.pos.x, 0, columns - this.roomWidth);
                 break;
             case Corridor_1.Direction.East:
-                this.roomWidth = Dice_1.clamp(this.roomWidth, 1, columns - corridor.endPosition.x);
-                this.pos = new Vector_1["default"](corridor.endPosition.x, Dice_1.randomInt(corridor.endPosition.y - this.roomHeight + 1, corridor.endPosition.y));
-                this.pos.y = Dice_1.clamp(this.pos.y, 0, rows - this.roomHeight);
+                this.roomWidth = Random_1.clamp(this.roomWidth, 1, columns - corridor.endPosition.x);
+                this.pos = new Vector_1["default"](corridor.endPosition.x, Random_1.randomInt(corridor.endPosition.y - this.roomHeight + 1, corridor.endPosition.y));
+                this.pos.y = Random_1.clamp(this.pos.y, 0, rows - this.roomHeight);
                 break;
             case Corridor_1.Direction.South:
-                this.roomHeight = Dice_1.clamp(this.roomHeight, 1, corridor.endPosition.y);
-                this.pos = new Vector_1["default"](Dice_1.randomInt(corridor.endPosition.x - this.roomWidth + 1, corridor.endPosition.x), corridor.endPosition.y - this.roomHeight + 1);
-                this.pos.x = Dice_1.clamp(this.pos.x, 0, columns - this.roomWidth);
+                this.roomHeight = Random_1.clamp(this.roomHeight, 1, corridor.endPosition.y);
+                this.pos = new Vector_1["default"](Random_1.randomInt(corridor.endPosition.x - this.roomWidth + 1, corridor.endPosition.x), corridor.endPosition.y - this.roomHeight + 1);
+                this.pos.x = Random_1.clamp(this.pos.x, 0, columns - this.roomWidth);
                 break;
             case Corridor_1.Direction.West:
-                this.roomWidth = Dice_1.clamp(this.roomWidth, 1, corridor.endPosition.x);
-                this.pos = new Vector_1["default"](corridor.endPosition.x - this.roomWidth + 1, Dice_1.randomInt(corridor.endPosition.y - this.roomHeight + 1, corridor.endPosition.y));
-                this.pos.y = Dice_1.clamp(this.pos.y, 0, rows - this.roomHeight);
+                this.roomWidth = Random_1.clamp(this.roomWidth, 1, corridor.endPosition.x);
+                this.pos = new Vector_1["default"](corridor.endPosition.x - this.roomWidth + 1, Random_1.randomInt(corridor.endPosition.y - this.roomHeight + 1, corridor.endPosition.y));
+                this.pos.y = Random_1.clamp(this.pos.y, 0, rows - this.roomHeight);
                 break;
         }
     };
@@ -26087,12 +26093,14 @@ var Room = /** @class */ (function () {
 }());
 exports.Room = Room;
 
-},{"../Random/Dice":36,"../Vector":46,"./Corridor":24}],32:[function(require,module,exports){
+},{"../Random/Random":39,"../Vector":47,"./Corridor":24}],32:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Tile_1 = require("./Tile");
 var Color_1 = require("../Canvas/Color");
 // @TODO something isn't right here import { MAX_DUNGEON_DEPTH } from './DungeonGenerator';
+var Lorlerach_1 = require("../Map/Regions/Lorlerach");
+var RRange_1 = require("../Random/RRange");
 var MAX_DUNGEON_DEPTH = 100;
 /**
  * It's apparently really important to pass "isPassible" to these . . . need to refactor
@@ -26103,7 +26111,7 @@ var generalTiles = [
         description: 'Hard stone floor',
         char: '.',
         color: new Color_1.Color({ hex: '#333' }),
-        depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
+        depthRange: new RRange_1.RRange(0, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.FLOOR
     },
     {
@@ -26111,7 +26119,7 @@ var generalTiles = [
         description: 'Hard chert floor',
         char: '.',
         color: new Color_1.Color({ hex: '#777' }),
-        depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
+        depthRange: new RRange_1.RRange(0, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.FLOOR
     },
     {
@@ -26119,7 +26127,7 @@ var generalTiles = [
         description: 'Rough hewn floor',
         char: '.',
         color: new Color_1.Color({ html: 'green' }),
-        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+        depthRange: new RRange_1.RRange(5, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.FLOOR
     },
     {
@@ -26127,7 +26135,7 @@ var generalTiles = [
         description: 'Rough magma floor',
         char: '.',
         color: new Color_1.Color({ html: 'orange' }),
-        depthRange: { low: 10, high: MAX_DUNGEON_DEPTH },
+        depthRange: new RRange_1.RRange(10, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.FLOOR
     },
     {
@@ -26135,7 +26143,7 @@ var generalTiles = [
         description: 'Rough hewn wall',
         char: '0',
         color: new Color_1.Color({ html: 'red' }),
-        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+        depthRange: new RRange_1.RRange(5, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.WALL
     },
     {
@@ -26143,7 +26151,7 @@ var generalTiles = [
         description: 'Rough magma wall',
         char: '|',
         color: new Color_1.Color({ html: 'orange' }),
-        depthRange: { low: 10, high: MAX_DUNGEON_DEPTH },
+        depthRange: new RRange_1.RRange(10, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.WALL
     },
     {
@@ -26151,7 +26159,7 @@ var generalTiles = [
         description: 'A wall',
         char: '|',
         color: new Color_1.Color({ html: 'white' }),
-        depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
+        depthRange: new RRange_1.RRange(0, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.WALL
     },
     {
@@ -26159,7 +26167,7 @@ var generalTiles = [
         description: 'A door',
         char: 'D',
         color: new Color_1.Color({ html: 'red' }),
-        depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
+        depthRange: new RRange_1.RRange(0, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.DOOR
     }
 ];
@@ -26169,7 +26177,7 @@ var floorUpDown = [
         description: 'Staircase up',
         char: '<',
         color: new Color_1.Color({ html: 'teal' }),
-        depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
+        depthRange: new RRange_1.RRange(0, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.FLOOR_UP
     },
     {
@@ -26177,7 +26185,7 @@ var floorUpDown = [
         description: 'Staircase down',
         char: '>',
         color: new Color_1.Color({ html: 'teal' }),
-        depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
+        depthRange: new RRange_1.RRange(0, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.FLOOR_DOWN
     }
 ];
@@ -26187,14 +26195,16 @@ var voidTiles = [
         description: 'void',
         char: 'x',
         color: new Color_1.Color({ html: 'black' }),
-        depthRange: { low: 0, high: MAX_DUNGEON_DEPTH },
+        depthRange: new RRange_1.RRange(0, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.VOID
     }
 ];
-var tileData = [].concat(generalTiles, floorUpDown, voidTiles);
+var tileData = [].concat(generalTiles, floorUpDown, voidTiles, 
+// Region tiles
+Lorlerach_1.tileData);
 exports.tileData = tileData;
 
-},{"../Canvas/Color":11,"./Tile":33}],33:[function(require,module,exports){
+},{"../Canvas/Color":11,"../Map/Regions/Lorlerach":29,"../Random/RRange":38,"./Tile":33}],33:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var TileTypes;
@@ -26215,6 +26225,7 @@ var Tile = /** @class */ (function () {
         for (var key in options) {
             this[key] = options[key];
         }
+        console.log(options);
         if (!options.type || !options.char || !options.color) {
             throw 'Error: tile is borked';
         }
@@ -26229,7 +26240,7 @@ exports.Tile = Tile;
 exports.__esModule = true;
 var Tile_1 = require("./Tile");
 var Tile_data_1 = require("./Tile.data");
-var Dice_1 = require("../Random/Dice");
+var Random_1 = require("../Random/Random");
 var TileSpawner = /** @class */ (function () {
     function TileSpawner() {
         this.tileData = Tile_data_1.tileData;
@@ -26253,17 +26264,26 @@ var TileSpawner = /** @class */ (function () {
                     return false;
                 }
             }
+            if (options.region) {
+                if (typeof tile.region == 'undefined' || tile.region !== options.region) {
+                    return false;
+                }
+            }
             return allowed;
         });
-        var tileOptions = Dice_1.pluck(possibleTiles);
-        var tile = new Tile_1.Tile(Dice_1.pluck(possibleTiles));
+        console.log(possibleTiles);
+        if (!possibleTiles.length) {
+            throw new Error('No tile selected? Uh ooh . . .');
+        }
+        var tileOptions = Random_1.pluck(possibleTiles);
+        var tile = new Tile_1.Tile(Random_1.pluck(possibleTiles));
         return tile;
     };
     return TileSpawner;
 }());
 exports.TileSpawner = TileSpawner;
 
-},{"../Random/Dice":36,"./Tile":33,"./Tile.data":32}],35:[function(require,module,exports){
+},{"../Random/Random":39,"./Tile":33,"./Tile.data":32}],35:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Color_1 = require("../Canvas/Color");
@@ -26357,6 +26377,7 @@ exports.Messenger = Messenger;
 },{"../Canvas/Canvas":10,"../Canvas/Color":11}],36:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+var Random_1 = require("./Random");
 var StandardDice;
 (function (StandardDice) {
     StandardDice["d2"] = "d2";
@@ -26368,75 +26389,22 @@ var StandardDice;
     StandardDice["d20"] = "d20";
 })(StandardDice || (StandardDice = {}));
 exports.StandardDice = StandardDice;
-var randomInt = function (min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; };
-exports.randomInt = randomInt;
 var rollDice = function (dice) {
     var roll = 0;
     var _a = dice.split('+'), die = _a[0], bonus = _a[1];
     var _b = die.split('d'), iterations = _b[0], range = _b[1];
     for (var i = 0; i < (iterations ? Number(iterations) : 1); i++) {
-        roll += randomInt(1, range);
+        roll += Random_1.randomInt(1, range);
     }
     return roll + (bonus ? Number(bonus) : 0);
 };
 exports.rollDice = rollDice;
-var pluck = function (arr) {
-    return arr[randomInt(0, arr.length - 1)];
-};
-exports.pluck = pluck;
-var clamp = function (value, low, high) {
-    if (value < low) {
-        return low;
-    }
-    if (value > high) {
-        return high;
-    }
-    return value;
-};
-exports.clamp = clamp;
-var weightedPluck = function (arr) {
-    var scalars = {};
-    var items = [].concat(arr);
-    var scaleMax = 0;
-    var min = 1;
-    var max = 1;
-    items.forEach(function (el, i) {
-        if (el.match(/\^/g)) {
-            var _a = el.split('^'), str = _a[0], scalar_1 = _a[1];
-            scalars[i] = Number(scalar_1);
-            items[i] = str;
-        }
-        var scalar = scalars[i];
-        min = scalar < min ? scalar : min;
-        max = scalar > max ? scalar : max;
-    });
-    var scale = max / min;
-    items.forEach(function (el, i) {
-        scaleMax += scale * (scalars[i] ? scalars[i] : 1);
-    });
-    var weightedSelection;
-    var currentIndex = 0;
-    var atIndex = randomInt(0, scaleMax);
-    for (var i = 0; i < items.length; i++) {
-        currentIndex += scale * (scalars[i] ? scalars[i] : 1);
-        if (atIndex <= currentIndex) {
-            weightedSelection = items[i];
-            break;
-        }
-    }
-    return weightedSelection;
-};
-exports.weightedPluck = weightedPluck;
-var randomIntR = function (range) {
-    return randomInt(range.low, range.high);
-};
-exports.randomIntR = randomIntR;
 
-},{}],37:[function(require,module,exports){
+},{"./Random":39}],37:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var language_data_1 = require("./language.data");
-var Dice_1 = require("./Dice");
+var Random_1 = require("./Random");
 var Prop_data_1 = require("../Entity/Prop/Prop.data");
 var Legendary = /** @class */ (function () {
     function Legendary() {
@@ -26465,7 +26433,7 @@ var Legendary = /** @class */ (function () {
                     weighted = true;
                 }
             });
-            selection = weighted ? Dice_1.weightedPluck(results) : Dice_1.pluck(results);
+            selection = weighted ? Random_1.weightedPluck(results) : Random_1.pluck(results);
         });
         return selection;
     };
@@ -26518,7 +26486,7 @@ var Legendary = /** @class */ (function () {
                 }
                 var _a;
             });
-            source = source.replace(listGroup, weighted ? Dice_1.weightedPluck(results) : Dice_1.pluck(results));
+            source = source.replace(listGroup, weighted ? Random_1.weightedPluck(results) : Random_1.pluck(results));
         });
         return source;
     };
@@ -26534,7 +26502,7 @@ var Legendary = /** @class */ (function () {
                     weighted = true;
                 }
             });
-            source = source.replace(listGroup, weighted ? Dice_1.weightedPluck(results) : Dice_1.pluck(results));
+            source = source.replace(listGroup, weighted ? Random_1.weightedPluck(results) : Random_1.pluck(results));
         });
         return source;
     };
@@ -26569,7 +26537,7 @@ var Legendary = /** @class */ (function () {
             }
         };
         diveIn(ref);
-        return Dice_1.pluck(selections);
+        return Random_1.pluck(selections);
     };
     /**
      * Recursively unfurl and object
@@ -26608,13 +26576,13 @@ var Legendary = /** @class */ (function () {
             }
         };
         diveIn(ref);
-        return Dice_1.pluck(selections);
+        return Random_1.pluck(selections);
     };
     return Legendary;
 }());
 exports.Legendary = Legendary;
 
-},{"../Entity/Prop/Prop.data":19,"./Dice":36,"./language.data":39}],38:[function(require,module,exports){
+},{"../Entity/Prop/Prop.data":19,"./Random":39,"./language.data":40}],38:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var RRange = /** @class */ (function () {
@@ -26630,6 +26598,63 @@ var RRange = /** @class */ (function () {
 exports.RRange = RRange;
 
 },{}],39:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var pluck = function (arr) {
+    return arr[randomInt(0, arr.length - 1)];
+};
+exports.pluck = pluck;
+var weightedPluck = function (arr) {
+    var scalars = {};
+    var items = [].concat(arr);
+    var scaleMax = 0;
+    var min = 1;
+    var max = 1;
+    items.forEach(function (el, i) {
+        if (el.match(/\^/g)) {
+            var _a = el.split('^'), str = _a[0], scalar_1 = _a[1];
+            scalars[i] = Number(scalar_1);
+            items[i] = str;
+        }
+        var scalar = scalars[i];
+        min = scalar < min ? scalar : min;
+        max = scalar > max ? scalar : max;
+    });
+    var scale = max / min;
+    items.forEach(function (el, i) {
+        scaleMax += scale * (scalars[i] ? scalars[i] : 1);
+    });
+    var weightedSelection;
+    var currentIndex = 0;
+    var atIndex = randomInt(0, scaleMax);
+    for (var i = 0; i < items.length; i++) {
+        currentIndex += scale * (scalars[i] ? scalars[i] : 1);
+        if (atIndex <= currentIndex) {
+            weightedSelection = items[i];
+            break;
+        }
+    }
+    return weightedSelection;
+};
+exports.weightedPluck = weightedPluck;
+var randomInt = function (min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; };
+exports.randomInt = randomInt;
+var randomIntR = function (range) {
+    return randomInt(range.low, range.high);
+};
+exports.randomIntR = randomIntR;
+var clamp = function (value, low, high) {
+    if (value < low) {
+        return low;
+    }
+    if (value > high) {
+        return high;
+    }
+    return value;
+};
+exports.clamp = clamp;
+
+},{}],40:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var LegendaryData = {
@@ -26652,7 +26677,7 @@ var LegendaryData = {
 };
 exports.LegendaryData = LegendaryData;
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26708,7 +26733,7 @@ var CommandScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = CommandScreen;
 
-},{"../Canvas/Canvas":10,"../Entity/Actor/Player":17,"./MapScreen":43,"./Screen":44,"lodash":7}],41:[function(require,module,exports){
+},{"../Canvas/Canvas":10,"../Entity/Actor/Player":17,"./MapScreen":44,"./Screen":45,"lodash":7}],42:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26762,7 +26787,7 @@ var InventoryItemScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryItemScreen;
 
-},{"./Screen":44,"lodash":7}],42:[function(require,module,exports){
+},{"./Screen":45,"lodash":7}],43:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26813,7 +26838,7 @@ var InventoryScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Color":11,"../Entity/Actor/Player":17,"./Screen":44}],43:[function(require,module,exports){
+},{"../Canvas/Color":11,"../Entity/Actor/Player":17,"./Screen":45}],44:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -27021,7 +27046,7 @@ var MapScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = MapScreen;
 
-},{"../Canvas/Color":11,"../Game":22,"../Map/Tile":33,"../Vector":46,"./Screen":44,"roman-numeral":9}],44:[function(require,module,exports){
+},{"../Canvas/Color":11,"../Game":22,"../Map/Tile":33,"../Vector":47,"./Screen":45,"roman-numeral":9}],45:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Message_1 = require("../Message/Message");
@@ -27073,7 +27098,7 @@ var Screen = /** @class */ (function () {
 }());
 exports.Screen = Screen;
 
-},{"../Message/Message":35}],45:[function(require,module,exports){
+},{"../Message/Message":35}],46:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("../Game");
@@ -27092,7 +27117,7 @@ var StatusMenu = /** @class */ (function () {
 }());
 exports.StatusMenu = StatusMenu;
 
-},{"../Game":22}],46:[function(require,module,exports){
+},{"../Game":22}],47:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Vector2 = /** @class */ (function () {
@@ -27111,7 +27136,7 @@ var Vector2 = /** @class */ (function () {
 }());
 exports["default"] = Vector2;
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("./Game");
@@ -27244,7 +27269,7 @@ window.onload = function () {
     window.game = g;
 };
 
-},{"./Canvas/Color":11,"./Entity/Actor/Player":17,"./Entity/Prop/Armor":18,"./Entity/Prop/Prop.data":19,"./Entity/Prop/Weapon":21,"./Game":22,"./Random/Dice":36,"./Screen/CommandScreen":40,"./Screen/InventoryItemScreen":41,"./Screen/InventoryScreen":42,"./Screen/MapScreen":43,"./Screen/Screen":44,"./Vector":46}],48:[function(require,module,exports){
+},{"./Canvas/Color":11,"./Entity/Actor/Player":17,"./Entity/Prop/Armor":18,"./Entity/Prop/Prop.data":19,"./Entity/Prop/Weapon":21,"./Game":22,"./Random/Dice":36,"./Screen/CommandScreen":41,"./Screen/InventoryItemScreen":42,"./Screen/InventoryScreen":43,"./Screen/MapScreen":44,"./Screen/Screen":45,"./Vector":47}],49:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -27430,4 +27455,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},[47]);
+},{}]},{},[48]);

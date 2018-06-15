@@ -1,6 +1,6 @@
 import { FloorGenerator, FloorGeneratorOptions } from './FloorGenerator';
 import { TileSpawner } from './TileSpawner';
-import { clamp } from '../Random/Dice';
+import { clamp } from '../Random/Random';
 import { Floor } from './Floor';
 import { convert } from 'roman-numeral';
 import { TileTypes } from './Tile';

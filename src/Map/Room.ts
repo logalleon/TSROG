@@ -1,6 +1,7 @@
-import { randomInt, Range, clamp } from '../Random/Dice';
+import { randomInt, clamp } from '../Random/Random';
 import Vector2 from '../Vector';
 import { Corridor, Direction } from './Corridor';
+import { RRange } from '../Random/RRange';
 
 class Room {
 
@@ -15,8 +16,8 @@ class Room {
   }
 
   initialRoom (
-      widthRange: Range,
-      heightRange: Range,
+      widthRange: RRange,
+      heightRange: RRange,
       columns: number,
       rows: number) {
     this.roomWidth = randomInt(widthRange.low, widthRange.high);
@@ -29,8 +30,8 @@ class Room {
   }
 
   subsequentRoom (
-    widthRange: Range,
-    heightRange: Range,
+    widthRange: RRange,
+    heightRange: RRange,
     columns: number,
     rows: number,
     corridor: Corridor

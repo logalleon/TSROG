@@ -24,7 +24,7 @@ class TileSpawner {
   getTile(options: TileRequestOptions): Tile {
     const possibleTiles = this.tileData.filter((tile) => {
       const allowed = true;
-      if (typeof options.depth !== 'undefined') {
+      if (typeof options.depth !== 'undefined' && tile.depthRange) {
         if (tile.depthRange.low > options.depth || tile.depthRange.high < options.depth) {
           return false;
         }
@@ -46,7 +46,6 @@ class TileSpawner {
       }
       return allowed;
     });
-    console.log(possibleTiles);
     if (!possibleTiles.length) {
       throw new Error('No tile selected? Uh ooh . . .');
     }

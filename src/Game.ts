@@ -72,7 +72,7 @@ class Game {
     this.enemySpawner = new EnemySpawner();
 
     this.dungeonGenerator = new DungeonGenerator(<DungeonOptions>{
-      depth: 15
+      depth: 8
     });
 
     this.effects = new Effects(<HTMLDivElement>document.getElementById('transition-wrapper'));
@@ -82,7 +82,7 @@ class Game {
     this.statusMenu.render();
 
     // Debug
-    //this.dungeonGenerator.debugAndGenerateAllFloors();
+    this.dungeonGenerator.debugAndGenerateAllFloors();
     this.dungeonGenerator.generateNewFloor();
     this.currentFloor = this.dungeonGenerator.floors[0];
     this.initializeEasyStar();

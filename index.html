@@ -11,13 +11,16 @@
   <h1>TSROG</h1>
   <div id="wrapper">
     <p id="messages"></p>
-    <div id="main-window"></div>
+    <div id="main-window">
+      <div id="title"></div>
+      <div id="tilemap"></div>
+    </div>
   </div>
   <div id="status-menu">
 
   </div>
   <h2 id="bottomMessage">Press '?' for command list.</h2>
-  <!-- <p style="color: white; font-size: 10px; cursor: pointer;" id="tiles"></p> -->
+  <p style="color: white; font-size: 10px; cursor: pointer;" id="tiles"></p>
   <div style="display: none;" id="transition-wrapper"></div>
 </body>
 <script src="index.js"></script>
@@ -44,6 +47,16 @@
     width: 70%;
   }
   #main-window {
+    overflow: hidden;
+  }
+  #main-window #title {
+    margin-bottom: 1rem;
+  }
+  #main-window #tilemap {
+    height: 500px;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
   }
   body {
     background-color: darkgray;
@@ -61,7 +74,7 @@
     background: black;
     box-sizing: border-box;
   }
-  h2 {
+  #bottom-message {
     box-sizing: border-box;
     font-size: 1rem;
     height: 5vh;
@@ -112,6 +125,7 @@
   .fade {
     transition: .5s;
     opacity: 0;
+    z-index: -10;
   }
   #status-menu {
     color: white;

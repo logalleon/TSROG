@@ -41,8 +41,10 @@ class FloorGenerator {
     // If the floorPersistance just has and index value, it's part of a prior series
     const { floors } = Game.instance.dungeonGenerator;
     const startingFloor = floors[startIndex];
-    const similarFloor = new Floor(<FloorOptions>{
+    const similarFloor = new Floor({
       maxCR: startingFloor.maxCR,
+      floorCRRange: startingFloor.floorCRRange,
+      depthRange: startingFloor.depthRange,
       variantEnemiesRange: startingFloor.variantEnemiesRange,
       roomHeightRange: startingFloor.roomHeightRange,
       roomWidthRange: startingFloor.roomWidthRange,
@@ -54,9 +56,8 @@ class FloorGenerator {
       name: startingFloor.name,
       regionName: startingFloor.regionName
     });
-    similarFloor.floorPersistance = <FloorPersistance>{
-      startIndex
-    };
+    const persistance: FloorPersistance = { startIndex };
+    similarFloor.floorPersistance = persistance;
     similarFloor.depth = depth;
     return similarFloor;
   }

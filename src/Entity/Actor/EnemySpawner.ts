@@ -1,7 +1,9 @@
-import { Enemy, IEnemyType, EnemyOptions } from '../Actor/Enemy';
+import { Enemy, EnemyOptions } from '../Actor/Enemy';
 import { baseEnemies, CreatureTypes, Variation } from './Enemy.data';
 import { randomInt, pluck } from '../../Random/Random';
 import { RegionNames } from '../../Map/Regions/Regions';
+
+import { enemyOptions as LEO } from '../../Map/Regions/Lorlerach';
 
 interface EnemyHashMap {
   [key: string]: EnemyOptions[]
@@ -16,7 +18,10 @@ class EnemySpawner {
 
   constructor () {
     // this.baseEnemies = this.loadEnemies();
-    this.baseEnemies = baseEnemies;
+    this.baseEnemies = [].concat(
+      baseEnemies,
+      LEO
+    );
     this.generateEnemyHashMaps();
   }
 
@@ -24,14 +29,14 @@ class EnemySpawner {
     this.enemiesByCR = {};
     this.enemiesByCreatureType = {};
     this.baseEnemies.forEach((enemy) => {
-      const { cr, enemyType } = enemy;
-      const { creatureType } = enemyType;
+      const { cr, creatureType } = enemy;
       this.enemiesByCR[cr] ? 
         this.enemiesByCR[cr].push(enemy) :
         this.enemiesByCR[cr] = [enemy];
-      this.enemiesByCreatureType[creatureType] ?
-        this.enemiesByCreatureType[creatureType].push(enemy) :
-        this.enemiesByCreatureType[creatureType] = [enemy];
+      const ct: string = Array.isArray(creatureType) ? creatureType[0] : creatureType;
+      this.enemiesByCreatureType[ct] ?
+        this.enemiesByCreatureType[ct].push(enemy) :
+        this.enemiesByCreatureType[ct] = [enemy];
     });
   }
 

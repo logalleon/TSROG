@@ -599,7 +599,7 @@ module.exports = function(parent, x, y, costSoFar, simpleDistanceToTarget) {
     }
 };
 },{}],4:[function(require,module,exports){
-(function (process,global){
+(function (process,global,setImmediate){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -6223,8 +6223,8 @@ module.exports = ret;
 
 },{"./es5":13}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":49}],5:[function(require,module,exports){
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
+},{"_process":49,"timers":50}],5:[function(require,module,exports){
 module.exports = require('./lib/heap');
 
 },{"./lib/heap":6}],6:[function(require,module,exports){
@@ -23958,92 +23958,36 @@ var defaultVariations = (_a = {},
     },
     _a);
 exports.defaultVariations = defaultVariations;
-var baseEnemies = [
-    {
-        name: 'Salamander',
-        cr: 1,
-        xp: 25,
-        enemyType: {
-            creatureType: BEAST,
-            variant: null,
-            descriptor: 'Frozen'
-        },
-        actorOptions: {
-            color: Color_1.Colors.INDIGO,
-            hp: 6,
-            ac: 7,
-            char: 'S',
-            damage: Dice_1.StandardDice.d2
-        }
-    },
-    {
-        name: 'Iguana',
-        cr: 1,
-        xp: 25,
-        enemyType: {
-            creatureType: BEAST,
-            variant: null,
-            descriptor: 'Lurid'
-        },
-        actorOptions: {
-            color: Color_1.Colors.RED,
-            hp: 6,
-            ac: 7,
-            char: 'l',
-            damage: Dice_1.StandardDice.d2
-        }
-    },
-    {
-        name: 'Fierce Iguana',
-        cr: 2,
-        xp: 25,
-        enemyType: {
-            creatureType: BEAST,
-            variant: null,
-            descriptor: 'Lurid'
-        },
-        actorOptions: {
-            color: new Color_1.Color({ html: 'indigo' }),
-            hp: 6,
-            ac: 7,
-            char: 'L',
-            damage: Dice_1.StandardDice.d2
-        }
-    },
-    {
-        name: 'Skeleton',
-        cr: 1,
-        xp: 40,
-        enemyType: {
-            creatureType: UNDEAD,
-            variant: null,
-            descriptor: ''
-        },
-        actorOptions: {
-            color: Color_1.Colors.GREEN,
-            hp: 5,
-            ac: 6,
-            char: 'k',
-            damage: Dice_1.StandardDice.d2
-        }
-    },
-    {
-        name: 'Zombie',
-        cr: 1,
-        xp: 30,
-        enemyType: {
-            creatureType: UNDEAD,
-            variant: null,
-            descriptor: ''
-        },
-        actorOptions: {
-            color: Color_1.Colors.ORANGE,
-            hp: 6,
-            ac: 6,
-            char: 'ø',
-            damage: Dice_1.StandardDice.d2
-        }
+// Base enemies
+var zombie = {
+    name: 'Zombie',
+    cr: 1,
+    xp: 30,
+    creatureType: UNDEAD,
+    actorOptions: {
+        color: Color_1.Colors.RED,
+        hp: 6,
+        ac: 6,
+        char: 'z',
+        damage: Dice_1.StandardDice.d2
     }
+};
+var skeleton = {
+    name: 'Skeleton',
+    cr: 1,
+    xp: 40,
+    creatureType: UNDEAD,
+    actorOptions: {
+        color: new Color_1.Color({ hex: '#ab7799' }),
+        hp: 5,
+        ac: 6,
+        char: 's',
+        damage: Dice_1.StandardDice.d2
+    }
+};
+var baseEnemies = [
+    zombie,
+    skeleton
 ];
 exports.baseEnemies = baseEnemies;
 var _a;
@@ -24159,7 +24103,7 @@ var Enemy = /** @class */ (function (_super) {
     };
     Enemy.prototype.applyVariation = function (variation) {
         var _this = this;
-        this.enemyType.variant = variation.name;
+        this.variation = variation;
         this.applyModification(variation.xpmod);
         this.applyModification(variation.crmod);
         variation.modifications.forEach(function (attribute) { return _this.applyModification(attribute); });
@@ -24198,9 +24142,12 @@ var Enemy = /** @class */ (function (_super) {
         }
     };
     Enemy.prototype.formattedName = function () {
-        var _a = this.enemyType, descriptor = _a.descriptor, variant = _a.variant;
+        var variant = '';
+        if (this.variation) {
+            variant = this.variation.name;
+        }
         var name = this.name;
-        return descriptor + "\n    " + (variant ? " " + variant + " " : '') + "\n    " + name;
+        return "\n      " + (variant ? " " + variant + " " : '') + "\n      " + name + "\n    ";
     };
     Enemy.prototype.formattedChar = function () {
         var _a = this, char = _a.char, color = _a.color;
@@ -24226,10 +24173,11 @@ exports.__esModule = true;
 var Enemy_1 = require("../Actor/Enemy");
 var Enemy_data_1 = require("./Enemy.data");
 var Random_1 = require("../../Random/Random");
+var Lorlerach_1 = require("../../Map/Regions/Lorlerach");
 var EnemySpawner = /** @class */ (function () {
     function EnemySpawner() {
         // this.baseEnemies = this.loadEnemies();
-        this.baseEnemies = Enemy_data_1.baseEnemies;
+        this.baseEnemies = [].concat(Enemy_data_1.baseEnemies, Lorlerach_1.enemyOptions);
         this.generateEnemyHashMaps();
     }
     EnemySpawner.prototype.generateEnemyHashMaps = function () {
@@ -24237,14 +24185,14 @@ var EnemySpawner = /** @class */ (function () {
         this.enemiesByCR = {};
         this.enemiesByCreatureType = {};
         this.baseEnemies.forEach(function (enemy) {
-            var cr = enemy.cr, enemyType = enemy.enemyType;
-            var creatureType = enemyType.creatureType;
+            var cr = enemy.cr, creatureType = enemy.creatureType;
             _this.enemiesByCR[cr] ?
                 _this.enemiesByCR[cr].push(enemy) :
                 _this.enemiesByCR[cr] = [enemy];
-            _this.enemiesByCreatureType[creatureType] ?
-                _this.enemiesByCreatureType[creatureType].push(enemy) :
-                _this.enemiesByCreatureType[creatureType] = [enemy];
+            var ct = Array.isArray(creatureType) ? creatureType[0] : creatureType;
+            _this.enemiesByCreatureType[ct] ?
+                _this.enemiesByCreatureType[ct].push(enemy) :
+                _this.enemiesByCreatureType[ct] = [enemy];
         });
     };
     EnemySpawner.prototype.generateVariantEnemy = function (base) {
@@ -24281,7 +24229,7 @@ var EnemySpawner = /** @class */ (function () {
 }());
 exports.EnemySpawner = EnemySpawner;
 
-},{"../../Random/Random":39,"../Actor/Enemy":15,"./Enemy.data":14}],17:[function(require,module,exports){
+},{"../../Map/Regions/Lorlerach":29,"../../Random/Random":39,"../Actor/Enemy":15,"./Enemy.data":14}],17:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -24687,14 +24635,14 @@ var Game = /** @class */ (function () {
         this.legendary = new Legendary_1.Legendary();
         this.enemySpawner = new EnemySpawner_1.EnemySpawner();
         this.dungeonGenerator = new DungeonGenerator_1.DungeonGenerator({
-            depth: 15
+            depth: 8
         });
         this.effects = new Effects_1.Effects(document.getElementById('transition-wrapper'));
         // Create and render the status menu
         this.statusMenu = new StatusMenu_1.StatusMenu(document.getElementById('status-menu'));
         this.statusMenu.render();
         // Debug
-        //this.dungeonGenerator.debugAndGenerateAllFloors();
+        this.dungeonGenerator.debugAndGenerateAllFloors();
         this.dungeonGenerator.generateNewFloor();
         this.currentFloor = this.dungeonGenerator.floors[0];
         this.initializeEasyStar();
@@ -25518,11 +25466,13 @@ var Floor = /** @class */ (function () {
         // This cuts of "extra" void tiles around the map
         //this.trimFloor();
         // Make sure to call placement of items with a pos after trim so the positions are correct
+        console.log(this);
         this.spawnEnemies();
         this.setStaircaseTiles();
         if (this.floorPersistance && this.floorPersistance.persistance) {
             this.willPersistFor = Random_1.randomIntR(this.floorPersistance.persistance);
             this.floorPersistance.startIndex = this.depth;
+            console.log(this);
         }
     };
     Floor.prototype.setVoidTiles = function () {
@@ -25585,6 +25535,7 @@ var Floor = /** @class */ (function () {
     };
     Floor.prototype.setDoorTiles = function () {
         var _this = this;
+        console.log('set');
         this.corridors.forEach(function (corridor) {
             var _a = corridor.startingPosition, x = _a.x, y = _a.y;
             if (_this.inBounds(_this.floorWidth, _this.floorHeight, corridor.startingPosition)) {
@@ -25719,7 +25670,7 @@ var Floor = /** @class */ (function () {
                 // in bounds, right?
                 if (_this.inBounds(_this.floorWidth, _this.floorHeight, new Vector_1["default"](x, y))) {
                     _this.tiles[y][x] = Game_1["default"].instance.dungeonGenerator.tileSpawner.getTile({
-                        depth: _this.depth,
+                        region: _this.regionName,
                         isPassible: true,
                         type: Tile_1.TileTypes.FLOOR
                     });
@@ -25740,7 +25691,6 @@ var Floor = /** @class */ (function () {
         var x = Random_1.randomInt(room.pos.x, room.roomWidth + room.pos.x);
         var y = Random_1.randomInt(room.pos.y, room.roomHeight + room.pos.y);
         // Just fucking clamp to the bounds of the map
-        console.log(this.floorHeight);
         return new Vector_1["default"](Random_1.clamp(x, 0, this.floorWidth - 1), Random_1.clamp(y, 0, this.floorHeight - 1));
     };
     Floor.prototype.inBounds = function (width, height, v) {
@@ -25783,7 +25733,6 @@ var Floor = /** @class */ (function () {
         var tries = 5;
         var placementRange = new RRange_1.RRange(1, this.rooms.length - 1);
         var possiblePosition = this.getRandomPointInRoom(this.rooms[Random_1.randomIntR(placementRange)]);
-        console.log(possiblePosition);
         while (tries) {
             var x = possiblePosition.x, y = possiblePosition.y;
             if (!this.tiles[y][x].isOccupied) {
@@ -25797,7 +25746,7 @@ var Floor = /** @class */ (function () {
         return false;
     };
     Floor.prototype.getFormattedName = function () {
-        return "\n      " + this.name + (this.nameInSequence ? " - " + roman_numeral_1.convert(this.nameInSequence) : '') + " of " + this.regionName + " <br> Depth " + this.depth + "\n    ";
+        return "\n      " + this.name + (this.nameInSequence ? " " + roman_numeral_1.convert(this.nameInSequence) : '') + "\n      <br/>" + this.regionName + " - Depth " + this.depth + "\n    ";
     };
     Floor.prototype.isOccupied = function (pos) {
         var x = pos.x, y = pos.y;
@@ -25890,6 +25839,8 @@ var FloorGenerator = /** @class */ (function () {
         var startingFloor = floors[startIndex];
         var similarFloor = new Floor_1.Floor({
             maxCR: startingFloor.maxCR,
+            floorCRRange: startingFloor.floorCRRange,
+            depthRange: startingFloor.depthRange,
             variantEnemiesRange: startingFloor.variantEnemiesRange,
             roomHeightRange: startingFloor.roomHeightRange,
             roomWidthRange: startingFloor.roomWidthRange,
@@ -25901,9 +25852,8 @@ var FloorGenerator = /** @class */ (function () {
             name: startingFloor.name,
             regionName: startingFloor.regionName
         });
-        similarFloor.floorPersistance = {
-            startIndex: startIndex
-        };
+        var persistance = { startIndex: startIndex };
+        similarFloor.floorPersistance = persistance;
         similarFloor.depth = depth;
         return similarFloor;
     };
@@ -25918,6 +25868,8 @@ var Regions_1 = require("./Regions");
 var RRange_1 = require("../../Random/RRange");
 var Tile_1 = require("../Tile");
 var Color_1 = require("../../Canvas/Color");
+var Enemy_data_1 = require("../../Entity/Actor/Enemy.data");
+var Dice_1 = require("../../Random/Dice");
 var MAX_DUNGEON_DEPTH = 100; // @TODO proper import
 var regionData = {
     name: Regions_1.RegionNames.Lorlerach,
@@ -25988,7 +25940,6 @@ var tileData = [
         description: 'Rough hewn wall',
         char: '.',
         color: new Color_1.Color({ hex: '#555' }),
-        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
         type: Tile_1.TileTypes.FLOOR
     },
     {
@@ -25996,7 +25947,6 @@ var tileData = [
         description: 'Rough hewn wall',
         char: '.',
         color: new Color_1.Color({ hex: '#333' }),
-        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
         type: Tile_1.TileTypes.FLOOR
     },
     {
@@ -26004,7 +25954,6 @@ var tileData = [
         description: 'Rough hewn wall',
         char: '.',
         color: new Color_1.Color({ hex: '#444' }),
-        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
         type: Tile_1.TileTypes.FLOOR
     },
     // Walls
@@ -26013,15 +25962,13 @@ var tileData = [
         description: 'Rough hewn wall',
         char: '░',
         color: new Color_1.Color({ hex: '#363636' }),
-        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
         type: Tile_1.TileTypes.WALL
     },
     {
         isPassible: false,
         description: 'Rough hewn wall',
         char: '░',
-        color: new Color_1.Color({ hex: '#363535' }),
-        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+        color: new Color_1.Color({ hex: '#a3a3a3' }),
         type: Tile_1.TileTypes.WALL
     }
 ];
@@ -26029,8 +25976,26 @@ exports.tileData = tileData;
 tileData.forEach(function (tile) {
     tile.region = Regions_1.RegionNames.Lorlerach;
 });
+// Unique enemies
+var husk = {
+    name: 'Husk',
+    cr: 1,
+    xp: 1,
+    creatureType: Enemy_data_1.CreatureTypes.UNDEAD,
+    actorOptions: {
+        char: 'h',
+        hp: 4,
+        ac: 4,
+        damage: Dice_1.StandardDice.d2,
+        color: new Color_1.Color({ html: 'beige' })
+    }
+};
+var enemyOptions = [
+    husk
+];
+exports.enemyOptions = enemyOptions;
 
-},{"../../Canvas/Color":11,"../../Random/RRange":38,"../Tile":33,"./Regions":30}],30:[function(require,module,exports){
+},{"../../Canvas/Color":11,"../../Entity/Actor/Enemy.data":14,"../../Random/Dice":36,"../../Random/RRange":38,"../Tile":33,"./Regions":30}],30:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var RegionNames;
@@ -26225,7 +26190,6 @@ var Tile = /** @class */ (function () {
         for (var key in options) {
             this[key] = options[key];
         }
-        console.log(options);
         if (!options.type || !options.char || !options.color) {
             throw 'Error: tile is borked';
         }
@@ -26249,7 +26213,7 @@ var TileSpawner = /** @class */ (function () {
     TileSpawner.prototype.getTile = function (options) {
         var possibleTiles = this.tileData.filter(function (tile) {
             var allowed = true;
-            if (typeof options.depth !== 'undefined') {
+            if (typeof options.depth !== 'undefined' && tile.depthRange) {
                 if (tile.depthRange.low > options.depth || tile.depthRange.high < options.depth) {
                     return false;
                 }
@@ -26271,7 +26235,6 @@ var TileSpawner = /** @class */ (function () {
             }
             return allowed;
         });
-        console.log(possibleTiles);
         if (!possibleTiles.length) {
             throw new Error('No tile selected? Uh ooh . . .');
         }
@@ -26856,7 +26819,6 @@ var Game_1 = require("../Game");
 var Vector_1 = require("../Vector");
 var Color_1 = require("../Canvas/Color");
 var Tile_1 = require("../Map/Tile");
-var roman_numeral_1 = require("roman-numeral");
 var MapScreenInputs;
 (function (MapScreenInputs) {
     MapScreenInputs["INVENTORY"] = "I";
@@ -26928,19 +26890,23 @@ var MapScreen = /** @class */ (function (_super) {
         this.renderTiles();
     };
     MapScreen.prototype.renderTiles = function () {
-        var main = document.getElementById('main-window');
+        var tiles = document.getElementById('tilemap');
+        var title = document.getElementById('title');
         var currentFloor = Game_1["default"].instance.currentFloor;
-        var html = "<h2>" + currentFloor.name + " of " + currentFloor.regionName + roman_numeral_1.convert(currentFloor.nameInSequence) + " - " + currentFloor.depth + "</h2>";
+        var titleHtml = "<h2>" + currentFloor.getFormattedName() + "</h2>";
+        var tileHtml = '';
         for (var y = 0; y < currentFloor.floorHeight; y++) {
+            tileHtml += '<p>';
             for (var x = 0; x < currentFloor.floorWidth; x++) {
                 var tile = currentFloor.tiles[y][x];
                 var _a = tile.isOccupied ?
                     tile.occupiers[0] : tile, char = _a.char, color = _a.color; // @TODO update to show the most important occupier to display, maybe with z values
-                html += "<span class='tile' style=\"color: " + color.val() + "\">" + char + "</span>";
+                tileHtml += "<span class='tile' style=\"color: " + color.val() + "\">" + char + "</span>";
             }
-            html += '<br/>';
+            tileHtml += '</p>';
         }
-        main.innerHTML = html;
+        title.innerHTML = titleHtml;
+        tiles.innerHTML = tileHtml;
     };
     MapScreen.prototype.attemptPlayerMovement = function (keyValue) {
         var _a = this.game, player = _a.player, currentFloor = _a.currentFloor;
@@ -27046,7 +27012,7 @@ var MapScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = MapScreen;
 
-},{"../Canvas/Color":11,"../Game":22,"../Map/Tile":33,"../Vector":47,"./Screen":45,"roman-numeral":9}],45:[function(require,module,exports){
+},{"../Canvas/Color":11,"../Game":22,"../Map/Tile":33,"../Vector":47,"./Screen":45}],45:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Message_1 = require("../Message/Message");
@@ -27455,4 +27421,83 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},[48]);
+},{}],50:[function(require,module,exports){
+(function (setImmediate,clearImmediate){
+var nextTick = require('process/browser.js').nextTick;
+var apply = Function.prototype.apply;
+var slice = Array.prototype.slice;
+var immediateIds = {};
+var nextImmediateId = 0;
+
+// DOM APIs, for completeness
+
+exports.setTimeout = function() {
+  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
+};
+exports.setInterval = function() {
+  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
+};
+exports.clearTimeout =
+exports.clearInterval = function(timeout) { timeout.close(); };
+
+function Timeout(id, clearFn) {
+  this._id = id;
+  this._clearFn = clearFn;
+}
+Timeout.prototype.unref = Timeout.prototype.ref = function() {};
+Timeout.prototype.close = function() {
+  this._clearFn.call(window, this._id);
+};
+
+// Does not start the time, just sets up the members needed.
+exports.enroll = function(item, msecs) {
+  clearTimeout(item._idleTimeoutId);
+  item._idleTimeout = msecs;
+};
+
+exports.unenroll = function(item) {
+  clearTimeout(item._idleTimeoutId);
+  item._idleTimeout = -1;
+};
+
+exports._unrefActive = exports.active = function(item) {
+  clearTimeout(item._idleTimeoutId);
+
+  var msecs = item._idleTimeout;
+  if (msecs >= 0) {
+    item._idleTimeoutId = setTimeout(function onTimeout() {
+      if (item._onTimeout)
+        item._onTimeout();
+    }, msecs);
+  }
+};
+
+// That's not how node.js implements it but the exposed api is the same.
+exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
+  var id = nextImmediateId++;
+  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
+
+  immediateIds[id] = true;
+
+  nextTick(function onNextTick() {
+    if (immediateIds[id]) {
+      // fn.call() is faster so we optimize for the common use-case
+      // @see http://jsperf.com/call-apply-segu
+      if (args) {
+        fn.apply(null, args);
+      } else {
+        fn.call(null);
+      }
+      // Prevent ids from leaking
+      exports.clearImmediate(id);
+    }
+  });
+
+  return id;
+};
+
+exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
+  delete immediateIds[id];
+};
+}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
+},{"process/browser.js":49,"timers":50}]},{},[48]);

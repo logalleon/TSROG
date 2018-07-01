@@ -5,26 +5,24 @@ import Vector2 from '../../Vector';
 import Game from '../../Game';
 import { Promise as Bluebird } from 'bluebird';
 import { Player } from './Player';
-import { Variation, Variations, VariantModification } from './Enemy.data';
+import { Variation, Variations, VariantModification, CreatureTypes } from './Enemy.data';
 import { RegionNames } from '../../Map/Regions/Regions';
+import { RRange } from '../../Random/RRange';
 
 const { colorize } = Messenger;
 
 const MASSIVE_DAMAGE_THRESHOLD: number = .30;
 
 interface EnemyOptions {
-  actorOptions: ActorOptions,
-  enemyType: IEnemyType,
-  name: string,
+  actorOptions: ActorOptions
+  creatureType: CreatureTypes | CreatureTypes[]
+  name: string
   cr: number
   xp: number
   regions?: RegionNames[]
-}
-
-interface IEnemyType {
-  creatureType: string,
-  variant: Variations | null,
-  descriptor: string | null
+  depthRange?: RRange
+  variation?: Variation
+  description?: string
 }
 
 class Enemy extends Actor {
@@ -33,14 +31,17 @@ class Enemy extends Actor {
   public isEnemy = true;
 
   public name: string;
-  public enemyType: IEnemyType;
+  public description: string;
   public regions: RegionNames[];
+  public depthRange: RRange;
 
   public cr: number;
   public xp: number;
 
   public massiveDamageThreshold: number;
   public attackRange: AttackRange = AttackRange.MELEE;
+
+  public variation: Variation;
 
   private path: Vector2[];
   
@@ -131,7 +132,7 @@ class Enemy extends Actor {
   }
 
   applyVariation (variation: Variation) {
-    this.enemyType.variant = variation.name;
+    this.variation = variation;
     this.applyModification(variation.xpmod);
     this.applyModification(variation.crmod);
     variation.modifications.forEach((attribute) => this.applyModification(attribute));
@@ -176,11 +177,15 @@ class Enemy extends Actor {
   }
 
   formattedName (): string {
-    const { descriptor, variant } = this.enemyType;
+    let variant = '';
+    if (this.variation) {
+      variant = this.variation.name;
+    }
     const { name } = this;
-    return `${descriptor}
-    ${variant ? ` ${variant} ` : ''}
-    ${name}`;
+    return `
+      ${variant ? ` ${variant} ` : ''}
+      ${name}
+    `;
   }
 
   formattedChar (): string {
@@ -203,4 +208,4 @@ class Enemy extends Actor {
   }
 
 }
-export { Enemy, IEnemyType, EnemyOptions };
+export { Enemy, EnemyOptions };

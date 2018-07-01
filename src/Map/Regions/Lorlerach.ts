@@ -3,6 +3,10 @@ import { FloorOptions } from '../Floor';
 import { RRange } from '../../Random/RRange';
 import { TileOptions, TileTypes } from '../Tile';
 import { Color } from '../../Canvas/Color';
+import { EnemyOptions } from '../../Entity/Actor/Enemy';
+import { ActorOptions } from '../../Entity/Actor/Actor';
+import { CreatureTypes } from '../../Entity/Actor/Enemy.data';
+import { StandardDice } from '../../Random/Dice';
 
 const MAX_DUNGEON_DEPTH = 100; // @TODO proper import
 
@@ -95,7 +99,6 @@ const tileData: TileOptions[] = [
     description: 'Rough hewn wall',
     char: '.',
     color: new Color({ hex: '#555' }),
-    depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
     type: TileTypes.FLOOR
   },
   {
@@ -103,7 +106,6 @@ const tileData: TileOptions[] = [
     description: 'Rough hewn wall',
     char: '.',
     color: new Color({ hex: '#333' }),
-    depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
     type: TileTypes.FLOOR
   },
   {
@@ -111,7 +113,6 @@ const tileData: TileOptions[] = [
     description: 'Rough hewn wall',
     char: '.',
     color: new Color({ hex: '#444' }),
-    depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
     type: TileTypes.FLOOR
   },
   // Walls
@@ -120,15 +121,13 @@ const tileData: TileOptions[] = [
     description: 'Rough hewn wall',
     char: '░',
     color: new Color({ hex: '#363636' }),
-    depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
     type: TileTypes.WALL
   },
   {
     isPassible: false,
       description: 'Rough hewn wall',
       char: '░',
-      color: new Color({ hex: '#363535' }),
-      depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+      color: new Color({ hex: '#a3a3a3' }),
       type: TileTypes.WALL
     }
 ];
@@ -136,4 +135,23 @@ tileData.forEach((tile) => {
   tile.region = RegionNames.Lorlerach;
 });
 
-export { regionData, floorOptions, tileData };
+// Unique enemies
+const husk: EnemyOptions = {
+  name: 'Husk',
+  cr: 1,
+  xp: 1,
+  creatureType: CreatureTypes.UNDEAD,
+  actorOptions: {
+    char: 'h',
+    hp: 4,
+    ac: 4,
+    damage: StandardDice.d2,
+    color: new Color({ html: 'beige' })
+  }
+};
+
+const enemyOptions: EnemyOptions[] = [
+  husk
+];
+
+export { regionData, floorOptions, tileData, enemyOptions };

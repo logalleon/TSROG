@@ -59,6 +59,7 @@ class Floor {
   public numRoomsRange: RRange;
 
   public depth: number;
+  public depthRange: RRange;
 
   public floorWidth: number;
   public floorHeight: number;
@@ -140,11 +141,13 @@ class Floor {
     //this.trimFloor();
 
     // Make sure to call placement of items with a pos after trim so the positions are correct
+    console.log(this);
     this.spawnEnemies();
     this.setStaircaseTiles();
     if (this.floorPersistance && this.floorPersistance.persistance) {
       this.willPersistFor = randomIntR(this.floorPersistance.persistance);
       this.floorPersistance.startIndex = this.depth;
+      console.log(this);
     }
   }
 
@@ -208,6 +211,7 @@ class Floor {
   }
 
   setDoorTiles (): void {
+    console.log('set');
     this.corridors.forEach((corridor) => {
       let { x, y } = corridor.startingPosition;
       if (this.inBounds(this.floorWidth, this.floorHeight, corridor.startingPosition)) {
@@ -343,7 +347,7 @@ class Floor {
         // in bounds, right?
         if (this.inBounds(this.floorWidth, this.floorHeight, new Vector2(x, y))) {
           this.tiles[y][x] = Game.instance.dungeonGenerator.tileSpawner.getTile({
-            depth: this.depth,
+            region: this.regionName,
             isPassible: true,
             type: TileTypes.FLOOR
           });
@@ -368,7 +372,6 @@ class Floor {
     const x = randomInt(room.pos.x, room.roomWidth + room.pos.x);
     const y = randomInt(room.pos.y, room.roomHeight + room.pos.y);
     // Just fucking clamp to the bounds of the map
-    console.log(this.floorHeight);
     return new Vector2(
       clamp(x, 0, this.floorWidth - 1),
       clamp(y, 0, this.floorHeight - 1)
@@ -421,7 +424,6 @@ class Floor {
     let tries = 5;
     const placementRange: RRange = new RRange(1, this.rooms.length - 1);
     const possiblePosition = this.getRandomPointInRoom(this.rooms[randomIntR(placementRange)]);
-    console.log(possiblePosition);
     while (tries) {
       const { x, y } = possiblePosition;
       if (!this.tiles[y][x].isOccupied) {
@@ -437,7 +439,8 @@ class Floor {
 
   getFormattedName (): string {
     return `
-      ${this.name}${this.nameInSequence ? ` - ${convert(this.nameInSequence) }` : ''} of ${this.regionName} <br> Depth ${this.depth}
+      ${this.name}${this.nameInSequence ? ` ${convert(this.nameInSequence) }` : ''}
+      <br/>${this.regionName} - Depth ${this.depth}
     `;
   }
 

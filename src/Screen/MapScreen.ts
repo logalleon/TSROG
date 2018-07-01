@@ -82,19 +82,24 @@ class MapScreen extends Screen {
   }
 
   renderTiles () {
-    const main = document.getElementById('main-window');
+    const tiles = document.getElementById('tilemap');
+    const title = document.getElementById('title');
     const { currentFloor } = Game.instance;
-    let html = `<h2>${currentFloor.name} of ${currentFloor.regionName}${convert(currentFloor.nameInSequence)} - ${currentFloor.depth}</h2>`
+    const titleHtml = `<h2>${currentFloor.getFormattedName()}</h2>`;
+    let tileHtml = '';
     for (let y = 0; y < currentFloor.floorHeight; y++) {
+      tileHtml += '<p>';
       for (let x = 0; x < currentFloor.floorWidth; x++) {
         const tile = currentFloor.tiles[y][x];
         const { char, color } = tile.isOccupied ?
         tile.occupiers[0] : tile; // @TODO update to show the most important occupier to display, maybe with z values
-        html += `<span class='tile' style="color: ${color.val()}">${char}</span>`;
+        tileHtml += `<span class='tile' style="color: ${color.val()}">${char}</span>`;
       }
-      html += '<br/>'
+      tileHtml += '</p>';
     }
-    main.innerHTML = html;
+    
+    title.innerHTML = titleHtml;
+    tiles.innerHTML = tileHtml;
   }
 
   attemptPlayerMovement(keyValue: string): void | Message[] {

@@ -20,6 +20,8 @@ import { StandardDice } from './Random/Dice';
 import { EnemySpawner } from './Entity/Actor/EnemySpawner';
 import { CreatureTypes, Variations, defaultVariations } from './Entity/Actor/Enemy.data';
 import { StatusMenu } from './UI/StatusMenu';
+import HelpScreen from './Screen/HelpScreen';
+import UnequipScreen from './Screen/UnequipScreen';
 
 const height = 240;
 const width = 600;
@@ -38,7 +40,9 @@ window.onload = () => {
     new InventoryItemScreen(ScreenNames.RING, InventoryItems.RINGS),
     new InventoryItemScreen(ScreenNames.SCROLL, InventoryItems.SCROLLS),
     new InventoryItemScreen(ScreenNames.WEAPON, InventoryItems.WEAPONS),
-    new CommandScreen()
+    new CommandScreen(),
+    new HelpScreen(),
+    new UnequipScreen(),
   ];
   // Adds a player TEST DATAAAAAa
   const actorOptions: ActorOptions = {

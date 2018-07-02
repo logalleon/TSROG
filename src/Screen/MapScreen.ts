@@ -32,7 +32,8 @@ enum MapScreenInputs {
   MOVE_DOWN_LEFT = 'z',
   MOVE_DOWN_RIGHT = 'c',
   DESCEND = '>',
-  ASCEND = '<'
+  ASCEND = '<',
+  WAIT = 'x'
 }
 
 class MapScreen extends Screen {
@@ -63,7 +64,8 @@ class MapScreen extends Screen {
     [MapScreenInputs.MOVE_UP_RIGHT]: this.attemptPlayerMovement.bind(this),
     [MapScreenInputs.MOVE_DOWN_LEFT]: this.attemptPlayerMovement.bind(this),
     [MapScreenInputs.MOVE_DOWN_RIGHT]: this.attemptPlayerMovement.bind(this),
-    [MapScreenInputs.DESCEND]: this.attemptDescend
+    [MapScreenInputs.DESCEND]: this.attemptDescend,
+    [MapScreenInputs.WAIT]: this.playerWait
   }
 
   constructor() {
@@ -97,7 +99,7 @@ class MapScreen extends Screen {
       }
       tileHtml += '</p>';
     }
-    
+
     title.innerHTML = titleHtml;
     tiles.innerHTML = tileHtml;
   }
@@ -162,6 +164,11 @@ class MapScreen extends Screen {
       }
     }
     return null;
+  }
+
+  playerWait () {
+    const { player } = this.game;
+    player.hasMoveInteracted = true;
   }
 
   showHelpScreen (): void | Message[] {

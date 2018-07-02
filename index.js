@@ -6224,7 +6224,7 @@ module.exports = ret;
 },{"./es5":13}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"_process":49,"timers":50}],5:[function(require,module,exports){
+},{"_process":51,"timers":52}],5:[function(require,module,exports){
 module.exports = require('./lib/heap');
 
 },{"./lib/heap":6}],6:[function(require,module,exports){
@@ -24827,7 +24827,7 @@ var Game = /** @class */ (function () {
 }());
 exports["default"] = Game;
 
-},{"../custom_modules/easystarjs":1,"./Effects":12,"./Entity/Actor/EnemySpawner":16,"./Input":23,"./Map/DungeonGenerator":25,"./Message/Message":35,"./Random/Legendary":37,"./UI/StatusMenu":46}],23:[function(require,module,exports){
+},{"../custom_modules/easystarjs":1,"./Effects":12,"./Entity/Actor/EnemySpawner":16,"./Input":23,"./Map/DungeonGenerator":25,"./Message/Message":35,"./Random/Legendary":37,"./UI/StatusMenu":48}],23:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var keyCodeToChar = {
@@ -25317,7 +25317,7 @@ var Corridor = /** @class */ (function () {
 }());
 exports.Corridor = Corridor;
 
-},{"../Random/Random":39,"../Vector":47}],25:[function(require,module,exports){
+},{"../Random/Random":39,"../Vector":49}],25:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var FloorGenerator_1 = require("./FloorGenerator");
@@ -25806,7 +25806,7 @@ var Floor = /** @class */ (function () {
 }());
 exports.Floor = Floor;
 
-},{"../Game":22,"../Map/Tile":33,"../Random/RRange":38,"../Random/Random":39,"../Vector":47,"./Corridor":24,"./Room":31,"roman-numeral":9}],28:[function(require,module,exports){
+},{"../Game":22,"../Map/Tile":33,"../Random/RRange":38,"../Random/Random":39,"../Vector":49,"./Corridor":24,"./Room":31,"roman-numeral":9}],28:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Random_1 = require("../Random/Random");
@@ -26058,7 +26058,7 @@ var Room = /** @class */ (function () {
 }());
 exports.Room = Room;
 
-},{"../Random/Random":39,"../Vector":47,"./Corridor":24}],32:[function(require,module,exports){
+},{"../Random/Random":39,"../Vector":49,"./Corridor":24}],32:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Tile_1 = require("./Tile");
@@ -26699,7 +26699,44 @@ var CommandScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = CommandScreen;
 
-},{"../Canvas/Canvas":10,"../Entity/Actor/Player":17,"./MapScreen":44,"./Screen":45,"lodash":7}],42:[function(require,module,exports){
+},{"../Canvas/Canvas":10,"../Entity/Actor/Player":17,"./MapScreen":45,"./Screen":46,"lodash":7}],42:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var Screen_1 = require("./Screen");
+var HelpScreen = /** @class */ (function (_super) {
+    __extends(HelpScreen, _super);
+    function HelpScreen() {
+        var _this = _super.call(this) || this;
+        _this.name = Screen_1.ScreenNames.HELP;
+        return _this;
+    }
+    HelpScreen.prototype.render = function () {
+        var messenger = this.game.messenger;
+        this.renderHelp();
+        messenger.renderReturnToMap();
+    };
+    HelpScreen.prototype.renderHelp = function () {
+        var player = this.game.player;
+        this.game.messenger.clearMessages();
+        var title = { text: 'Help' };
+        var help = { text: '@TODO' };
+        this.game.messenger.logMessages([title, help]);
+    };
+    return HelpScreen;
+}(Screen_1.Screen));
+exports["default"] = HelpScreen;
+
+},{"./Screen":46}],43:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26753,7 +26790,7 @@ var InventoryItemScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryItemScreen;
 
-},{"./Screen":45,"lodash":7}],43:[function(require,module,exports){
+},{"./Screen":46,"lodash":7}],44:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26804,7 +26841,7 @@ var InventoryScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = InventoryScreen;
 
-},{"../Canvas/Color":11,"../Entity/Actor/Player":17,"./Screen":45}],44:[function(require,module,exports){
+},{"../Canvas/Color":11,"../Entity/Actor/Player":17,"./Screen":46}],45:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
@@ -26847,6 +26884,7 @@ var MapScreenInputs;
     MapScreenInputs["MOVE_DOWN_RIGHT"] = "c";
     MapScreenInputs["DESCEND"] = ">";
     MapScreenInputs["ASCEND"] = "<";
+    MapScreenInputs["WAIT"] = "x";
 })(MapScreenInputs || (MapScreenInputs = {}));
 exports.MapScreenInputs = MapScreenInputs;
 var MapScreen = /** @class */ (function (_super) {
@@ -26878,6 +26916,7 @@ var MapScreen = /** @class */ (function (_super) {
             _a[MapScreenInputs.MOVE_DOWN_LEFT] = _this.attemptPlayerMovement.bind(_this),
             _a[MapScreenInputs.MOVE_DOWN_RIGHT] = _this.attemptPlayerMovement.bind(_this),
             _a[MapScreenInputs.DESCEND] = _this.attemptDescend,
+            _a[MapScreenInputs.WAIT] = _this.playerWait,
             _a);
         return _this;
         var _a;
@@ -26976,6 +27015,10 @@ var MapScreen = /** @class */ (function (_super) {
         }
         return null;
     };
+    MapScreen.prototype.playerWait = function () {
+        var player = this.game.player;
+        player.hasMoveInteracted = true;
+    };
     MapScreen.prototype.showHelpScreen = function () {
         var helpScreen = this.game.screens.filter(function (screen) { return screen.name === Screen_1.ScreenNames.HELP; })[0];
         this.game.activeScreen = helpScreen;
@@ -27015,7 +27058,7 @@ var MapScreen = /** @class */ (function (_super) {
 }(Screen_1.Screen));
 exports["default"] = MapScreen;
 
-},{"../Canvas/Color":11,"../Game":22,"../Map/Tile":33,"../Vector":47,"./Screen":45}],45:[function(require,module,exports){
+},{"../Canvas/Color":11,"../Game":22,"../Map/Tile":33,"../Vector":49,"./Screen":46}],46:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Message_1 = require("../Message/Message");
@@ -27068,7 +27111,58 @@ var Screen = /** @class */ (function () {
 }());
 exports.Screen = Screen;
 
-},{"../Message/Message":35}],46:[function(require,module,exports){
+},{"../Message/Message":35}],47:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var Screen_1 = require("./Screen");
+var Color_1 = require("../Canvas/Color");
+var UnequipScreen = /** @class */ (function (_super) {
+    __extends(UnequipScreen, _super);
+    function UnequipScreen() {
+        var _this = _super.call(this) || this;
+        _this.name = Screen_1.ScreenNames.UNEQUIP;
+        return _this;
+    }
+    UnequipScreen.prototype.render = function () {
+        var messenger = this.game.messenger;
+        this.renderEquippedItems();
+        messenger.renderReturnToMap();
+    };
+    UnequipScreen.prototype.renderEquippedItems = function () {
+        var player = this.game.player;
+        var equipped = player.equipped;
+        var keyCode = 65;
+        var i = 0;
+        this.game.messenger.clearMessages();
+        var title = [{ text: 'Unequip Items' }];
+        this.game.messenger.logMessages(title);
+        for (var slot in equipped) {
+            var itemOrEmptySlot = equipped[slot];
+            var message = {
+                text: String.fromCharCode(keyCode) + ") " + (itemOrEmptySlot ? itemOrEmptySlot.name
+                    : 'nothing equipped'),
+                color: Color_1.Colors.WHITE
+            };
+            i++;
+            keyCode++;
+            this.game.messenger.logMessages([message]);
+        }
+    };
+    return UnequipScreen;
+}(Screen_1.Screen));
+exports["default"] = UnequipScreen;
+
+},{"../Canvas/Color":11,"./Screen":46}],48:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("../Game");
@@ -27087,7 +27181,7 @@ var StatusMenu = /** @class */ (function () {
 }());
 exports.StatusMenu = StatusMenu;
 
-},{"../Game":22}],47:[function(require,module,exports){
+},{"../Game":22}],49:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Vector2 = /** @class */ (function () {
@@ -27106,7 +27200,7 @@ var Vector2 = /** @class */ (function () {
 }());
 exports["default"] = Vector2;
 
-},{}],48:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Game_1 = require("./Game");
@@ -27122,6 +27216,8 @@ var InventoryItemScreen_1 = require("./Screen/InventoryItemScreen");
 var CommandScreen_1 = require("./Screen/CommandScreen");
 var Color_1 = require("./Canvas/Color");
 var Dice_1 = require("./Random/Dice");
+var HelpScreen_1 = require("./Screen/HelpScreen");
+var UnequipScreen_1 = require("./Screen/UnequipScreen");
 var height = 240;
 var width = 600;
 window.onload = function () {
@@ -27138,7 +27234,9 @@ window.onload = function () {
         new InventoryItemScreen_1["default"](Screen_1.ScreenNames.RING, Player_1.InventoryItems.RINGS),
         new InventoryItemScreen_1["default"](Screen_1.ScreenNames.SCROLL, Player_1.InventoryItems.SCROLLS),
         new InventoryItemScreen_1["default"](Screen_1.ScreenNames.WEAPON, Player_1.InventoryItems.WEAPONS),
-        new CommandScreen_1["default"]()
+        new CommandScreen_1["default"](),
+        new HelpScreen_1["default"](),
+        new UnequipScreen_1["default"](),
     ];
     // Adds a player TEST DATAAAAAa
     var actorOptions = {
@@ -27239,7 +27337,7 @@ window.onload = function () {
     window.game = g;
 };
 
-},{"./Canvas/Color":11,"./Entity/Actor/Player":17,"./Entity/Prop/Armor":18,"./Entity/Prop/Prop.data":19,"./Entity/Prop/Weapon":21,"./Game":22,"./Random/Dice":36,"./Screen/CommandScreen":41,"./Screen/InventoryItemScreen":42,"./Screen/InventoryScreen":43,"./Screen/MapScreen":44,"./Screen/Screen":45,"./Vector":47}],49:[function(require,module,exports){
+},{"./Canvas/Color":11,"./Entity/Actor/Player":17,"./Entity/Prop/Armor":18,"./Entity/Prop/Prop.data":19,"./Entity/Prop/Weapon":21,"./Game":22,"./Random/Dice":36,"./Screen/CommandScreen":41,"./Screen/HelpScreen":42,"./Screen/InventoryItemScreen":43,"./Screen/InventoryScreen":44,"./Screen/MapScreen":45,"./Screen/Screen":46,"./Screen/UnequipScreen":47,"./Vector":49}],51:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -27425,7 +27523,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],50:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 (function (setImmediate,clearImmediate){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -27504,4 +27602,4 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":49,"timers":50}]},{},[48]);
+},{"process/browser.js":51,"timers":52}]},{},[50]);

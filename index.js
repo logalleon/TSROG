@@ -23832,35 +23832,35 @@ exports.Colors = Colors;
 },{}],12:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-var Game_1 = require("./Game");
 var TITLE_TIME = 2000;
 var Effects = /** @class */ (function () {
     function Effects(el) {
         this.el = el;
     }
     Effects.prototype.transitionToNextFloor = function () {
-        var _this = this;
-        var _a = Game_1["default"].instance, currentFloor = _a.currentFloor, player = _a.player;
-        player.canMove = false;
-        var floorName = currentFloor.getFormattedName();
-        this.el.style.display = 'inherit'; // this is only really needed once
-        this.el.innerHTML = '';
-        this.el.classList.remove('fade');
-        var stepTime = floorName.length / TITLE_TIME;
-        var p = document.createElement('p');
-        this.el.appendChild(p);
-        for (var i = 0; i < floorName.length; i++) {
-            var span = document.createElement('span');
-            span.innerText = floorName[i];
-            span.style.animationDelay = stepTime * i * 8 + "s";
-            p.appendChild(span);
-        }
-        setTimeout(function () {
-            _this.el.classList.add('fade');
-            setTimeout(function () {
-                player.canMove = true;
-            }, TITLE_TIME / 6); // fade animation time
-        }, TITLE_TIME);
+        this.el = null;
+        return; // @debug
+        // const { currentFloor, player } = Game.instance;
+        // player.canMove = false;
+        // const floorName = currentFloor.getFormattedName();
+        // this.el.style.display = 'inherit'; // this is only really needed once
+        // this.el.innerHTML = '';
+        // this.el.classList.remove('fade');
+        // const stepTime = floorName.length / TITLE_TIME;
+        // const p = document.createElement('p');
+        // this.el.appendChild(p);
+        // for (let i = 0; i < floorName.length; i++) {
+        //   const span = document.createElement('span');
+        //   span.innerText = floorName[i];
+        //   span.style.animationDelay = `${stepTime * i * 8}s`;
+        //   p.appendChild(span);
+        // }
+        // setTimeout(() => {
+        //   this.el.classList.add('fade');
+        //   setTimeout(() => {
+        //     player.canMove = true;
+        //   }, TITLE_TIME / 6); // fade animation time
+        // }, TITLE_TIME)
     };
     Effects.prototype.showDeathScreen = function () {
         // @TODO this
@@ -23870,7 +23870,7 @@ var Effects = /** @class */ (function () {
 }());
 exports.Effects = Effects;
 
-},{"./Game":22}],13:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Dice_1 = require("../../Random/Dice");
@@ -24204,7 +24204,7 @@ var EnemySpawner = /** @class */ (function () {
             if (region) {
                 options = Random_1.pluck(this.enemiesByCR[cr].filter(function (enemyOptions) {
                     var regions = enemyOptions.regions;
-                    return (typeof regions === 'undefined' || regions.includes(region));
+                    return (typeof regions === 'undefined' || regions.indexOf(region) !== -1);
                 }));
             }
             else {
@@ -24642,7 +24642,7 @@ var Game = /** @class */ (function () {
         this.statusMenu = new StatusMenu_1.StatusMenu(document.getElementById('status-menu'));
         this.statusMenu.render();
         // Debug
-        this.dungeonGenerator.debugAndGenerateAllFloors();
+        //this.dungeonGenerator.debugAndGenerateAllFloors();
         this.dungeonGenerator.generateNewFloor();
         this.currentFloor = this.dungeonGenerator.floors[0];
         this.initializeEasyStar();
@@ -26325,10 +26325,10 @@ var Messenger = /** @class */ (function () {
         }
         this.el.innerHTML = html.map(String.prototype.trim).join('');
     };
-    Messenger.prototype.renderSpaceToContinue = function () {
+    Messenger.prototype.renderReturnToMap = function () {
         this.clearBottomMessages();
         this.logBottomMessage({
-            text: "Press [SPACE] to exit.",
+            text: "Press [SPACE] or [ESC] to exit.",
             color: Color_1.Colors.DEFAULT
         });
     };
@@ -26668,15 +26668,18 @@ var CommandScreen = /** @class */ (function (_super) {
     }
     CommandScreen.prototype.render = function () {
         var messenger = this.game.messenger;
-        this.renderMovement();
-        messenger.renderSpaceToContinue();
+        this.renderCommands();
+        messenger.renderReturnToMap();
     };
     CommandScreen.prototype.renderTitle = function () {
         var title = "" + lodash_2.titleCase(this.name);
     };
-    CommandScreen.prototype.renderMovement = function () {
+    CommandScreen.prototype.renderCommands = function () {
         var messenger = this.game.messenger;
-        var text = "\n      " + lodash_1.startCase(this.name) + "<br/>\n      " + MapScreen_1.MapScreenInputs.MOVE_UP_LEFT + " " + MapScreen_1.MapScreenInputs.MOVE_UP + " " + MapScreen_1.MapScreenInputs.MOVE_UP_RIGHT + "<br/>\n      &nbsp;\\|/<br/>\n      " + MapScreen_1.MapScreenInputs.MOVE_LEFT + "- -" + MapScreen_1.MapScreenInputs.MOVE_RIGHT + "<br/>\n      &nbsp;/|\\<br/>\n      " + MapScreen_1.MapScreenInputs.MOVE_DOWN_LEFT + " " + MapScreen_1.MapScreenInputs.MOVE_DOWN + " " + MapScreen_1.MapScreenInputs.MOVE_DOWN_RIGHT + "<br/>\n      " + MapScreen_1.MapScreenInputs.AMULET + " - " + Screen_1.ScreenNames.AMULET + "<br/>\n    ";
+        var I = MapScreen_1.MapScreenInputs;
+        var S = Screen_1.ScreenNames;
+        var text = "\n      " + lodash_1.startCase(this.name) + "<br/>\n      " + I.MOVE_UP_LEFT + " " + I.MOVE_UP + " " + I.MOVE_UP_RIGHT + "<br/>\n      &nbsp;\\|/<br/>\n      " + I.MOVE_LEFT + "- -" + I.MOVE_RIGHT + "<br/>\n      &nbsp;/|\\<br/>\n      " + I.MOVE_DOWN_LEFT + " " + I.MOVE_DOWN + " " + I.MOVE_DOWN_RIGHT + "<br/>\n      " + I.INVENTORY + " - " + S.INVENTORY + "<br/>\n      " + I.HELP + " - " + S.HELP + "<br/>\n      " + I.AMULET + " - " + S.AMULET + "<br/>\n      " + I.WEAPONS + " - " + S.WEAPON + "<br/>\n      " + I.RING + " - " + S.RING + "<br/>\n      " + I.ARMOR + " - " + S.ARMOR + "<br/>\n      " + I.SCROLL + " - " + S.SCROLL + "<br/>\n      " + I.POTIONS + " - " + S.POTIONS + "<br/>\n      " + I.FOOD + " - " + S.FOOD + "<br/>\n      " + I.KEYS + " - " + S.KEYS + "<br/>\n      " + I.UNEQUIP + " - " + S.UNEQUIP + "<br/>\n    ";
+        console.log(text);
         messenger.logMessages([{
                 text: text
             }]);
@@ -26722,7 +26725,7 @@ var InventoryItemScreen = /** @class */ (function (_super) {
     InventoryItemScreen.prototype.render = function () {
         var messenger = this.game.messenger;
         this.renderInventoryItems();
-        messenger.renderSpaceToContinue();
+        messenger.renderReturnToMap();
     };
     InventoryItemScreen.prototype.renderTitle = function () {
         var message = {
@@ -26776,7 +26779,7 @@ var InventoryScreen = /** @class */ (function (_super) {
     InventoryScreen.prototype.render = function () {
         var messenger = this.game.messenger;
         this.renderPlayerInventory();
-        messenger.renderSpaceToContinue();
+        messenger.renderReturnToMap();
     };
     InventoryScreen.prototype.renderPlayerInventory = function () {
         var player = this.game.player;
@@ -27036,10 +27039,11 @@ var ScreenNames;
 exports.ScreenNames = ScreenNames;
 var Screen = /** @class */ (function () {
     function Screen() {
-        this.spaceReturnToMap = {
-            'Space': this.returnToMapScreen
+        this.returnToMap = {
+            'Space': this.returnToMapScreen,
+            'Esc': this.returnToMapScreen
         };
-        this.inputs = Object.assign({}, this.inputs, this.spaceReturnToMap);
+        this.inputs = Object.assign({}, this.inputs, this.returnToMap);
     }
     Screen.prototype.setGame = function (game) {
         this.game = game;

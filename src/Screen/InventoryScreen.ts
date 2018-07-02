@@ -20,7 +20,7 @@ class InventoryScreen extends Screen {
   render() {
     const { messenger } = this.game;
     this.renderPlayerInventory();
-    messenger.renderSpaceToContinue();
+    messenger.renderReturnToMap();
   }
 
   renderPlayerInventory () {

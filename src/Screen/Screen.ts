@@ -35,12 +35,13 @@ class Screen implements IScreen {
   public game: Game;
   public inputs: InputMap;
 
-  public spaceReturnToMap: any = {
-    'Space': this.returnToMapScreen
+  public returnToMap: any = {
+    'Space': this.returnToMapScreen,
+    'Esc': this.returnToMapScreen
   }
 
   constructor () {
-    this.inputs = (<any>Object).assign({}, this.inputs, this.spaceReturnToMap);
+    this.inputs = (<any>Object).assign({}, this.inputs, this.returnToMap);
   }
 
   setGame (game: Game): void {

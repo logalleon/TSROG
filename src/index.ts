@@ -15,7 +15,7 @@ import { Quality, Damage, DamageType, Material, MaterialType, MaterialSubtype } 
 import InventoryItemScreen from './Screen/InventoryItemScreen';
 import CommandScreen from './Screen/CommandScreen';
 import { Color, Colors } from './Canvas/Color';
-import { Enemy, IEnemyType, EnemyOptions } from './Entity/Actor/Enemy';
+import { Enemy, EnemyOptions } from './Entity/Actor/Enemy';
 import { StandardDice } from './Random/Dice';
 import { EnemySpawner } from './Entity/Actor/EnemySpawner';
 import { CreatureTypes, Variations, defaultVariations } from './Entity/Actor/Enemy.data';
@@ -150,5 +150,5 @@ window.onload = () => {
   g.activeScreen.render();
   g.messenger.logMessages([{ text: 'This is the map screen', color: Colors.DEFAULT }]);
 
-  window.game = g;
+  (<any>window).game = g;
 };

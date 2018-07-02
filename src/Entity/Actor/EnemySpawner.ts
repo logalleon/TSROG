@@ -50,7 +50,7 @@ class EnemySpawner {
       if (region) {
         options = pluck(this.enemiesByCR[cr].filter((enemyOptions) => {
           const regions: RegionNames[] = enemyOptions.regions;
-          return (typeof regions === 'undefined' || regions.includes(region));
+          return (typeof regions === 'undefined' || regions.indexOf(region) !== -1);
         }));
       } else {
         options = pluck(this.enemiesByCR[cr]);

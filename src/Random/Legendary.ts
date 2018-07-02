@@ -8,7 +8,7 @@ class Legendary {
 
   constructor () {
     // Load language libraries
-    this.lists = Object.assign({},
+    this.lists = (<any>Object).assign({},
       LegendaryData,
       weaponData,
       materialData

@@ -53,10 +53,14 @@
     margin-bottom: 1rem;
   }
   #main-window #tilemap {
-    height: 500px;
+    flex: 1 1 auto;
     display: flex;
-    flex: 1;
     flex-direction: column;
+    overflow: scroll;
+    height: 60vh;
+  }
+  #tilemap p {
+    margin: 0;
   }
   body {
     background-color: darkgray;

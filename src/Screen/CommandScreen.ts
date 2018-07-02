@@ -21,25 +21,38 @@ class CommandScreen extends Screen {
 
   render() {
     const { messenger } = this.game;
-    this.renderMovement();
-    messenger.renderSpaceToContinue();
+    this.renderCommands();
+    messenger.renderReturnToMap();
   }
 
   renderTitle() {
     const title = `${titleCase(this.name)}`;
   }
 
-  renderMovement (): void {
+  renderCommands (): void {
     const { messenger } = this.game;
+    const I = MapScreenInputs;
+    const S = ScreenNames;
     const text = `
       ${startCase(this.name)}<br/>
-      ${MapScreenInputs.MOVE_UP_LEFT} ${MapScreenInputs.MOVE_UP} ${MapScreenInputs.MOVE_UP_RIGHT}<br/>
+      ${I.MOVE_UP_LEFT} ${I.MOVE_UP} ${I.MOVE_UP_RIGHT}<br/>
       &nbsp;\\|/<br/>
-      ${MapScreenInputs.MOVE_LEFT}- -${MapScreenInputs.MOVE_RIGHT}<br/>
+      ${I.MOVE_LEFT}- -${I.MOVE_RIGHT}<br/>
       &nbsp;/|\\<br/>
-      ${MapScreenInputs.MOVE_DOWN_LEFT} ${MapScreenInputs.MOVE_DOWN} ${MapScreenInputs.MOVE_DOWN_RIGHT}<br/>
-      ${MapScreenInputs.AMULET} - ${ScreenNames.AMULET}<br/>
+      ${I.MOVE_DOWN_LEFT} ${I.MOVE_DOWN} ${I.MOVE_DOWN_RIGHT}<br/>
+      ${I.INVENTORY} - ${S.INVENTORY}<br/>
+      ${I.HELP} - ${S.HELP}<br/>
+      ${I.AMULET} - ${S.AMULET}<br/>
+      ${I.WEAPONS} - ${S.WEAPON}<br/>
+      ${I.RING} - ${S.RING}<br/>
+      ${I.ARMOR} - ${S.ARMOR}<br/>
+      ${I.SCROLL} - ${S.SCROLL}<br/>
+      ${I.POTIONS} - ${S.POTIONS}<br/>
+      ${I.FOOD} - ${S.FOOD}<br/>
+      ${I.KEYS} - ${S.KEYS}<br/>
+      ${I.UNEQUIP} - ${S.UNEQUIP}<br/>
     `;
+    console.log(text);
     messenger.logMessages([{
       text
     }]);

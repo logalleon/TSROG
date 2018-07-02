@@ -123,10 +123,10 @@ class Messenger {
     this.el.innerHTML = html.map(String.prototype.trim).join('');
   }
 
-  renderSpaceToContinue (): void {
+  renderReturnToMap (): void {
     this.clearBottomMessages();
     this.logBottomMessage({
-      text: `Press [SPACE] to exit.`,
+      text: `Press [SPACE] or [ESC] to exit.`,
       color: Colors.DEFAULT
     });
   }

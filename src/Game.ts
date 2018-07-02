@@ -82,7 +82,7 @@ class Game {
     this.statusMenu.render();
 
     // Debug
-    this.dungeonGenerator.debugAndGenerateAllFloors();
+    //this.dungeonGenerator.debugAndGenerateAllFloors();
     this.dungeonGenerator.generateNewFloor();
     this.currentFloor = this.dungeonGenerator.floors[0];
     this.initializeEasyStar();

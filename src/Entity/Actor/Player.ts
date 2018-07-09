@@ -42,6 +42,14 @@ interface PlayerOptions {
   hpRegen: number
 }
 
+interface EquippedInventoryItemAccessors {
+  [EquipmentSlots.NECK]: EquippedItemAccessor | null,
+  [EquipmentSlots.ARMOR]: EquippedItemAccessor | null,
+  [EquipmentSlots.LEFT_HAND]: EquippedItemAccessor | null,
+  [EquipmentSlots.RIGHT_HAND]: EquippedItemAccessor | null,
+  [EquipmentSlots.WEAPON]: EquippedItemAccessor | null
+}
+
 interface EquippedItems {
   [EquipmentSlots.NECK]: Amulet | null,
   [EquipmentSlots.ARMOR]: Armor | null,
@@ -84,6 +92,8 @@ class Player extends Actor {
     [EquipmentSlots.RIGHT_HAND]: null,
     [EquipmentSlots.WEAPON]: null
   };
+
+  public equippedAccessors: EquippedInventoryItemAccessors;
 
   private regenDelay = 6;
   private regenDelayCounter = 0;
@@ -142,6 +152,14 @@ class Player extends Actor {
       this.equipped[slot] = this[accessor.type][accessor.index];
       return true;
     }
+  }
+
+  attemptToUnequip (slot: EquipmentSlots): boolean {
+    // @TODO can't unequip cursed items
+    console.log(slot);
+    this.equipped[slot] = null;
+    console.log(this);
+    return true;
   }
 
   /**
@@ -210,4 +228,4 @@ class Player extends Actor {
 
 }
 
-export { Player, PlayerOptions, Pickup, EquipmentSlots, EquippedItemAccessor, EquippedItems, InventoryItems };
+export { Player, PlayerOptions, Pickup, EquipmentSlots, EquippedItemAccessor, EquippedInventoryItemAccessors,EquippedItems, InventoryItems };

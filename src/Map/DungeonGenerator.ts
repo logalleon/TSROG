@@ -60,7 +60,6 @@ class DungeonGenerator {
       return false;
     }
     const { startIndex } = this.floors[this.currentDepth - 1].floorPersistance;
-    console.log(startIndex);
     const startingFloor = this.floors[startIndex];
     const { willPersistFor } = startingFloor;
     // The floor should only persist if the persistance value hasn't stopped

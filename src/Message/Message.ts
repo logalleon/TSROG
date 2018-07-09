@@ -1,16 +1,6 @@
 import { Color, Colors } from '../Canvas/Color';
 import { fontOptions } from '../Canvas/Canvas';
 
-enum Status {
-  SUCCESS,
-  FAILURE
-}
-
-interface ActionResponse {
-  status: Status,
-  message?: string
-}
-
 const invalidInput = (keyValue: string): Message => ({
   text: `Unrecognized input '${keyValue}'.`,
 });
@@ -49,7 +39,7 @@ class Messenger {
       } else {
         this.messages = this.messages.concat(newMessages);
       } */
-      this.messages = this.messages.concat(newMessages);
+      //this.messages = this.messages.concat(newMessages);
       const html = [this.el.innerHTML].concat(newMessages.map((message) => (`
         <${this.htmlWrapper}>
           ${Messenger.colorize(message.text, Colors.DEFAULT)}
@@ -61,6 +51,8 @@ class Messenger {
 
   clearMessages () {
     this.el.innerHTML = '';
+    // @TODO let's try this . . .
+    this.messages = [];
   }
 
   clearBottomMessages () {
@@ -81,31 +73,38 @@ class Messenger {
   }
 
   formatText (text: string): string {
+    const {
+      colorSegmentStartDelimiter: cssd,
+      colorStartDelimiter: csd,
+      colorKeyValuePairDelimiter: ckvpd,
+      colorSegmentEndDelimiter: csed
+    } = this;
+    const { colorSegmentWrapper: csr } = Messenger;
     if (text.indexOf(this.colorStartDelimiter) !== -1) {
-      while (text.indexOf(this.colorStartDelimiter) !== -1) {
+      while (text.indexOf(csd) !== -1) {
         const [key, value] = text.slice(
-          text.indexOf(this.colorStartDelimiter) + this.colorStartDelimiter.length,
-          text.indexOf(this.colorSegmentStartDelimiter)
-        ).split(this.colorKeyValuePairDelimiter);
+          text.indexOf(csd) + csd.length,
+          text.indexOf(cssd)
+        ).split(ckvpd);
         const color: Color = new Color({ [key]: value });
         let segment = text.slice(
-          text.indexOf(this.colorSegmentStartDelimiter) + this.colorSegmentStartDelimiter.length,
-          text.indexOf(this.colorSegmentEndDelimiter)
+          text.indexOf(cssd) + cssd.length,
+          text.indexOf(csed)
         );
         segment = `
-          <${Messenger.colorSegmentWrapper} style='color: ${color.val()}'>
+          <${csr} style='color: ${color.val()}'>
             ${segment}
-          </${Messenger.colorSegmentWrapper}>
+          </${csr}>
         `;
-        let start = text.slice(0, text.indexOf(this.colorStartDelimiter));
-        let tail = text.slice(text.indexOf(this.colorSegmentEndDelimiter) + this.colorSegmentEndDelimiter.length);
+        let start = text.slice(0, text.indexOf(csd));
+        let tail = text.slice(text.indexOf(csed) + csed.length);
         text = `${start}${segment}${tail}`;
       }
     }
     return text;
   }
 
-  showAllCurrentMessage () {
+  showAllCurrentMessage (): void {
     let html = [];
     if (!this.messages.length) {
       html.push(`
@@ -132,4 +131,4 @@ class Messenger {
   }
 }
 
-export { Status, ActionResponse, invalidInput, Messenger, Message, }
+export { invalidInput, Messenger, Message, }

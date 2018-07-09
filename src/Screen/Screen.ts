@@ -1,6 +1,6 @@
 import { InputMap } from '../Input';
 import Game from '../Game';
-import { ActionResponse, Status, invalidInput, Message } from '../Message/Message';
+import { invalidInput, Message } from '../Message/Message';
 
 enum ScreenNames {
   MAP = 'map',
@@ -25,7 +25,7 @@ interface IScreen {
   inputs: InputMap,
   setGame(game: Game): void,
   handleInput(keyValue: string): Message[],
-  render(ctx: CanvasRenderingContext2D): void,
+  render(): void,
   returnToMapScreen(): void
 }
 

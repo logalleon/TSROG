@@ -24336,6 +24336,13 @@ var Player = /** @class */ (function (_super) {
             return true;
         }
     };
+    Player.prototype.attemptToUnequip = function (slot) {
+        // @TODO can't unequip cursed items
+        console.log(slot);
+        this.equipped[slot] = null;
+        console.log(this);
+        return true;
+    };
     /**
      * @override
      * @param destination {Vector2}
@@ -24642,7 +24649,7 @@ var Game = /** @class */ (function () {
         this.statusMenu = new StatusMenu_1.StatusMenu(document.getElementById('status-menu'));
         this.statusMenu.render();
         // Debug
-        //this.dungeonGenerator.debugAndGenerateAllFloors();
+        this.dungeonGenerator.debugAndGenerateAllFloors();
         this.dungeonGenerator.generateNewFloor();
         this.currentFloor = this.dungeonGenerator.floors[0];
         this.initializeEasyStar();
@@ -25362,7 +25369,6 @@ var DungeonGenerator = /** @class */ (function () {
             return false;
         }
         var startIndex = this.floors[this.currentDepth - 1].floorPersistance.startIndex;
-        console.log(startIndex);
         var startingFloor = this.floors[startIndex];
         var willPersistFor = startingFloor.willPersistFor;
         // The floor should only persist if the persistance value hasn't stopped
@@ -25466,13 +25472,11 @@ var Floor = /** @class */ (function () {
         // This cuts of "extra" void tiles around the map
         //this.trimFloor();
         // Make sure to call placement of items with a pos after trim so the positions are correct
-        console.log(this);
         this.spawnEnemies();
         this.setStaircaseTiles();
         if (this.floorPersistance && this.floorPersistance.persistance) {
             this.willPersistFor = Random_1.randomIntR(this.floorPersistance.persistance);
             this.floorPersistance.startIndex = this.depth;
-            console.log(this);
         }
     };
     Floor.prototype.setVoidTiles = function () {
@@ -25535,7 +25539,6 @@ var Floor = /** @class */ (function () {
     };
     Floor.prototype.setDoorTiles = function () {
         var _this = this;
-        console.log('set');
         this.corridors.forEach(function (corridor) {
             var _a = corridor.startingPosition, x = _a.x, y = _a.y;
             if (_this.inBounds(_this.floorWidth, _this.floorHeight, corridor.startingPosition)) {
@@ -25790,13 +25793,9 @@ var Floor = /** @class */ (function () {
         this.floorHeight = bottom - top;
         // Adjust the position of the rooms
         this.rooms.forEach(function (room) {
-            console.log(room.pos.y, ';:', (top));
             room.pos.y -= (top);
-            console.log('after::', room.pos.y);
             // -= top - bottom
         });
-        console.log(this.tiles);
-        console.log(top, bottom);
         this.corridors.forEach(function (corridor) {
             corridor.startingPosition.y -= (bottom - top);
             corridor.endPosition.y -= top - bottom;
@@ -26251,12 +26250,6 @@ exports.TileSpawner = TileSpawner;
 exports.__esModule = true;
 var Color_1 = require("../Canvas/Color");
 var Canvas_1 = require("../Canvas/Canvas");
-var Status;
-(function (Status) {
-    Status[Status["SUCCESS"] = 0] = "SUCCESS";
-    Status[Status["FAILURE"] = 1] = "FAILURE";
-})(Status || (Status = {}));
-exports.Status = Status;
 var invalidInput = function (keyValue) { return ({
     text: "Unrecognized input '" + keyValue + "'."
 }); };
@@ -26281,13 +26274,15 @@ var Messenger = /** @class */ (function () {
             } else {
               this.messages = this.messages.concat(newMessages);
             } */
-            this.messages = this.messages.concat(newMessages);
+            //this.messages = this.messages.concat(newMessages);
             var html = [this.el.innerHTML].concat(newMessages.map(function (message) { return ("\n        <" + _this.htmlWrapper + ">\n          " + Messenger.colorize(message.text, Color_1.Colors.DEFAULT) + "\n        </" + _this.htmlWrapper + ">\n      "); }));
             this.el.innerHTML = html.join('');
         }
     };
     Messenger.prototype.clearMessages = function () {
         this.el.innerHTML = '';
+        // @TODO let's try this . . .
+        this.messages = [];
     };
     Messenger.prototype.clearBottomMessages = function () {
         this.bottomEl.innerHTML = '';
@@ -26300,19 +26295,21 @@ var Messenger = /** @class */ (function () {
         return "\n      <" + Messenger.colorSegmentWrapper + " style='color: " + color.val() + "'>\n        " + text + "\n      </" + Messenger.colorSegmentWrapper + ">\n    ";
     };
     Messenger.prototype.formatText = function (text) {
+        var _a = this, cssd = _a.colorSegmentStartDelimiter, csd = _a.colorStartDelimiter, ckvpd = _a.colorKeyValuePairDelimiter, csed = _a.colorSegmentEndDelimiter;
+        var csr = Messenger.colorSegmentWrapper;
         if (text.indexOf(this.colorStartDelimiter) !== -1) {
-            while (text.indexOf(this.colorStartDelimiter) !== -1) {
-                var _a = text.slice(text.indexOf(this.colorStartDelimiter) + this.colorStartDelimiter.length, text.indexOf(this.colorSegmentStartDelimiter)).split(this.colorKeyValuePairDelimiter), key = _a[0], value = _a[1];
-                var color = new Color_1.Color((_b = {}, _b[key] = value, _b));
-                var segment = text.slice(text.indexOf(this.colorSegmentStartDelimiter) + this.colorSegmentStartDelimiter.length, text.indexOf(this.colorSegmentEndDelimiter));
-                segment = "\n          <" + Messenger.colorSegmentWrapper + " style='color: " + color.val() + "'>\n            " + segment + "\n          </" + Messenger.colorSegmentWrapper + ">\n        ";
-                var start = text.slice(0, text.indexOf(this.colorStartDelimiter));
-                var tail = text.slice(text.indexOf(this.colorSegmentEndDelimiter) + this.colorSegmentEndDelimiter.length);
+            while (text.indexOf(csd) !== -1) {
+                var _b = text.slice(text.indexOf(csd) + csd.length, text.indexOf(cssd)).split(ckvpd), key = _b[0], value = _b[1];
+                var color = new Color_1.Color((_c = {}, _c[key] = value, _c));
+                var segment = text.slice(text.indexOf(cssd) + cssd.length, text.indexOf(csed));
+                segment = "\n          <" + csr + " style='color: " + color.val() + "'>\n            " + segment + "\n          </" + csr + ">\n        ";
+                var start = text.slice(0, text.indexOf(csd));
+                var tail = text.slice(text.indexOf(csed) + csed.length);
                 text = "" + start + segment + tail;
             }
         }
         return text;
-        var _b;
+        var _c;
     };
     Messenger.prototype.showAllCurrentMessage = function () {
         var _this = this;
@@ -27131,32 +27128,83 @@ var UnequipScreen = /** @class */ (function (_super) {
     function UnequipScreen() {
         var _this = _super.call(this) || this;
         _this.name = Screen_1.ScreenNames.UNEQUIP;
+        _this.awaitingConfirmation = false;
+        _this.renderYesNo = _this.renderYesNo.bind(_this);
         return _this;
     }
     UnequipScreen.prototype.render = function () {
         var messenger = this.game.messenger;
-        this.renderEquippedItems();
-        messenger.renderReturnToMap();
+        if (!this.awaitingConfirmation) {
+            this.renderEquippedItems();
+        }
+        else {
+            this.renderYesNo();
+        }
+        // @TODO it should be more obvious that yes/no is being rendered
     };
     UnequipScreen.prototype.renderEquippedItems = function () {
         var player = this.game.player;
-        var equipped = player.equipped;
+        var equipmentSlots = player.equipped;
         var keyCode = 65;
         var i = 0;
         this.game.messenger.clearMessages();
         var title = [{ text: 'Unequip Items' }];
         this.game.messenger.logMessages(title);
-        for (var slot in equipped) {
-            var itemOrEmptySlot = equipped[slot];
+        this.itemReference = {};
+        for (var slot in equipmentSlots) {
+            var itemOrEmptySlot = equipmentSlots[slot];
             var message = {
                 text: String.fromCharCode(keyCode) + ") " + (itemOrEmptySlot ? itemOrEmptySlot.name
                     : 'nothing equipped'),
                 color: Color_1.Colors.WHITE
             };
+            var reference = {
+                item: itemOrEmptySlot,
+                slot: slot
+            };
+            this.itemReference[String.fromCharCode(keyCode)] = reference;
             i++;
             keyCode++;
             this.game.messenger.logMessages([message]);
         }
+        this.inputs = Object.assign({}, this.returnToMap);
+        for (var itemReferenceAccessor in this.itemReference) {
+            this.inputs[itemReferenceAccessor] = this.setItemReferenceAccessor.bind(this, itemReferenceAccessor);
+        }
+    };
+    UnequipScreen.prototype.setItemReferenceAccessor = function (itemReferenceAccessor) {
+        var _this = this;
+        this.itemReferenceAccessor = itemReferenceAccessor;
+        var reference = this.itemReference[this.itemReferenceAccessor];
+        var item = reference.item;
+        if (item !== null) {
+            this.awaitingConfirmation = true;
+            // @TODO there's obviously a possibility that the y or n lists
+            // collide with these - make sure that the letters y and n can't be menu options
+            this.inputs = Object.assign({}, {
+                'y': function () {
+                    _this.game.player.attemptToUnequip(reference.slot);
+                    _this.game.messenger.logMessages([{ text: "Unequipped " + item.name + "." }]);
+                    _this.awaitingConfirmation = false;
+                },
+                'n': function () {
+                    _this.awaitingConfirmation = false;
+                }
+            }, this.returnToMap);
+        }
+        else {
+            var text = 'Cannot unequip empty slot.';
+            this.game.messenger.logMessages([{ text: text }]);
+        }
+    };
+    UnequipScreen.prototype.renderYesNo = function () {
+        this.awaitingConfirmation = true;
+        var messenger = this.game.messenger;
+        var reference = this.itemReference[this.itemReferenceAccessor];
+        var item = reference.item;
+        messenger.clearMessages();
+        var text = "Unequip " + item.name + " [y/n]?";
+        messenger.logMessages([{ text: text }]);
     };
     return UnequipScreen;
 }(Screen_1.Screen));

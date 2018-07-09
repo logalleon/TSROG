@@ -141,13 +141,11 @@ class Floor {
     //this.trimFloor();
 
     // Make sure to call placement of items with a pos after trim so the positions are correct
-    console.log(this);
     this.spawnEnemies();
     this.setStaircaseTiles();
     if (this.floorPersistance && this.floorPersistance.persistance) {
       this.willPersistFor = randomIntR(this.floorPersistance.persistance);
       this.floorPersistance.startIndex = this.depth;
-      console.log(this);
     }
   }
 
@@ -211,7 +209,6 @@ class Floor {
   }
 
   setDoorTiles (): void {
-    console.log('set');
     this.corridors.forEach((corridor) => {
       let { x, y } = corridor.startingPosition;
       if (this.inBounds(this.floorWidth, this.floorHeight, corridor.startingPosition)) {
@@ -247,7 +244,7 @@ class Floor {
     }
   }
 
-  setWalls (): void {
+  setWalls () {
     const { tileSpawner } = Game.instance.dungeonGenerator;
     const { regionName: region } = this;
     const isPassible = false;
@@ -489,13 +486,9 @@ class Floor {
     this.floorHeight = bottom - top;
     // Adjust the position of the rooms
     this.rooms.forEach((room) => {
-      console.log(room.pos.y, ';:', (top));
       room.pos.y -= (top);
-      console.log('after::', room.pos.y);
       // -= top - bottom
     });
-    console.log(this.tiles);
-    console.log(top, bottom);
     this.corridors.forEach((corridor) => {
       corridor.startingPosition.y -= (bottom - top);
       corridor.endPosition.y -= top - bottom;

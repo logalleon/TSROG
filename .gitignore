@@ -2,3 +2,4 @@ node_modules
 tmp
 *.dart
 *.pl
+index.js

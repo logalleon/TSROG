@@ -1,6 +1,13 @@
 import { InputMap } from '../Input';
 import Game from '../Game';
 import { invalidInput, Message } from '../Message/Message';
+import { Prop } from '../Entity/Prop/Prop';
+import { EquipmentSlots } from '../Entity/Actor/Player';
+
+interface ItemReference {
+  item: Prop|null,
+  slot: EquipmentSlots
+}
 
 enum ScreenNames {
   MAP = 'map',
@@ -68,4 +75,4 @@ class Screen implements IScreen {
 
 }
 
-export { Screen, ScreenNames };
+export { Screen, ScreenNames, ItemReference };

@@ -1,4 +1,4 @@
-import { Screen, ScreenNames } from './Screen';
+import { Screen, ScreenNames, ItemReference } from './Screen';
 import Game from '../Game';
 import { InputMap } from '../Input';
 import { clearCanvas, fontOptions } from '../Canvas/Canvas'
@@ -6,11 +6,6 @@ import { Player, InventoryItems, EquippedItems, EquippedItemAccessor, EquipmentS
 import { Prop } from '../Entity/Prop/Prop';
 import { Message } from '../Message/Message';
 import { Colors } from '../Canvas/Color';
-
-interface ItemReference {
-  item: Prop|null,
-  slot: EquipmentSlots
-}
 
 class UnequipScreen extends Screen {
 

@@ -128,14 +128,14 @@ window.onload = () => {
 
   // END TEST DATA ////////////////////
 
-  const g = new Game(screens,  player, el, bottomEl);
+  const g = new Game(screens, player);
   // Bind the current game to all screens
   g.screens.forEach((screen) => screen.setGame(g));
 
   // TESSSSSSSSSSST DATA
   let pickup: Pickup = {
     type: InventoryItems.ARMOR,
-    item: plateMail
+    item: sword
   }
   player.addToInventory(pickup);
   player.attemptToEquip({ index: 0, type: InventoryItems.ARMOR }, EquipmentSlots.ARMOR);

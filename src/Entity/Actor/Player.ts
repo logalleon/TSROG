@@ -13,6 +13,7 @@ import { Enemy } from './Enemy';
 import { Colors } from '../../Canvas/Color';
 import Game from '../../Game';
 import { clamp } from '../../Random/Random';
+import { BASE_REGEN_DELAY } from './config';
 
 const { colorize } = Messenger;
 
@@ -36,7 +37,7 @@ enum EquipmentSlots {
 }
 
 interface PlayerOptions {
-  actorOptions: ActorOptions
+  actorOptions: ActorOptions, // @TODO refactor this out to flatten the structure
   maxHp: number,
   level: number,
   hpRegen: number
@@ -74,9 +75,11 @@ class Player extends Actor {
   public maxHp: number;
   public hpRegen: number;
 
+  // Movement and turn-related activities
   public hasMoveInteracted: boolean = false;
   public hasMoved: boolean = false;
 
+  // The current inventory of the player
   public [InventoryItems.AMULETS]: Amulet[];
   public [InventoryItems.ARMOR]: Armor[];
   public [InventoryItems.FOOD]: Food[];
@@ -85,6 +88,7 @@ class Player extends Actor {
   public [InventoryItems.SCROLLS]: Scroll[];
   public [InventoryItems.WEAPONS]: Weapon[];
 
+  // Currently equipped items
   public equipped: EquippedItems = {
     [EquipmentSlots.NECK]: null,
     [EquipmentSlots.ARMOR]: null,
@@ -93,9 +97,15 @@ class Player extends Actor {
     [EquipmentSlots.WEAPON]: null
   };
 
-  public equippedAccessors: EquippedInventoryItemAccessors;
+  public equippedAccessors: EquippedInventoryItemAccessors = {
+    [EquipmentSlots.NECK]: null,
+    [EquipmentSlots.ARMOR]: null,
+    [EquipmentSlots.LEFT_HAND]: null,
+    [EquipmentSlots.RIGHT_HAND]: null,
+    [EquipmentSlots.WEAPON]: null
+  };
 
-  private regenDelay = 6;
+  private regenDelay = BASE_REGEN_DELAY;
   private regenDelayCounter = 0;
 
   constructor (options: PlayerOptions) {
@@ -119,10 +129,7 @@ class Player extends Actor {
     if (!this.isDead()) {
       if (this.hasMoveInteracted) {
         this.updateHp();
-        // Update the regen counter after updating the hp
-        if (this.regenDelayCounter) {
-          this.regenDelayCounter--;
-        }
+        this.updateRegenDelay();
       }
       // Render any status changes
       Game.instance.statusMenu.render();
@@ -132,14 +139,14 @@ class Player extends Actor {
     return [];
   }
 
-  updateHp () {
+  updateHp (): void {
     if (this.regenDelayCounter === 0) {
       this.hp += this.hpRegen;
       this.hp = clamp(this.hp, 0, this.maxHp);
     }
   }
 
-  addToInventory (pickup: Pickup) {
+  addToInventory (pickup: Pickup): void {
     this[pickup.type] = [].concat(this[pickup.type], pickup.item);
   }
 
@@ -150,6 +157,7 @@ class Player extends Actor {
     // Equip the item
     } else {
       this.equipped[slot] = this[accessor.type][accessor.index];
+      this.equippedAccessors[slot] = accessor;
       return true;
     }
   }
@@ -219,6 +227,13 @@ class Player extends Actor {
         ${target.formattedName()} ${target.formattedChar()}
         ${colorize(` but it evades your blows!`, Colors.MISS_DEFAULT)}
       `
+    }
+  }
+
+  updateRegenDelay (): void {
+    // Update the regen counter after updating the hp
+    if (this.regenDelayCounter) {
+      this.regenDelayCounter--;
     }
   }
 

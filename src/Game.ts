@@ -47,9 +47,7 @@ class Game {
 
   constructor (
       screens: Screen[],
-      player: Player,
-      el: HTMLElement,
-      bottomEl: HTMLElement
+      player: Player
     ) {
 
     if (Game.instance !== null) {
@@ -62,7 +60,12 @@ class Game {
     this.screens = screens;
     this.activeScreen = screens[0];
     this.keyMap = {};
-    this.messenger = new Messenger(el, bottomEl);
+    this.messenger = new Messenger({
+      panel1: document.getElementById('panel-1'),
+      panel2: document.getElementById('panel-2'),
+      panel3: document.getElementById('panel-3'),
+      bottom: document.getElementById('status-menu')
+    });
     window.onkeydown = this.handleInput.bind(this);
     window.onkeyup = this.handleInput.bind(this);
 

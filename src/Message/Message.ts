@@ -10,10 +10,19 @@ interface Message {
   color?: Color
 }
 
+interface MessengerOptions {
+  panel1: HTMLElement,
+  panel2: HTMLElement,
+  panel3: HTMLElement,
+  bottom: HTMLElement
+}
+
 class Messenger {
 
-  public el: HTMLElement;
-  public bottomEl: HTMLElement;
+  public panel1: HTMLElement;
+  public panel2: HTMLElement;
+  public panel3: HTMLElement;
+  public bottom: HTMLElement;
   public messages: Message[];
   
   private htmlWrapper = 'p';
@@ -25,9 +34,11 @@ class Messenger {
   private colorSegmentEndDelimiter = '>>';
   private colorKeyValuePairDelimiter = ':';
 
-  constructor (el: HTMLElement, bottomEl: HTMLElement) {
-    this.el = el;
-    this.bottomEl = bottomEl;
+  constructor (options: MessengerOptions) {
+    this.panel1 = options.panel1;
+    this.panel2 = options.panel2;
+    this.panel3 = options.panel3;
+    this.bottom = options.bottom;
     this.messages = [];
   }
 
@@ -40,28 +51,40 @@ class Messenger {
         this.messages = this.messages.concat(newMessages);
       } */
       //this.messages = this.messages.concat(newMessages);
-      const html = [this.el.innerHTML].concat(newMessages.map((message) => (`
+      const html = [this.panel1.innerHTML].concat(newMessages.map((message) => (`
         <${this.htmlWrapper}>
           ${Messenger.colorize(message.text, Colors.DEFAULT)}
         </${this.htmlWrapper}>
       `)));
-      this.el.innerHTML = html.join('');
+      this.panel1.innerHTML = html.join('');
+    }
+  }
+
+  writeToPanel (panel: string, messages: Message[]) {
+    console.log(this[panel]);
+    if (messages && messages.length) {
+      const html = [this[panel].innerHTML].concat(messages.map((message) => (`
+        <${this.htmlWrapper}>
+          ${Messenger.colorize(message.text, Colors.DEFAULT)}
+        </${this.htmlWrapper}>
+      `)));
+      this[panel].innerHTML = html.join('');
     }
   }
 
   clearMessages () {
-    this.el.innerHTML = '';
+    this.panel1.innerHTML = '';
     // @TODO let's try this . . .
     this.messages = [];
   }
 
   clearBottomMessages () {
-    this.bottomEl.innerHTML = '';
+    this.bottom.innerHTML = '';
   }
 
   logBottomMessage (message: Message) {
-    this.bottomEl.style.color = message.color.val();
-    this.bottomEl.innerText = this.formatText(message.text);
+    this.bottom.style.color = message.color.val();
+    this.bottom.innerText = this.formatText(message.text);
   }
 
   static colorize (text: string, color: Color) {
@@ -119,7 +142,7 @@ class Messenger {
         </${this.htmlWrapper}>
       `));
     }
-    this.el.innerHTML = html.map(String.prototype.trim).join('');
+    this.panel1.innerHTML = html.map(String.prototype.trim).join('');
   }
 
   renderReturnToMap (): void {

@@ -14,7 +14,7 @@ const { colorize } = Messenger;
 const MASSIVE_DAMAGE_THRESHOLD: number = .30;
 
 interface EnemyOptions {
-  actorOptions: ActorOptions
+  actorOptions: ActorOptions,
   creatureType: CreatureTypes | CreatureTypes[]
   name: string
   cr: number

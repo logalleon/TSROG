@@ -1,7 +1,7 @@
 import { Screen, ScreenNames } from './Screen';
 import Game from '../Game';
 import { InputMap } from '../Input';
-import { Message } from '../Message/Message';
+import { Message, Panel } from '../Message/Messenger';
 
 class HelpScreen extends Screen {
 
@@ -10,7 +10,7 @@ class HelpScreen extends Screen {
   public inputs: InputMap;
 
   constructor() {
-    super();
+    super({});
   }
 
   render() {
@@ -21,10 +21,10 @@ class HelpScreen extends Screen {
 
   renderHelp () {
     const { player } = this.game;
-    this.game.messenger.clearMessages();
+    this.game.messenger.clearPanel(Panel.PANEL_1);
     const title = { text: 'Help' };
     const help = { text: '@TODO'};
-    this.game.messenger.logMessages([title, help]);
+    this.game.messenger.writeToPanel(Panel.PANEL_1, [title, help]);
   }
 
 }

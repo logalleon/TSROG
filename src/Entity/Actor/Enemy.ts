@@ -1,5 +1,5 @@
 import { Actor, ActorOptions, AttackRange } from './Actor';
-import { Message, Messenger } from '../../Message/Message';
+import { Message, Messenger } from '../../Message/Messenger';
 import { Colors } from '../../Canvas/Color';
 import Vector2 from '../../Vector';
 import Game from '../../Game';

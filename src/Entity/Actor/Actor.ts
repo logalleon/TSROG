@@ -1,7 +1,7 @@
 import Entity from '../Entity';
 import Vector2 from '../../Vector';
 import { Color } from '../../Canvas/Color';
-import { Message } from '../../Message/Message';
+import { Message } from '../../Message/Messenger';
 import { rollDice, StandardDice } from '../../Random/Dice';
 import Game from '../../Game';
 import { Promise as Bluebird } from 'bluebird';

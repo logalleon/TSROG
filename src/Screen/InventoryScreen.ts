@@ -4,8 +4,9 @@ import { InputMap } from '../Input';
 import { clearCanvas, fontOptions } from '../Canvas/Canvas'
 import { Player, InventoryItems } from '../Entity/Actor/Player';
 import { Prop } from '../Entity/Prop/Prop';
-import { Message } from '../Message/Message';
+import { Message } from '../Message/Messenger';
 import { Colors } from '../Canvas/Color';
+import { Panel } from '../Message/Messenger';
 
 class InventoryScreen extends Screen {
 
@@ -14,7 +15,7 @@ class InventoryScreen extends Screen {
   public inputs: InputMap;
 
   constructor() {
-    super();
+    super({});
   }
 
   render() {
@@ -27,11 +28,11 @@ class InventoryScreen extends Screen {
     const { player } = this.game;
     let keyCode = 65;
     let i = 0;
-    this.game.messenger.clearMessages();
+    this.game.messenger.clearPanel(Panel.PANEL_1);
     const title = [{ text: 'Inventory' }];
-    this.game.messenger.logMessages(title);
+    this.game.messenger.writeToPanel(Panel.PANEL_1, title);
     for (let key in InventoryItems) {
-      this.game.messenger.logMessages(
+      this.game.messenger.writeToPanel(Panel.PANEL_1, 
         player[InventoryItems[key]].map((item: Prop): Message => {
           const message: Message = {
             text: `${String.fromCharCode(keyCode)}) ${item.name}`,

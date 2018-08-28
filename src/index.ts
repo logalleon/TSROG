@@ -22,6 +22,7 @@ import { CreatureTypes, Variations, defaultVariations } from './Entity/Actor/Ene
 import { StatusMenu } from './UI/StatusMenu';
 import HelpScreen from './Screen/HelpScreen';
 import UnequipScreen from './Screen/UnequipScreen';
+import { Panel } from './Message/Messenger';
 
 const height = 240;
 const width = 600;
@@ -151,8 +152,8 @@ window.onload = () => {
   player.addToInventory(pickup);
   player.attemptToEquip({ index: 0, type: InventoryItems.WEAPONS }, EquipmentSlots.WEAPON);
 
-  g.activeScreen.render();
-  g.messenger.logMessages([{ text: 'This is the map screen', color: Colors.DEFAULT }]);
+  g.activeScreen.render([]);
+  g.messenger.writeToPanel(Panel.PANEL_1, [{ text: 'This is the map screen', color: Colors.DEFAULT }]);
 
   (<any>window).game = g;
 };

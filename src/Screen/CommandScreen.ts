@@ -8,6 +8,7 @@ import { Player, InventoryItems } from '../Entity/Actor/Player';
 import { Prop } from '../Entity/Prop/Prop';
 import { MapScreenInputs } from './MapScreen';
 import { titleCase } from 'lodash';
+import { Panel } from '../Message/Messenger';
 
 class CommandScreen extends Screen {
 
@@ -16,7 +17,7 @@ class CommandScreen extends Screen {
   public inputs: InputMap;
 
   constructor() {
-    super();
+    super({});
   }
 
   render() {
@@ -53,7 +54,7 @@ class CommandScreen extends Screen {
       ${I.UNEQUIP} - ${S.UNEQUIP}<br/>
     `;
     console.log(text);
-    messenger.logMessages([{
+    messenger.writeToPanel(Panel.PANEL_1, [{
       text
     }]);
   }

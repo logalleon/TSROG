@@ -5,10 +5,10 @@ tmp := ./tmp
 src := ./src
 srcFiles := $(shell find src/ -type f -name '*.ts')
 
-build: index.js
-
 watch:
 	while true; do make build -s; sleep 2; done;
+
+build: index.js
 
 index.js: $(tmp)
 	browserify -e $(tmp) -o index.js

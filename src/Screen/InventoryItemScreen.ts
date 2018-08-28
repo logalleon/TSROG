@@ -5,8 +5,9 @@ import { fontOptions, padding } from '../Canvas/Canvas'
 import { Player, InventoryItems, EquipmentSlots } from '../Entity/Actor/Player';
 import { Prop } from '../Entity/Prop/Prop';
 import { Colors } from '../Canvas/Color';
-import { Message } from '../Message/Message';
+import { Message, Panel } from '../Message/Messenger';
 import { startCase } from 'lodash';
+import { ConfirmKeyBindings, EscapeKeyBinding } from './CommonHandlers';
 
 enum optionsKey {
   EQUIP = 'e',
@@ -21,13 +22,15 @@ class InventoryItemScreen extends Screen {
   public game: Game;
   public inputs: InputMap;
 
+  private storedInputMaps: InputMap[] = [];
+
   private inspectingItems: boolean = false;
   private awaitingConfirmation: boolean = false;
 
   private itemReference = {};
 
   constructor(name: ScreenNames, item: InventoryItems) {
-    super();
+    super({});
     this.name = name;
     this.item = item;
   }
@@ -50,9 +53,9 @@ class InventoryItemScreen extends Screen {
     // Start with A
     let keyCode = 65;
     let i = 0;
-    this.game.messenger.clearMessages();
-    this.game.messenger.logMessages(this.renderTitle());
-    this.game.messenger.logMessages(
+    this.game.messenger.clearPanel(Panel.PANEL_1);
+    this.game.messenger.writeToPanel(Panel.PANEL_1, this.renderTitle());
+    this.game.messenger.writeToPanel(Panel.PANEL_1,
       player[this.item].map((item: Prop, index: number): Message => {
         const message: Message = {
           text: `${String.fromCharCode(keyCode)}) ${item.name}`,
@@ -69,46 +72,71 @@ class InventoryItemScreen extends Screen {
   }
 
   showOptions (itemReferenceAccessor: ItemReference): void {
-    const messages: Message[] = [
-      {
-        text: `${optionsKey.EQUIP}) equip`
-      },
-      {
-        text: `${optionsKey.INSPECT}) inspect`
-      },
-      {
-        text: `${optionsKey.UNEQUIP}) unequip`
+    console.log('binding');
+    this.storedInputMaps.push(this.inputs);
+    this.inputs = {
+        [optionsKey.EQUIP]: this.showEquipPrompt.bind(this, itemReferenceAccessor),
+        [optionsKey.INSPECT]: this.showInspect.bind(this, itemReferenceAccessor),
+        [optionsKey.UNEQUIP]: this.showUnequipPrompt.bind(this, itemReferenceAccessor),
+        [EscapeKeyBinding.ESC]: () => { // @TODO this seems like it might become a common pattern - maybe this should be moved to common handlers
+          console.log('hello there');
+          this.game.messenger.clearPanel(Panel.PANEL_2);
+          this.inputs = this.storedInputMaps.pop();
+        }
+    };
+    console.log(this.inputs);
+    this.game.messenger.clearPanel(Panel.PANEL_2);
+    this.game.messenger.writeToPanel(Panel.PANEL_2,
+      [
+        {
+          text: `${optionsKey.EQUIP}) equip`
+        },
+        {
+          text: `${optionsKey.INSPECT}) inspect`
+        },
+        {
+          text: `${optionsKey.UNEQUIP}) unequip`
+        }
+      ]
+    );
+  }
+
+  showEquipPrompt (itemReferenceAccessor: string) {
+    const item: Prop = this.itemReference[itemReferenceAccessor];
+    const message = {
+      text: `Equip ${item.name} [y/n]?`
+    };
+    this.storedInputMaps.push(this.inputs);
+    this.inputs = {
+      [ConfirmKeyBindings.YES]: () => { console.log('yes')},
+      [ConfirmKeyBindings.NO]: () => { console.log('no')},
+      [EscapeKeyBinding.ESC]: () => {
+        this.game.messenger.clearPanel(Panel.PANEL_3);
+        this.inputs = this.storedInputMaps.pop();
       }
-    ]
-    this.inputs[optionsKey.EQUIP] = this.showEquipPrompt;
-    this.inputs[optionsKey.INSPECT] = this.showInspect;
-    this.inputs[optionsKey.UNEQUIP] = this.showUnequipPrompt;
-    this.game.messenger.writeToPanel('panel2', messages);
+    }
+    this.game.messenger.clearPanel(Panel.PANEL_3);
+    this.game.messenger.writeToPanel(Panel.PANEL_3, [message]);
   }
 
-  showEquipPrompt () {
-
+  showInspect (itemReferenceAccessor: string) {
+    const { item } = this.itemReference[itemReferenceAccessor];
+    // @TODO add inputs map
+    this.game.messenger.clearPanel(Panel.PANEL_3);
+    this.game.messenger.writeToPanel(Panel.PANEL_3, [{
+      text: `Description ${item.descriptionLong}`
+    }]);
   }
 
-  showInspect () {
-    this.game.messenger.writeToPanel('panel3', [{ text: 'hello' }]);
+  showUnequipPrompt (itemReferenceAccessor: string) {
+    const { item } = this.itemReference[itemReferenceAccessor];
+    // @TODO add inputs map
+    const message = {
+      text: `Unequip ${item.name} [y/n]?`
+    };
+    this.game.messenger.clearPanel(Panel.PANEL_3);
+    this.game.messenger.writeToPanel(Panel.PANEL_3, [message]);
   }
-
-  showUnequipPrompt () {
-
-  }
-
-
-
-  // renderYesNo (): void {
-  //   this.awaitingConfirmation = true;
-  //   const { messenger } = this.game;
-  //   const reference: ItemReference = this.itemReference[this.itemReferenceAccessor];
-  //   const { item } = reference;
-  //   messenger.clearMessages();
-  //   const text = `Unequip ${item.name} [y/n]?`;
-  //   messenger.logMessages([{ text }]);
-  // }
-
 }
+
 export default InventoryItemScreen;

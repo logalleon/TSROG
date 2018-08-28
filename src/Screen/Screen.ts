@@ -1,6 +1,6 @@
 import { InputMap } from '../Input';
 import Game from '../Game';
-import { invalidInput, Message } from '../Message/Message';
+import { invalidInput, Message, Panel } from '../Message/Messenger';
 import { Prop } from '../Entity/Prop/Prop';
 import { EquipmentSlots } from '../Entity/Actor/Player';
 
@@ -32,12 +32,13 @@ interface IScreen {
   inputs: InputMap,
   setGame(game: Game): void,
   handleInput(keyValue: string): Message[],
-  render(): void,
+  render(messages: Message[]): void,
   returnToMapScreen(): void
 }
 
 class Screen implements IScreen {
 
+  public identifier: Panel;
   public name: ScreenNames;
   public game: Game;
   public inputs: InputMap;
@@ -47,8 +48,8 @@ class Screen implements IScreen {
     'Esc': this.returnToMapScreen
   }
 
-  constructor () {
-    this.inputs = (<any>Object).assign({}, this.inputs, this.returnToMap);
+  constructor (inputs: InputMap) {
+    this.inputs = (<any>Object).assign({}, inputs, this.inputs, this.returnToMap);
   }
 
   setGame (game: Game): void {
@@ -63,14 +64,16 @@ class Screen implements IScreen {
     }
   }
 
+  // Automatically break out of all screens
   returnToMapScreen (): void {
     const { game } = this;
     const [mapScreen] = game.screens.filter(screen => screen.name === ScreenNames.MAP);
     game.activeScreen = mapScreen;
   }
 
-  render (): void {
-    return null;
+  render (messages: Message[]): void {
+    this.game.messenger.clearPanel(this.identifier);
+    this.game.messenger.writeToPanel(this.identifier, messages);
   }
 
 }

@@ -3,7 +3,7 @@ import Game from '../Game';
 import { InputMap } from '../Input';
 import { clearCanvas, fontOptions, CanvasProps } from '../Canvas/Canvas';
 import Vector2 from '../Vector';
-import { Message } from '../Message/Message';
+import { Message, Panel } from '../Message/Messenger';
 import { Colors } from '../Canvas/Color';
 import { Floor } from '../Map/Floor';
 import { Tile, TileTypes } from '../Map/Tile';
@@ -69,17 +69,17 @@ class MapScreen extends Screen {
   }
 
   constructor() {
-    super();
+    super({});
   }
 
   render() {
     const { currentFloor, messenger } = this.game;
     const { tiles } = currentFloor;
-    messenger.clearBottomMessages();
-    messenger.logBottomMessage({
+    messenger.clearPanel(Panel.BOTTOM);
+    messenger.writeToPanel(Panel.BOTTOM, [{
       color: Colors.DEFAULT,
       text: `Press '?' for command list.`
-    });
+    }]);
     this.renderTiles();
   }
 

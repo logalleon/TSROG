@@ -8,7 +8,7 @@ import { Ring } from '../Prop/Ring';
 import { Scroll } from '../Prop/Scroll';
 import { Weapon } from '../Prop/Weapon';
 import { Prop } from '../Prop/Prop';
-import { Message, Messenger } from '../../Message/Message';
+import { Message, Messenger } from '../../Message/Messenger';
 import { Enemy } from './Enemy';
 import { Colors } from '../../Canvas/Color';
 import Game from '../../Game';

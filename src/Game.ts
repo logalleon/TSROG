@@ -3,7 +3,7 @@ import { mapKeyPressToActualCharacter, keyCharToCode, keyCodeToChar } from './In
 import { CanvasProps } from './Canvas/Canvas';
 import { Player } from './Entity/Actor/Player';
 import Vector2 from './Vector';
-import { Messenger, Message } from './Message/Message';
+import { Messenger, Message, Panel } from './Message/Messenger';
 import { Enemy } from './Entity/Actor/Enemy';
 import { DungeonGenerator, DungeonOptions } from './Map/DungeonGenerator';
 import { Legendary } from './Random/Legendary';
@@ -116,6 +116,7 @@ class Game {
         char = keyCodeToChar[keyCode];
       }
       // Handle the player input first. The player gets priority for everything
+      console.log(char);
       const inputMessages = this.activeScreen.handleInput(char);
       let messages: Message[] = Array.isArray(inputMessages) ? inputMessages : [];
 
@@ -137,14 +138,14 @@ class Game {
       // See player.update description
       const playerMessages = player.update();
       // Clear the current message window
-      this.messenger.clearMessages();
-      this.messenger.logMessages(messages.concat(Array.isArray(playerMessages) ? playerMessages : []));
+      this.messenger.clearPanel(Panel.PANEL_1);
+      this.messenger.writeToPanel(Panel.PANEL_1, messages.concat(Array.isArray(playerMessages) ? playerMessages : []));
 
       // Update internals of the game
       this.update();
 
       // Finally, render what's changed
-      this.activeScreen.render();
+      this.activeScreen.render([]);
     }
   }
 

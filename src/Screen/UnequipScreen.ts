@@ -4,7 +4,7 @@ import { InputMap } from '../Input';
 import { clearCanvas, fontOptions } from '../Canvas/Canvas'
 import { Player, InventoryItems, EquippedItems, EquippedItemAccessor, EquipmentSlots } from '../Entity/Actor/Player';
 import { Prop } from '../Entity/Prop/Prop';
-import { Message } from '../Message/Message';
+import { Message, Panel } from '../Message/Messenger';
 import { Colors } from '../Canvas/Color';
 
 class UnequipScreen extends Screen {
@@ -22,7 +22,7 @@ class UnequipScreen extends Screen {
   private awaitingConfirmation: boolean = false;
 
   constructor() {
-    super();
+    super({});
     this.renderYesNo = this.renderYesNo.bind(this);
   }
 
@@ -41,9 +41,9 @@ class UnequipScreen extends Screen {
     const { equipped: equipmentSlots } = player;
     let keyCode = 65;
     let i = 0;
-    this.game.messenger.clearMessages();
+    this.game.messenger.clearPanel(Panel.PANEL_1);
     const title = [{ text: 'Unequip Items' }];
-    this.game.messenger.logMessages(title);
+    this.game.messenger.writeToPanel(Panel.PANEL_1, title);
     this.itemReference = {};
     for (let slot in equipmentSlots) {
       const itemOrEmptySlot: Prop|null = equipmentSlots[slot];
@@ -61,7 +61,7 @@ class UnequipScreen extends Screen {
       this.itemReference[String.fromCharCode(keyCode)] = reference;
       i++;
       keyCode++;
-      this.game.messenger.logMessages([message]);
+      this.game.messenger.writeToPanel(Panel.PANEL_1, [message]);
     }
     this.inputs = (<any>Object).assign({}, this.returnToMap);
     for (let itemReferenceAccessor in this.itemReference) {
@@ -80,7 +80,7 @@ class UnequipScreen extends Screen {
       this.inputs = (<any>Object).assign({}, {
         'y': () => {
           this.game.player.attemptToUnequip(reference.slot);
-          this.game.messenger.logMessages([{ text: `Unequipped ${item.name}.` }]);
+          this.game.messenger.writeToPanel(Panel.PANEL_1, [{ text: `Unequipped ${item.name}.` }]);
           this.awaitingConfirmation = false;
         },
         'n': () => {
@@ -89,7 +89,7 @@ class UnequipScreen extends Screen {
       }, this.returnToMap);
     } else {
       const text = 'Cannot unequip empty slot.';
-      this.game.messenger.logMessages([{ text }]);
+      this.game.messenger.writeToPanel(Panel.PANEL_1, [{ text }]);
     }
   }
 
@@ -98,9 +98,9 @@ class UnequipScreen extends Screen {
     const { messenger } = this.game;
     const reference: ItemReference = this.itemReference[this.itemReferenceAccessor];
     const { item } = reference;
-    messenger.clearMessages();
+    messenger.clearPanel(Panel.PANEL_1);
     const text = `Unequip ${item.name} [y/n]?`;
-    messenger.logMessages([{ text }]);
+    messenger.writeToPanel(Panel.PANEL_1, [{ text }]);
   }
 
 }

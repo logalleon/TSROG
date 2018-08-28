@@ -42,18 +42,33 @@ class Messenger {
     `;
   }
 
-  writeToPanel (panel: string, messages: Message[]) {
+  writeToPanel (panel: Panel, messages: Message[], setAsActive?: boolean) {
     if (messages && messages.length) {
       const html = [this[panel].innerHTML].concat(messages.map((message) => (`
         <${this.htmlWrapper}>
           ${Messenger.colorize(message.text, Colors.DEFAULT)}
         </${this.htmlWrapper}>
       `)));
+      if (setAsActive) {
+        for (let key in Panel) {
+          const value = Panel[key];
+          <HTMLElement>(this[value]).classList.remove('active');
+        }
+        this[panel].classList.add('active');
+      }
       this[panel].innerHTML = html.join('');
     }
     //  else {
     //   throw new Error(`Received {${messages}} in Messenger::writeToPanel()`);
     // }
+  }
+
+  setPanelAsActive (panel: Panel) {
+    for (let key in Panel) {
+      const value = Panel[key];
+      <HTMLElement>(this[value]).classList.remove('active');
+    }
+    this[panel].classList.add('active');
   }
 
   clearPanel (panel: Panel) { 

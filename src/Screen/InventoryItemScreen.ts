@@ -72,19 +72,17 @@ class InventoryItemScreen extends Screen {
   }
 
   showOptions (itemReferenceAccessor: ItemReference): void {
-    console.log('binding');
     this.storedInputMaps.push(this.inputs);
     this.inputs = {
         [optionsKey.EQUIP]: this.showEquipPrompt.bind(this, itemReferenceAccessor),
         [optionsKey.INSPECT]: this.showInspect.bind(this, itemReferenceAccessor),
         [optionsKey.UNEQUIP]: this.showUnequipPrompt.bind(this, itemReferenceAccessor),
         [EscapeKeyBinding.ESC]: () => { // @TODO this seems like it might become a common pattern - maybe this should be moved to common handlers
-          console.log('hello there');
           this.game.messenger.clearPanel(Panel.PANEL_2);
           this.inputs = this.storedInputMaps.pop();
+          this.game.messenger.setPanelAsActive(Panel.PANEL_1);
         }
     };
-    console.log(this.inputs);
     this.game.messenger.clearPanel(Panel.PANEL_2);
     this.game.messenger.writeToPanel(Panel.PANEL_2,
       [
@@ -97,7 +95,7 @@ class InventoryItemScreen extends Screen {
         {
           text: `${optionsKey.UNEQUIP}) unequip`
         }
-      ]
+      ], true
     );
   }
 
@@ -113,10 +111,11 @@ class InventoryItemScreen extends Screen {
       [EscapeKeyBinding.ESC]: () => {
         this.game.messenger.clearPanel(Panel.PANEL_3);
         this.inputs = this.storedInputMaps.pop();
+        this.game.messenger.setPanelAsActive(Panel.PANEL_2);
       }
     }
     this.game.messenger.clearPanel(Panel.PANEL_3);
-    this.game.messenger.writeToPanel(Panel.PANEL_3, [message]);
+    this.game.messenger.writeToPanel(Panel.PANEL_3, [message], true);
   }
 
   showInspect (itemReferenceAccessor: string) {
@@ -125,7 +124,7 @@ class InventoryItemScreen extends Screen {
     this.game.messenger.clearPanel(Panel.PANEL_3);
     this.game.messenger.writeToPanel(Panel.PANEL_3, [{
       text: `Description ${item.descriptionLong}`
-    }]);
+    }], true);
   }
 
   showUnequipPrompt (itemReferenceAccessor: string) {
@@ -135,7 +134,7 @@ class InventoryItemScreen extends Screen {
       text: `Unequip ${item.name} [y/n]?`
     };
     this.game.messenger.clearPanel(Panel.PANEL_3);
-    this.game.messenger.writeToPanel(Panel.PANEL_3, [message]);
+    this.game.messenger.writeToPanel(Panel.PANEL_3, [message], true);
   }
 }
 

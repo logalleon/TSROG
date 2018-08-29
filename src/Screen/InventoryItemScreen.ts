@@ -2,12 +2,12 @@ import { Screen, ScreenNames, ItemReference } from './Screen';
 import Game from '../Game';
 import { InputMap, keyCodeToChar } from '../Input';
 import { fontOptions, padding } from '../Canvas/Canvas'
-import { Player, InventoryItems, EquipmentSlots } from '../Entity/Actor/Player';
+import { Player, InventoryItems, EquipmentSlots, EquippedItemAccessor } from '../Entity/Actor/Player';
 import { Prop } from '../Entity/Prop/Prop';
 import { Colors } from '../Canvas/Color';
 import { Message, Panel } from '../Message/Messenger';
 import { startCase } from 'lodash';
-import { ConfirmKeyBindings, EscapeKeyBinding } from './CommonHandlers';
+import { ConfirmKeyBindings, EscapeKeyBinding, applyEscapeHandlerBinding, applyYesNoBinding } from './CommonHandlers';
 
 enum optionsKey {
   EQUIP = 'e',
@@ -57,10 +57,15 @@ class InventoryItemScreen extends Screen {
     this.game.messenger.writeToPanel(Panel.PANEL_1, this.renderTitle());
     this.game.messenger.writeToPanel(Panel.PANEL_1,
       player[this.item].map((item: Prop, index: number): Message => {
+        console.log(item);
         const message: Message = {
           text: `${String.fromCharCode(keyCode)}) ${item.name}`,
         };
-        this.itemReference[String.fromCharCode(keyCode)] = item;
+        const itemReference: ItemReference = {
+          item,
+          slot: this.getItemSlot(this.item)
+        };
+        this.itemReference[String.fromCharCode(keyCode)] = { item, itemReference, index };
         i++;
         keyCode++;
         return message;
@@ -71,18 +76,26 @@ class InventoryItemScreen extends Screen {
     }
   }
 
+  getItemSlot (item: InventoryItems): EquipmentSlots {
+    switch (item) {
+      case InventoryItems.AMULETS:
+        return EquipmentSlots.NECK;
+      case InventoryItems.ARMOR:
+        return EquipmentSlots.ARMOR;
+      case InventoryItems.WEAPONS:
+        return EquipmentSlots.WEAPON;
+      default:
+        throw new Error('Uh ooooh');
+    }
+  }
+
   showOptions (itemReferenceAccessor: ItemReference): void {
     this.storedInputMaps.push(this.inputs);
-    this.inputs = {
+    this.storeAndSwapInputMap(applyEscapeHandlerBinding(this, {
         [optionsKey.EQUIP]: this.showEquipPrompt.bind(this, itemReferenceAccessor),
         [optionsKey.INSPECT]: this.showInspect.bind(this, itemReferenceAccessor),
-        [optionsKey.UNEQUIP]: this.showUnequipPrompt.bind(this, itemReferenceAccessor),
-        [EscapeKeyBinding.ESC]: () => { // @TODO this seems like it might become a common pattern - maybe this should be moved to common handlers
-          this.game.messenger.clearPanel(Panel.PANEL_2);
-          this.inputs = this.storedInputMaps.pop();
-          this.game.messenger.setPanelAsActive(Panel.PANEL_1);
-        }
-    };
+        [optionsKey.UNEQUIP]: this.showUnequipPrompt.bind(this, itemReferenceAccessor)
+    }, Panel.PANEL_2));
     this.game.messenger.clearPanel(Panel.PANEL_2);
     this.game.messenger.writeToPanel(Panel.PANEL_2,
       [
@@ -100,27 +113,52 @@ class InventoryItemScreen extends Screen {
   }
 
   showEquipPrompt (itemReferenceAccessor: string) {
-    const item: Prop = this.itemReference[itemReferenceAccessor];
+    const item: Prop = this.itemReference[itemReferenceAccessor].item;
+    const itemReference: ItemReference = this.itemReference[itemReferenceAccessor].itemReference;
+    const index: number = this.itemReference[itemReferenceAccessor].index;
     const message = {
       text: `Equip ${item.name} [y/n]?`
     };
-    this.storedInputMaps.push(this.inputs);
-    this.inputs = {
-      [ConfirmKeyBindings.YES]: () => { console.log('yes')},
-      [ConfirmKeyBindings.NO]: () => { console.log('no')},
-      [EscapeKeyBinding.ESC]: () => {
-        this.game.messenger.clearPanel(Panel.PANEL_3);
-        this.inputs = this.storedInputMaps.pop();
-        this.game.messenger.setPanelAsActive(Panel.PANEL_2);
-      }
-    }
+    this.storeAndSwapInputMap(
+      applyEscapeHandlerBinding(this,
+        applyYesNoBinding(this, {},
+          () => {
+            const accessor: EquippedItemAccessor = {
+              index,
+              type: this.item
+            };
+            if (this.game.player.attemptToEquip(accessor, itemReference.slot)) {
+              this.game.messenger.writeToPanel(Panel.PANEL_3,
+              [
+                { text: `Successfully equipped ${item.name}.` }
+              ]
+              );
+            } else {
+              const equippedItem = this.game.player.equipped[itemReference.slot];
+              this.game.messenger.writeToPanel(Panel.PANEL_3,
+                [
+                  { text: `Cannot equip ${item.name}. ${equippedItem.name} is equipped in that slot.` }
+                ]
+              );
+            }
+          },
+          () => { console.log('no') }
+        ),
+      Panel.PANEL_3, Panel.PANEL_2)
+    );
     this.game.messenger.clearPanel(Panel.PANEL_3);
     this.game.messenger.writeToPanel(Panel.PANEL_3, [message], true);
   }
 
+  storeAndSwapInputMap (nextInputs: InputMap): void {
+    this.storedInputMaps.push(this.inputs);
+    this.inputs = nextInputs;
+    console.log(this.inputs, this.storedInputMaps); // @TODO still some weird duplication
+  }
+
   showInspect (itemReferenceAccessor: string) {
-    const { item } = this.itemReference[itemReferenceAccessor];
-    // @TODO add inputs map
+    const item = this.itemReference[itemReferenceAccessor];
+    this.storeAndSwapInputMap(applyEscapeHandlerBinding(this, {}, Panel.PANEL_3, Panel.PANEL_2));
     this.game.messenger.clearPanel(Panel.PANEL_3);
     this.game.messenger.writeToPanel(Panel.PANEL_3, [{
       text: `Description ${item.descriptionLong}`
@@ -133,6 +171,14 @@ class InventoryItemScreen extends Screen {
     const message = {
       text: `Unequip ${item.name} [y/n]?`
     };
+    this.storeAndSwapInputMap(
+      applyEscapeHandlerBinding(this,
+        applyYesNoBinding(this, {},
+          () => { console.log('yes'); },
+          () => { console.log('no'); }
+        ),
+      Panel.PANEL_3, Panel.PANEL_2)
+    );
     this.game.messenger.clearPanel(Panel.PANEL_3);
     this.game.messenger.writeToPanel(Panel.PANEL_3, [message], true);
   }

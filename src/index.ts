@@ -136,7 +136,7 @@ window.onload = () => {
   // TESSSSSSSSSSST DATA
   let pickup: Pickup = {
     type: InventoryItems.ARMOR,
-    item: sword
+    item: plateMail
   }
   player.addToInventory(pickup);
   player.attemptToEquip({ index: 0, type: InventoryItems.ARMOR }, EquipmentSlots.ARMOR);

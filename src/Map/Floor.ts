@@ -11,6 +11,7 @@ import { RegionNames } from './Regions/Regions';
 import { CreatureTypes, defaultVariations, Variations } from '../Entity/Actor/Enemy.data';
 import { convert } from 'roman-numeral';
 import { RRange } from '../Random/RRange';
+import { pointInBoxCollision } from '../Geometry';
 
 interface FloorPersistance {
   // A reference to the starting index to see how long the persistance should keep up
@@ -410,21 +411,23 @@ class Floor {
       }
     }
 
-    this.enemies.forEach((enemy) => {
-      enemy.isActive = true; // debug
-      this.activeEnemies.push(enemy); //debug
-    });
+    // this.enemies.forEach((enemy) => {
+    //   enemy.isActive = true; // debug
+    //   this.activeEnemies.push(enemy); //debug
+    // });
   }
 
   placeEnemyOnMap (enemy: Enemy): boolean {
     // @TODO maybe make this smarter
     let tries = 5;
     const placementRange: RRange = new RRange(1, this.rooms.length - 1);
-    const possiblePosition = this.getRandomPointInRoom(this.rooms[randomIntR(placementRange)]);
+    const roomIndex = randomIntR(placementRange);
+    const possiblePosition = this.getRandomPointInRoom(this.rooms[roomIndex]);
     while (tries) {
       const { x, y } = possiblePosition;
       if (!this.tiles[y][x].isOccupied) {
         enemy.pos = possiblePosition;
+        enemy.roomIndex = roomIndex;
         this.tiles[y][x].isOccupied = true;
         this.tiles[y][x].occupiers = [enemy];
         return true;
@@ -492,6 +495,29 @@ class Floor {
     this.corridors.forEach((corridor) => {
       corridor.startingPosition.y -= (bottom - top);
       corridor.endPosition.y -= top - bottom;
+    });
+  }
+
+  checkPlayerRoomCollision (pos: Vector2): void {
+    this.rooms.forEach((room, roomIndex) => {
+      if (!room.isActive) {
+        let halfHeight = room.roomHeight / 2;
+        let halfWidth = room.roomWidth / 2;
+        let top = room.pos.y + room.roomHeight;
+        let bottom = room.pos.y;
+        let left = room.pos.x;
+        let right = room.pos.x + room.roomWidth;
+        if (pointInBoxCollision(pos, top, bottom, left, right)) {
+          room.isActive = true;
+          // Activate all enemeies in that room
+          this.enemies.forEach((enemy) => {
+            if (enemy.roomIndex === roomIndex) {
+              enemy.isActive = true;
+              this.activeEnemies.push(enemy);
+            }
+          });
+        }
+      }
     });
   }
 

@@ -121,6 +121,15 @@ class Game {
       let messages: Message[] = Array.isArray(inputMessages) ? inputMessages : [];
 
       /**
+       * If the player has move interacted, scan each room in the floor to see if it needs
+       * to be activated
+       */
+      console.log(player.hasMoveInteracted)
+      if (player.hasMoveInteracted) {
+        this.currentFloor.checkPlayerRoomCollision(player.pos);
+      }
+
+      /**
        * If the player has either moved or interacted with an interactable object,
        * then enemies all get a turn to attack the player. This flag isn't set for certain
        * actions that the play takes, such as inspecting a nearby tile, which essentially

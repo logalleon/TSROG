@@ -90,18 +90,33 @@ class MapScreen extends Screen {
     const titleHtml = `<h2>${currentFloor.getFormattedName()}</h2>`;
     let tileHtml = '';
     for (let y = 0; y < currentFloor.floorHeight; y++) {
-      tileHtml += '<p>';
+      tileHtml += `<p>`;
       for (let x = 0; x < currentFloor.floorWidth; x++) {
         const tile = currentFloor.tiles[y][x];
         const { char, color } = tile.isOccupied ?
         tile.occupiers[0] : tile; // @TODO update to show the most important occupier to display, maybe with z values
-        tileHtml += `<span class='tile' style="color: ${color.val()}">${char}</span>`;
+        tileHtml += `
+        <span
+          class='tile'
+          style="color: ${color.val()}"
+          id="${this.getTileId(y, x)}"
+        >
+          ${char}
+        </span>`;
       }
-      tileHtml += '</p>';
+      tileHtml += `</p>`;
     }
 
     title.innerHTML = titleHtml;
     tiles.innerHTML = tileHtml;
+
+    // debug
+    this.debugHighlightRoomStartingPositions();
+    // debug
+  }
+
+  getTileId (y: number, x: number): string {
+    return `${y}-${x}`;
   }
 
   attemptPlayerMovement(keyValue: string): void | Message[] {
@@ -210,6 +225,13 @@ class MapScreen extends Screen {
         text: 'You cannot descend here.'
       }];
     }
+  }
+
+  debugHighlightRoomStartingPositions (): void {
+    this.game.currentFloor.rooms.forEach((room) => {
+      const selector = this.getTileId(room.pos.y, room.pos.x);
+      document.getElementById(selector).style.border = '1px solid blue';
+    });
   }
 
 }

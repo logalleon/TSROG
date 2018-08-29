@@ -12,6 +12,8 @@ class Room {
 
   public enteringCorridor: Direction;
 
+  public isActive: boolean = false;
+
   constructor () {
   }
 

@@ -43,6 +43,8 @@ class Enemy extends Actor {
 
   public variation: Variation;
 
+  public roomIndex: number;
+
   private path: Vector2[];
   
   constructor (

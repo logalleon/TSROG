@@ -117,18 +117,20 @@ const tileData: TileOptions[] = [
   },
   // Walls
   {
-  isPassible: false,
+    isPassible: false,
     description: 'Rough hewn wall',
     char: '░',
     color: new Color({ hex: '#363636' }),
-    type: TileTypes.WALL
+    type: TileTypes.WALL,
+    blocksVisibility: true
   },
   {
-    isPassible: false,
+      isPassible: false,
       description: 'Rough hewn wall',
       char: '░',
       color: new Color({ hex: '#a3a3a3' }),
-      type: TileTypes.WALL
+      type: TileTypes.WALL,
+      blocksVisibility: true
     }
 ];
 tileData.forEach((tile) => {

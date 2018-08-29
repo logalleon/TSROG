@@ -13,6 +13,7 @@ import { Promise } from 'bluebird';
 import { EnemySpawner } from './Entity/Actor/EnemySpawner';
 import { Effects } from './Effects';
 import { StatusMenu } from './UI/StatusMenu';
+import RaycastVisibility from './Map/Visibility';
 
 class Game {
 
@@ -44,6 +45,8 @@ class Game {
   private easystarClosedTile: number = 0;
   private easystarOpenTile: number = 1;
   private easystarOccupiedTile: number = 2;
+
+  private raycaster: RaycastVisibility;
 
   constructor (
       screens: Screen[],
@@ -92,6 +95,8 @@ class Game {
     this.updatePlayerPos(this.player, this.dungeonGenerator.floors[0].floorStart);
     this.effects.transitionToNextFloor();
     // Debug
+
+    this.raycaster = new RaycastVisibility(this.currentFloor.floorWidth, this.currentFloor.floorHeight);
   }
 
   /**
@@ -124,9 +129,9 @@ class Game {
        * If the player has move interacted, scan each room in the floor to see if it needs
        * to be activated
        */
-      console.log(player.hasMoveInteracted)
       if (player.hasMoveInteracted) {
         this.currentFloor.checkPlayerRoomCollision(player.pos);
+        this.raycaster.compute(player.pos);
       }
 
       /**

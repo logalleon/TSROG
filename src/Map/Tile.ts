@@ -22,6 +22,7 @@ interface TileOptions {
   isOccupied?: boolean,
   type: TileTypes,
   region?: RegionNames
+  blocksVisibility?: boolean
 }
 
 class Tile {
@@ -40,6 +41,9 @@ class Tile {
   public type: TileTypes;
 
   public region: RegionNames;
+
+  public isVisible: boolean = false;
+  public blocksVisibility: boolean;
 
   constructor (options: TileOptions) {
     for (let key in options) {

@@ -98,12 +98,12 @@ class MapScreen extends Screen {
         tileHtml += `
         <span
           class='tile'
-          style="color: ${color.val()}"
+          style="color: ${tile.isVisible ? color.val() : Colors.RED}"
           id="${this.getTileId(y, x)}"
         >
           ${char}
         </span>`;
-      }
+      } // debug color
       tileHtml += `</p>`;
     }
 

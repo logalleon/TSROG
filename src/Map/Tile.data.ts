@@ -48,7 +48,8 @@ const generalTiles: TileOptions[] = [
     char: '0',
     color: new Color({ html: 'red' }),
     depthRange: new RRange(5, MAX_DUNGEON_DEPTH),
-    type: TileTypes.WALL
+    type: TileTypes.WALL,
+    blocksVisibility: true
   },
   <TileOptions>{
     isPassible: false,
@@ -56,7 +57,8 @@ const generalTiles: TileOptions[] = [
     char: '|',
     color: new Color({ html: 'orange' }),
     depthRange: new RRange(10, MAX_DUNGEON_DEPTH),
-    type: TileTypes.WALL
+    type: TileTypes.WALL,
+    blocksVisibility: true
   },
   <TileOptions>{
     isPassible: false,
@@ -64,7 +66,8 @@ const generalTiles: TileOptions[] = [
     char: '|',
     color: new Color({ html: 'white' }),
     depthRange: new RRange(0, MAX_DUNGEON_DEPTH),
-    type: TileTypes.WALL
+    type: TileTypes.WALL,
+    blocksVisibility: true
   },
   <TileOptions>{
     isPassible: true,

@@ -73,7 +73,7 @@ class MapScreen extends Screen {
   }
 
   render() {
-    const { currentFloor, messenger } = this.game;
+    const { currentFloor, messenger } = Game.instance;
     const { tiles } = currentFloor;
     messenger.clearPanel(Panel.BOTTOM);
     messenger.writeToPanel(Panel.BOTTOM, [{
@@ -83,7 +83,7 @@ class MapScreen extends Screen {
     this.renderTiles();
   }
 
-  renderTiles () {
+  renderTiles () { // This should really be rendered once per floor
     const tiles = document.getElementById('tilemap');
     const title = document.getElementById('title');
     const { currentFloor } = Game.instance;
@@ -93,12 +93,11 @@ class MapScreen extends Screen {
       tileHtml += `<p>`;
       for (let x = 0; x < currentFloor.floorWidth; x++) {
         const tile = currentFloor.tiles[y][x];
-        const { char, color } = tile.isOccupied ?
-        tile.occupiers[0] : tile; // @TODO update to show the most important occupier to display, maybe with z values
+        const { char } = tile.isOccupied ? tile.occupiers[0] : tile; // @TODO update to show the most important occupier to display, maybe with z values
         tileHtml += `
         <span
           class='tile'
-          style="color: ${tile.isVisible ? color.val() : Colors.RED}"
+          style="color: ${this.getTileColor(tile)};}"
           id="${this.getTileId(y, x)}"
         >
           ${char}
@@ -115,12 +114,20 @@ class MapScreen extends Screen {
     // debug
   }
 
+  getTileColor (tile: Tile): string {
+    if (tile.isVisible) {
+      return tile.isOccupied ? tile.occupiers[0].color.val() : tile.color.val();
+    } else {
+      return tile.hasVisited ? Colors.HAS_VISITED_TILE.val() : Colors.BACKGROUD_COLOR.val();
+    }
+  }
+
   getTileId (y: number, x: number): string {
     return `${y}-${x}`;
   }
 
   attemptPlayerMovement(keyValue: string): void | Message[] {
-    const { player, currentFloor } = this.game;
+    const { player, currentFloor } = Game.instance;
     const { pos } = player;
     const { tiles } = currentFloor;
     let nextPos;
@@ -154,7 +161,11 @@ class MapScreen extends Screen {
     if (player.canMove && currentFloor.inBounds(currentFloor.floorWidth, currentFloor.floorHeight, nextPos)) {
       const { isPassible, isOccupied, occupiers } = tiles[nextPos.y][nextPos.x];
       if (isPassible && !isOccupied) {
-        this.game.updatePlayerPos(player, nextPos);
+        const prevPos = player.pos;
+        Game.instance.updatePlayerPos(player, nextPos);
+        this.redrawTile(prevPos);
+        this.redrawTile(nextPos);
+        console.log(nextPos, player.pos);
       } else if (isOccupied) {
         let target;
         let messages: Message[] = [];
@@ -182,38 +193,38 @@ class MapScreen extends Screen {
   }
 
   playerWait () {
-    const { player } = this.game;
+    const { player } = Game.instance;
     player.hasMoveInteracted = true;
   }
 
   showHelpScreen (): void | Message[] {
-    const [helpScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.HELP);
-    this.game.activeScreen = helpScreen;
+    const [helpScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.HELP);
+    Game.instance.activeScreen = helpScreen;
   }
 
   showUnequipScreen (): void | Message[] {
-    const [unequipScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.UNEQUIP);
-    this.game.activeScreen = unequipScreen;
+    const [unequipScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.UNEQUIP);
+    Game.instance.activeScreen = unequipScreen;
   }
 
   showMessageScreen (): void | Message[] {
-    const [messageScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.MESSAGES);
-    this.game.activeScreen = messageScreen;
+    const [messageScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.MESSAGES);
+    Game.instance.activeScreen = messageScreen;
   }
 
   showCommandScreen (): void | Message[] {
-    const [commandScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.COMMANDS);
-    this.game.activeScreen = commandScreen;
+    const [commandScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.COMMANDS);
+    Game.instance.activeScreen = commandScreen;
   }
 
   showInventoryScreen (): void | Message[] {
-    const [inventoryScreen] = this.game.screens.filter(screen => screen.name === ScreenNames.INVENTORY);
-    this.game.activeScreen = inventoryScreen;
+    const [inventoryScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.INVENTORY);
+    Game.instance.activeScreen = inventoryScreen;
   }
 
   showInventoryItemScreen (inventoryItem: string): void | Message[] {
-    const [nextScreen] = this.game.screens.filter(screen => screen.name === inventoryItem);
-    this.game.activeScreen = nextScreen;
+    const [nextScreen] = Game.instance.screens.filter(screen => screen.name === inventoryItem);
+    Game.instance.activeScreen = nextScreen;
   }
 
   attemptDescend (): void | Message[] {
@@ -228,10 +239,19 @@ class MapScreen extends Screen {
   }
 
   debugHighlightRoomStartingPositions (): void {
-    this.game.currentFloor.rooms.forEach((room) => {
+    Game.instance.currentFloor.rooms.forEach((room) => {
       const selector = this.getTileId(room.pos.y, room.pos.x);
       document.getElementById(selector).style.border = '1px solid blue';
     });
+  }
+
+  redrawTile (pos: Vector2) {
+    const selector = this.getTileId(pos.y, pos.x);
+    const tile = Game.instance.currentFloor.tiles[pos.y][pos.x];
+    const { char } = tile.isOccupied ? tile.occupiers[0] : tile; // @TODO update to show the most important occupier to display, maybe with z values
+    const tileColor = this.getTileColor(tile);
+    document.getElementById(selector).innerText = char;
+    document.getElementById(selector).style.color = tileColor;
   }
 
 }

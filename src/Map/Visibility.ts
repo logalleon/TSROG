@@ -1,5 +1,8 @@
 import Vector2 from "../Vector";
 import Game from "../Game";
+import { clamp } from "../Random/Random";
+import { TileTypes } from "./Tile";
+import MapScreen from "../Screen/MapScreen";
 
 class RaycastVisibility {
 
@@ -11,22 +14,42 @@ class RaycastVisibility {
     this.mapHeight = mapHeight;
   }
 
-  compute (origin: Vector2, limit?: number) {
+  resetLos (origin: Vector2, losRange?: number) {
     const { tiles } = Game.instance.currentFloor;
-    // The origin is always visible
-    tiles[origin.y][origin.x].isVisible = true;
-    // @TODO calculate the clipping range LOS based on the limit
-    for (let x = 0; x < this.mapWidth; x++) {
-      this.traceLine(origin, x, 0, limit);
-      this.traceLine(origin, x, this.mapHeight - 1, limit);
-    }
-    for (let y = 0; y < this.mapHeight; y++) {
-      this.traceLine(origin, 0, y, limit);
-      this.traceLine(origin, this.mapWidth - 1, y, limit);
+    // const left = clamp(origin.x - losRange, 0, this.mapWidth);
+    // const right = clamp(origin.x + losRange, 0, this.mapWidth);
+    // const top = clamp(origin.y - losRange - 1, 0, this.mapHeight);
+    // const bottom = clamp(origin.y + losRange + 1, 0, this.mapHeight); @todo this is buggy
+    for (let y = 0; y < Game.instance.currentFloor.floorHeight; y++) {
+      for (let x = 0; x < Game.instance.currentFloor.floorWidth; x++) {
+        tiles[y][x].isVisible = false;
+        // @TODO the map screen really should have its own refernce
+        (<MapScreen>Game.instance.activeScreen).redrawTile(new Vector2(x, y));
+      }
     }
   }
 
-  traceLine (origin: Vector2, x2: number, y2: number, limit?: number) {
+  compute (origin: Vector2, losRange?: number) {
+    const { tiles } = Game.instance.currentFloor;
+    // The origin is always visible
+    tiles[origin.y][origin.x].isVisible = true;
+    // Calculate clipping for the x coordinate
+    const left = clamp(origin.x - losRange, 0, this.mapWidth);
+    const right = clamp(origin.x + losRange, 0, this.mapWidth);
+    // Calculate clipping for the y coordinate
+    const top = clamp(origin.y - losRange - 1, 0, this.mapHeight);
+    const bottom = clamp(origin.y + losRange + 1, 0, this.mapHeight);
+    for (let x = left; x < right; x++) {
+      this.traceLine(origin, x, top, losRange);
+      this.traceLine(origin, x, bottom - 1, losRange);
+    }
+    for (let y = top + 1; y < bottom - 1; y++) {
+      this.traceLine(origin, left, y, losRange);
+      this.traceLine(origin, right - 1, y, losRange);
+    }
+  }
+
+  traceLine (origin: Vector2, x2: number, y2: number, losRange?: number) {
     const { tiles } = Game.instance.currentFloor;
     const xDelta = x2 - origin.x;
     const yDelta = y2 - origin.y;
@@ -55,10 +78,16 @@ class RaycastVisibility {
         error -= errorReset;
         index += yInc;
       }
+      //console.log(index);
       let x = index & 0xFFFF; // @TODO wtf is going on here look up the algorithm
       let y = index >> 16;
       // @TODO do a range check here to see if x, y is out of range from the origin and break;
       tiles[y][x].isVisible = true;
+      // @TODO the map screen really should have its own refernce
+      (<MapScreen>Game.instance.activeScreen).redrawTile(new Vector2(x, y));
+      if (tiles[y][x].type !== TileTypes.VOID) { // @TODO figure out why the tracings is sometimes exposing void tiles in the first place
+        tiles[y][x].hasVisited = true;
+      }
       if (tiles[y][x].blocksVisibility) {
         break;
       }

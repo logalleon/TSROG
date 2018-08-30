@@ -1,0 +1,50 @@
+@import 'transition';
+@import 'menus';
+
+body {
+  background-color: darkgray;
+  font-family: 'Fira Mono';
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  h1 {
+    font-size: 2rem;
+    padding: .5rem;
+    margin: 0;
+    height: 10vh;
+    color: white;
+    background: black;
+    box-sizing: border-box;
+  }
+  #wrapper {
+    #main-window {
+      #title {
+        margin-bottom: 1rem;
+      }
+      overflow: hidden;
+      display: block;
+      margin: 0 auto;
+      border: 6px double black;
+      letter-spacing: 2px;
+      font-size: 14px;
+      background-color: black;
+      box-sizing: border-box;
+      #tilemap {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        overflow: scroll;
+        height: 100%;
+        p {
+          margin: 0;
+          .tile {
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            text-align: center;
+          }
+        }
+      }
+    }
+  }
+}

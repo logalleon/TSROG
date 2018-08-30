@@ -43,6 +43,8 @@ class Tile {
   public region: RegionNames;
 
   public isVisible: boolean = false;
+  public hasVisited: boolean = false;
+  
   public blocksVisibility: boolean;
 
   constructor (options: TileOptions) {

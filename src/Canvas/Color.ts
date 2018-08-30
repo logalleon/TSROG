@@ -37,7 +37,10 @@ const Colors = {
   DAMAGE_MASSIVE: new Color({ html: 'fuchsia' }),
   TARGET_DEFAULT: new Color({ html: 'khaki' }),
   DEATH_DEFAULT: new Color({ html: 'indianred'}),
-  MISS_DEFAULT: new Color({ html: 'darkviolet' })
+  MISS_DEFAULT: new Color({ html: 'darkviolet' }),
+  HAS_VISITED_TILE: new Color({ hex: '#111' }),
+  BACKGROUD_COLOR: new Color({ html: 'black' }),
+  STANDARD_CORPSE: new Color({ hex: '#202020' })
 };
 
 export { IColor, Color, Colors };

@@ -105,7 +105,8 @@ const voidTiles: TileOptions[] = [
     char: 'x',
     color: new Color({ html: 'black' }),
     depthRange: new RRange(0, MAX_DUNGEON_DEPTH),
-    type: TileTypes.VOID
+    type: TileTypes.VOID,
+    blocksVisibility: true
   }
 ]
 

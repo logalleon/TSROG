@@ -60,7 +60,8 @@ window.onload = () => {
     actorOptions,
     level: 1,
     maxHp: 10,
-    hpRegen: 0.5
+    hpRegen: 0.5,
+    los: 10
   };
   
   const player: Player = new Player(options);

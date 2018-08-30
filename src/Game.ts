@@ -1,4 +1,4 @@
-import { Screen } from './Screen/Screen';
+import { Screen, ScreenNames } from './Screen/Screen';
 import { mapKeyPressToActualCharacter, keyCharToCode, keyCodeToChar } from './Input';
 import { CanvasProps } from './Canvas/Canvas';
 import { Player } from './Entity/Actor/Player';
@@ -14,6 +14,7 @@ import { EnemySpawner } from './Entity/Actor/EnemySpawner';
 import { Effects } from './Effects';
 import { StatusMenu } from './UI/StatusMenu';
 import RaycastVisibility from './Map/Visibility';
+import { Colors } from './Canvas/Color';
 
 class Game {
 
@@ -88,7 +89,7 @@ class Game {
     this.statusMenu.render();
 
     // Debug
-    this.dungeonGenerator.debugAndGenerateAllFloors();
+    //this.dungeonGenerator.debugAndGenerateAllFloors();
     this.dungeonGenerator.generateNewFloor();
     this.currentFloor = this.dungeonGenerator.floors[0];
     this.initializeEasyStar();
@@ -96,7 +97,14 @@ class Game {
     this.effects.transitionToNextFloor();
     // Debug
 
+    console.log('rendering');
+    console.log(Game.instance);
+    this.activeScreen.render([]); // @TODO make sure the map screen is always the first screen
+
+    // Set the initial LOS
     this.raycaster = new RaycastVisibility(this.currentFloor.floorWidth, this.currentFloor.floorHeight);
+    this.raycaster.resetLos(player.pos, player.los);
+    this.raycaster.compute(player.pos, player.los);
   }
 
   /**
@@ -121,7 +129,6 @@ class Game {
         char = keyCodeToChar[keyCode];
       }
       // Handle the player input first. The player gets priority for everything
-      console.log(char);
       const inputMessages = this.activeScreen.handleInput(char);
       let messages: Message[] = Array.isArray(inputMessages) ? inputMessages : [];
 
@@ -131,7 +138,8 @@ class Game {
        */
       if (player.hasMoveInteracted) {
         this.currentFloor.checkPlayerRoomCollision(player.pos);
-        this.raycaster.compute(player.pos);
+        this.raycaster.resetLos(player.pos, player.los);
+        this.raycaster.compute(player.pos, player.los);
       }
 
       /**
@@ -159,7 +167,10 @@ class Game {
       this.update();
 
       // Finally, render what's changed
-      this.activeScreen.render([]);
+      // @TODO this shouldn't apply to the map screen
+      if (this.activeScreen.name !== ScreenNames.MAP) {
+        this.activeScreen.render([]);
+      }
     }
   }
 
@@ -211,6 +222,9 @@ class Game {
   removeDeadOccupants (pos: Vector2): void {
     const { x, y } = pos;
     let { occupiers } = this.currentFloor.tiles[y][x];
+    // @TODO change this to inspectable
+    this.currentFloor.tiles[y][x].char = occupiers[0].char;
+    this.currentFloor.tiles[y][x].color = Colors.STANDARD_CORPSE;
     // Bring out the dead
     occupiers = occupiers.filter(occupier => !occupier.isDead());
     this.currentFloor.tiles[y][x].occupiers = occupiers;
@@ -293,6 +307,7 @@ class Game {
       this.initializeEasyStar();
     }
     this.effects.transitionToNextFloor();
+    this.activeScreen.render([]); // @TODO will this always be the map screen that gets re-rendered?
   }
 
   playerDeath () {

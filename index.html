@@ -6,139 +6,21 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>TSROG</title>
   <link href="https://fonts.googleapis.com/css?family=Fira+Mono|IBM+Plex+Mono|VT323" rel="stylesheet">
+  <link href="/main.css" rel="stylesheet">
 </head>
 <body>
   <div id="wrapper">
-    <p id="panel-1"></p>
-    <p id="panel-2"></p>
-    <p id="panel-3"></p>
+    <p class="panel" id="panel-1"></p>
+    <p class="panel" id="panel-2"></p>
+    <p class="panel" id="panel-3"></p>
     <div id="main-window">
       <div id="title"></div>
       <div id="tilemap"></div>
+      <div id="status-menu"></div>
     </div>
   </div>
-  <div id="status-menu">
-
-  </div>
-  <h2 id="bottomMessage">Press '?' for command list.</h2>
   <p style="color: white; font-size: 10px; cursor: pointer;" id="tiles"></p>
   <div style="display: none;" id="transition-wrapper"></div>
 </body>
 <script src="index.js"></script>
-<style>
-  #wrapper {
-    display: block;
-    margin: 0 auto;
-    border: 6px double black;
-    letter-spacing: 2px;
-    font-size: 14px;
-    background-color: black;
-    box-sizing: border-box;
-  }
-  #messages {
-    width: 30%;
-    z-index: 10;
-    text-align: left;
-    margin: 0;
-    padding: .5rem;
-    position: fixed;
-  }
-  #canvas {
-    display: none;
-    width: 70%;
-  }
-  #main-window {
-    overflow: hidden;
-  }
-  #main-window #title {
-    margin-bottom: 1rem;
-  }
-  #main-window #tilemap {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    overflow: scroll;
-    height: 60vh;
-  }
-  #tilemap p {
-    margin: 0;
-  }
-  body {
-    background-color: darkgray;
-    font-family: 'Fira Mono';
-    text-align: center;
-    margin: 0;
-    padding: 0;
-  }
-  h1 {
-    font-size: 2rem;
-    padding: .5rem;
-    margin: 0;
-    height: 10vh;
-    color: white;
-    background: black;
-    box-sizing: border-box;
-  }
-  #bottom-message {
-    box-sizing: border-box;
-    font-size: 1rem;
-    height: 5vh;
-    color: white;
-    background: black;
-    margin: 0;
-    padding: .5rem;
-  }
-  .tile {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    text-align: center;
-  }
-  #transition-wrapper {
-    position: fixed;
-    z-index: 20;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    text-align: center;
-    background-color: black;
-  }
-  @keyframes fade-in {
-    0% {
-      opacity: 0;
-      color: black;
-    }
-    100% {
-      color: white;
-      opacity: 1;
-    }
-  }
-  #transition-wrapper p {
-    position: absolute;
-    top: 25vh;
-    text-align: center;
-    font-size: 2rem;
-    letter-spacing: 3px;
-    width: 100%;
-    left: 0;
-  }
-  #transition-wrapper span {
-    color: black;
-    animation: fade-in forwards;
-  }
-  .fade {
-    transition: .5s;
-    opacity: 0;
-    z-index: -10;
-  }
-  #status-menu {
-    color: white;
-    /* display: flex;
-    justify-content: space-between; */
-  }
-  .active {
-    border: 1px solid deeppink;
-  }
-</style>
 </html>

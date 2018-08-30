@@ -40,7 +40,8 @@ interface PlayerOptions {
   actorOptions: ActorOptions, // @TODO refactor this out to flatten the structure
   maxHp: number,
   level: number,
-  hpRegen: number
+  hpRegen: number,
+  los: number
 }
 
 interface EquippedInventoryItemAccessors {
@@ -74,6 +75,8 @@ class Player extends Actor {
   public level: number;
   public maxHp: number;
   public hpRegen: number;
+
+  public los: number;
 
   // Movement and turn-related activities
   public hasMoveInteracted: boolean = false;

@@ -1,6 +1,14 @@
 @import 'transition';
 @import 'menus';
 
+$inspectDuration: 5s;
+$inspect: #e4b109;
+@keyframes inspect {
+  50% {
+    color: $inspect;
+  }
+}
+
 body {
   background-color: darkgray;
   font-family: 'Fira Mono';
@@ -42,6 +50,9 @@ body {
             width: 5px;
             height: 5px;
             text-align: center;
+          }
+          .inspect {
+            animation: inspect $inspectDuration infinite;
           }
         }
       }

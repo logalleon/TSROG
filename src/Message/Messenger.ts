@@ -43,6 +43,7 @@ class Messenger {
   }
 
   writeToPanel (panel: Panel, messages: Message[], setAsActive?: boolean) {
+    console.log(panel, messages);
     if (messages && messages.length) {
       const html = [this[panel].innerHTML].concat(messages.map((message) => (`
         <${this.htmlWrapper}>

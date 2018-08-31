@@ -23,6 +23,7 @@ import { StatusMenu } from './UI/StatusMenu';
 import HelpScreen from './Screen/HelpScreen';
 import UnequipScreen from './Screen/UnequipScreen';
 import { Panel } from './Message/Messenger';
+import InspectScreen from './Screen/InspectScreen';
 
 const height = 240;
 const width = 600;
@@ -44,6 +45,7 @@ window.onload = () => {
     new CommandScreen(),
     new HelpScreen(),
     new UnequipScreen(),
+    new InspectScreen()
   ];
   // Adds a player TEST DATAAAAAa
   const actorOptions: ActorOptions = {

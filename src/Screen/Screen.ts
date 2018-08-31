@@ -23,7 +23,8 @@ enum ScreenNames {
   RING = 'ring',
   SCROLL = 'scroll',
   WEAPON = 'weapon',
-  UNEQUIP = 'unequip'
+  UNEQUIP = 'unequip',
+  INSPECT = 'inspect'
 }
 
 interface IScreen {

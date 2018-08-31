@@ -97,8 +97,6 @@ class Game {
     this.effects.transitionToNextFloor();
     // Debug
 
-    console.log('rendering');
-    console.log(Game.instance);
     this.activeScreen.render([]); // @TODO make sure the map screen is always the first screen
 
     // Set the initial LOS
@@ -307,6 +305,7 @@ class Game {
       this.initializeEasyStar();
     }
     this.effects.transitionToNextFloor();
+    this.raycaster.updateMapSize(this.currentFloor.floorWidth, this.currentFloor.floorHeight);
     this.activeScreen.render([]); // @TODO will this always be the map screen that gets re-rendered?
   }
 

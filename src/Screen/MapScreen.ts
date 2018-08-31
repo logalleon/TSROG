@@ -33,7 +33,8 @@ enum MapScreenInputs {
   MOVE_DOWN_RIGHT = 'c',
   DESCEND = '>',
   ASCEND = '<',
-  WAIT = 'x'
+  WAIT = 'x',
+  INSPECT = 'i'
 }
 
 class MapScreen extends Screen {
@@ -65,7 +66,8 @@ class MapScreen extends Screen {
     [MapScreenInputs.MOVE_DOWN_LEFT]: this.attemptPlayerMovement.bind(this),
     [MapScreenInputs.MOVE_DOWN_RIGHT]: this.attemptPlayerMovement.bind(this),
     [MapScreenInputs.DESCEND]: this.attemptDescend,
-    [MapScreenInputs.WAIT]: this.playerWait
+    [MapScreenInputs.WAIT]: this.playerWait,
+    [MapScreenInputs.INSPECT]: this.showInspectScreen
   }
 
   constructor() {
@@ -165,7 +167,6 @@ class MapScreen extends Screen {
         Game.instance.updatePlayerPos(player, nextPos);
         this.redrawTile(prevPos);
         this.redrawTile(nextPos);
-        console.log(nextPos, player.pos);
       } else if (isOccupied) {
         let target;
         let messages: Message[] = [];
@@ -227,6 +228,12 @@ class MapScreen extends Screen {
     Game.instance.activeScreen = nextScreen;
   }
 
+  showInspectScreen (): void | Message[] {
+    const [inspectScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.INSPECT);
+    Game.instance.activeScreen = inspectScreen;
+    console.log(inspectScreen);
+  }
+
   attemptDescend (): void | Message[] {
     const { currentFloor, player } = Game.instance;
     if (currentFloor.tiles[player.pos.y][player.pos.x].type === TileTypes.FLOOR_DOWN) {
@@ -250,8 +257,10 @@ class MapScreen extends Screen {
     const tile = Game.instance.currentFloor.tiles[pos.y][pos.x];
     const { char } = tile.isOccupied ? tile.occupiers[0] : tile; // @TODO update to show the most important occupier to display, maybe with z values
     const tileColor = this.getTileColor(tile);
-    document.getElementById(selector).innerText = char;
-    document.getElementById(selector).style.color = tileColor;
+    const el: HTMLElement = document.getElementById(selector);
+    el.innerText = char;
+    el.style.color = tileColor;
+    el.style.border = 'none';
   }
 
 }

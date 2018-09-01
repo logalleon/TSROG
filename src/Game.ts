@@ -16,13 +16,17 @@ import { StatusMenu } from './UI/StatusMenu';
 import RaycastVisibility from './Map/Visibility';
 import { Colors } from './Canvas/Color';
 
+interface ScreenMap {
+  string: Screen
+}
+
 class Game {
 
   private keyMap: any;
 
   public static instance: Game | null = null;
 
-  public screens: Screen[];
+  public screens: ScreenMap;
   public activeScreen: Screen;
 
   public player: Player;
@@ -50,7 +54,7 @@ class Game {
   private raycaster: RaycastVisibility;
 
   constructor (
-      screens: Screen[],
+      screens: ScreenMap,
       player: Player
     ) {
 
@@ -62,7 +66,7 @@ class Game {
 
     this.player = player;
     this.screens = screens;
-    this.activeScreen = screens[0];
+    this.activeScreen = screens[ScreenNames.MAP];
     this.keyMap = {};
     this.messenger = new Messenger({
       panel1: document.getElementById('panel-1'),
@@ -138,6 +142,9 @@ class Game {
         this.currentFloor.checkPlayerRoomCollision(player.pos);
         this.raycaster.resetLos(player.pos, player.los);
         this.raycaster.compute(player.pos, player.los);
+
+        this.player.hunger.update();
+        this.player.thirst.update();
       }
 
       /**

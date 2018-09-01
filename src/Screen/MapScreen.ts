@@ -8,6 +8,7 @@ import { Colors } from '../Canvas/Color';
 import { Floor } from '../Map/Floor';
 import { Tile, TileTypes } from '../Map/Tile';
 import { convert } from 'roman-numeral';
+import { Enemy } from '../Entity/Actor/Enemy';
 
 enum MapScreenInputs {
   INVENTORY = 'I',
@@ -44,19 +45,19 @@ class MapScreen extends Screen {
   public name: ScreenNames = ScreenNames.MAP;
   public game: Game;
   public inputs: InputMap = {
-    [MapScreenInputs.INVENTORY]: this.showInventoryScreen,
-    [MapScreenInputs.AMULET]: this.showInventoryItemScreen.bind(this, ScreenNames.AMULET),
-    [MapScreenInputs.ARMOR]: this.showInventoryItemScreen.bind(this, ScreenNames.ARMOR),
-    [MapScreenInputs.FOOD]: this.showInventoryItemScreen.bind(this, ScreenNames.FOOD),
-    [MapScreenInputs.KEYS]: this.showInventoryItemScreen.bind(this, ScreenNames.KEYS),
-    [MapScreenInputs.POTIONS]: this.showInventoryItemScreen.bind(this, ScreenNames.POTIONS),
-    [MapScreenInputs.RING]: this.showInventoryItemScreen.bind(this, ScreenNames.RING),
-    [MapScreenInputs.SCROLL]: this.showInventoryItemScreen.bind(this, ScreenNames.SCROLL),
-    [MapScreenInputs.WEAPONS]: this.showInventoryItemScreen.bind(this, ScreenNames.WEAPON),
-    [MapScreenInputs.COMMANDS]: this.showCommandScreen,
-    [MapScreenInputs.UNEQUIP]: this.showUnequipScreen,
-    [MapScreenInputs.MESSAGES]: this.showMessageScreen,
-    [MapScreenInputs.HELP]: this.showHelpScreen,
+    [MapScreenInputs.INVENTORY]: this.showScreen.bind(this, ScreenNames.INVENTORY),
+    [MapScreenInputs.AMULET]: this.showScreen.bind(this, ScreenNames.AMULET),
+    [MapScreenInputs.ARMOR]: this.showScreen.bind(this, ScreenNames.ARMOR),
+    [MapScreenInputs.FOOD]: this.showScreen.bind(this, ScreenNames.FOOD),
+    [MapScreenInputs.KEYS]: this.showScreen.bind(this, ScreenNames.KEYS),
+    [MapScreenInputs.POTIONS]: this.showScreen.bind(this, ScreenNames.POTIONS),
+    [MapScreenInputs.RING]: this.showScreen.bind(this, ScreenNames.RING),
+    [MapScreenInputs.SCROLL]: this.showScreen.bind(this, ScreenNames.SCROLL),
+    [MapScreenInputs.WEAPONS]: this.showScreen.bind(this, ScreenNames.WEAPON),
+    [MapScreenInputs.COMMANDS]: this.showScreen.bind(this, ScreenNames.COMMANDS),
+    [MapScreenInputs.UNEQUIP]: this.showScreen.bind(this, ScreenNames.UNEQUIP),
+    [MapScreenInputs.MESSAGES]: this.showScreen.bind(this, ScreenNames.MESSAGES),
+    [MapScreenInputs.HELP]: this.showScreen.bind(this, ScreenNames.HELP),
     [MapScreenInputs.MOVE_UP]: this.attemptPlayerMovement.bind(this),
     [MapScreenInputs.MOVE_LEFT]: this.attemptPlayerMovement.bind(this),
     [MapScreenInputs.MOVE_DOWN]: this.attemptPlayerMovement.bind(this),
@@ -67,7 +68,7 @@ class MapScreen extends Screen {
     [MapScreenInputs.MOVE_DOWN_RIGHT]: this.attemptPlayerMovement.bind(this),
     [MapScreenInputs.DESCEND]: this.attemptDescend,
     [MapScreenInputs.WAIT]: this.playerWait,
-    [MapScreenInputs.INSPECT]: this.showInspectScreen
+    [MapScreenInputs.INSPECT]: this.showScreen.bind(this, ScreenNames.INSPECT)
   }
 
   constructor() {
@@ -177,6 +178,11 @@ class MapScreen extends Screen {
           if (occupiers[i].isInteractive && occupiers[i].isEnemy) {
             target = occupiers[i];
             if (player.attemptAttack(target)) {
+              // Make sure to set the target as active if there's some kind of sneak attack
+              if (!(<Enemy>target.isActive)) {
+                target.isActive = true;
+                Game.instance.currentFloor.activeEnemies.push(target);
+              }
               const damage = player.attack(target);
               messages.push(player.formatSuccessfulAttack(damage, target));
             } else {
@@ -198,40 +204,8 @@ class MapScreen extends Screen {
     player.hasMoveInteracted = true;
   }
 
-  showHelpScreen (): void | Message[] {
-    const [helpScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.HELP);
-    Game.instance.activeScreen = helpScreen;
-  }
-
-  showUnequipScreen (): void | Message[] {
-    const [unequipScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.UNEQUIP);
-    Game.instance.activeScreen = unequipScreen;
-  }
-
-  showMessageScreen (): void | Message[] {
-    const [messageScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.MESSAGES);
-    Game.instance.activeScreen = messageScreen;
-  }
-
-  showCommandScreen (): void | Message[] {
-    const [commandScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.COMMANDS);
-    Game.instance.activeScreen = commandScreen;
-  }
-
-  showInventoryScreen (): void | Message[] {
-    const [inventoryScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.INVENTORY);
-    Game.instance.activeScreen = inventoryScreen;
-  }
-
-  showInventoryItemScreen (inventoryItem: string): void | Message[] {
-    const [nextScreen] = Game.instance.screens.filter(screen => screen.name === inventoryItem);
-    Game.instance.activeScreen = nextScreen;
-  }
-
-  showInspectScreen (): void | Message[] {
-    const [inspectScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.INSPECT);
-    Game.instance.activeScreen = inspectScreen;
-    console.log(inspectScreen);
+  showScreen (screen: ScreenNames) {
+    Game.instance.activeScreen = Game.instance.screens[screen];
   }
 
   attemptDescend (): void | Message[] {

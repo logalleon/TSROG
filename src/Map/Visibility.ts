@@ -4,6 +4,7 @@ import { clamp } from "../Random/Random";
 import { TileTypes } from "./Tile";
 import MapScreen, { MapScreenInputs } from "../Screen/MapScreen";
 import { ScreenNames } from "../Screen/Screen";
+import { distance } from "../Geometry";
 
 class RaycastVisibility {
 
@@ -26,12 +27,11 @@ class RaycastVisibility {
     // const right = clamp(origin.x + losRange, 0, this.mapWidth);
     // const top = clamp(origin.y - losRange - 1, 0, this.mapHeight);
     // const bottom = clamp(origin.y + losRange + 1, 0, this.mapHeight); @todo this is buggy
-    const [mapScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.MAP);// @TODO this is bad
     for (let y = 0; y < Game.instance.currentFloor.floorHeight; y++) {
       for (let x = 0; x < Game.instance.currentFloor.floorWidth; x++) {
         tiles[y][x].isVisible = false;
         // @TODO the map screen really should have its own refernce
-        (<MapScreen>mapScreen).redrawTile(new Vector2(x, y));
+        Game.instance.screens[ScreenNames.MAP].redrawTile(new Vector2(x, y));
       }
     }
   }
@@ -41,8 +41,7 @@ class RaycastVisibility {
     // The origin is always visible
     tiles[origin.y][origin.x].isVisible = true;
     // Redraw the origin tile
-    const [mapScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.MAP);// @TODO this is bad
-    (<MapScreen>mapScreen).redrawTile(origin);
+    Game.instance.screens[ScreenNames.MAP].redrawTile(origin);
     // Calculate clipping for the x coordinate
     const left = clamp(origin.x - losRange, 0, this.mapWidth);
     const right = clamp(origin.x + losRange, 0, this.mapWidth);
@@ -88,16 +87,23 @@ class RaycastVisibility {
         error -= errorReset;
         index += yInc;
       }
+
       let x = index & 0xFFFF; // @TODO wtf is going on here look up the algorithm
       let y = index >> 16;
-      // @TODO do a range check here to see if x, y is out of range from the origin and break;
+
+      // Range check to immediately stop
+      if (Math.ceil(distance(origin, new Vector2(x, y))) > losRange) {
+        break;
+      }
       tiles[y][x].isVisible = true;
-      // @TODO the map screen really should have its own refernce
       if (tiles[y][x].type !== TileTypes.VOID) { // @TODO figure out why the tracings is sometimes exposing void tiles in the first place
         tiles[y][x].hasVisited = true;
       }
-      const [mapScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.MAP);// @TODO this is bad
-      (<MapScreen>mapScreen).redrawTile(new Vector2(x, y)); // @TODO bad bad bad
+
+      // Redraw the tile to expose it
+      Game.instance.screens[ScreenNames.MAP].redrawTile(new Vector2(x, y));
+
+      // Stop looping after exposing a los-blocking tile
       if (tiles[y][x].blocksVisibility) {
         break;
       }

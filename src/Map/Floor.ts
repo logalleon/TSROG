@@ -411,10 +411,6 @@ class Floor {
       }
     }
 
-    // this.enemies.forEach((enemy) => {
-    //   enemy.isActive = true; // debug
-    //   this.activeEnemies.push(enemy); //debug
-    // });
   }
 
   placeEnemyOnMap (enemy: Enemy): boolean {

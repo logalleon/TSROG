@@ -5,6 +5,7 @@ import MapScreen, { MapScreenInputs } from "./MapScreen";
 import Vector2 from "../Vector";
 import Game from "../Game";
 import { Prop } from "../Entity/Prop/Prop";
+import { TileTypes } from "../Map/Tile";
 
 class InspectScreen extends Screen {
 
@@ -68,8 +69,7 @@ class InspectScreen extends Screen {
       const text = tile.isOccupied ? (<Prop>tile.occupiers[0]).descriptionLong : tile.description; // @TODO this obviously has to exclude the player
       // @TODO it really seems at this point that mutliple entities need to exist on the same tile and that a selection process has to exist like in DF
       // Set the active screen back to the map
-      const [mapScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.MAP);
-      Game.instance.activeScreen = mapScreen;
+      Game.instance.activeScreen = Game.instance.screens[ScreenNames.MAP];
       return [{ text }];
   }
 
@@ -81,11 +81,12 @@ class InspectScreen extends Screen {
     const { pos } = Game.instance.player;
     const { currentFloor } = Game.instance;
     const { floorWidth, floorHeight, tiles } = currentFloor;
-    const [mapScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.MAP);
     for (let x = pos.x - 1; x <= pos.x + 1; x++) {
       for (let y = pos.y - 1; y <= pos.y + 1; y++) {
-        if (currentFloor.inBounds(floorWidth, floorHeight, new Vector2(x, y))) {
-          const selector = (<MapScreen>mapScreen).getTileId(y, x);
+        if (currentFloor.inBounds(floorWidth, floorHeight, new Vector2(x, y)) &&
+          tiles[y][x].type !== TileTypes.VOID
+          ) {
+          const selector = Game.instance.screens[ScreenNames.MAP].getTileId(y, x);
           document.getElementById(selector).classList.add('inspect');
         }
       }
@@ -96,11 +97,10 @@ class InspectScreen extends Screen {
     const { pos } = Game.instance.player;
     const { currentFloor } = Game.instance;
     const { floorWidth, floorHeight, tiles } = currentFloor;
-    const [mapScreen] = Game.instance.screens.filter(screen => screen.name === ScreenNames.MAP);
     for (let x = pos.x - 1; x <= pos.x + 1; x++) {
       for (let y = pos.y - 1; y <= pos.y + 1; y++) {
         if (currentFloor.inBounds(floorWidth, floorHeight, new Vector2(x, y))) {
-          const selector = (<MapScreen>mapScreen).getTileId(y, x);
+          const selector = Game.instance.screens[ScreenNames.MAP].getTileId(y, x);
           document.getElementById(selector).classList.remove('inspect');
         }
       }

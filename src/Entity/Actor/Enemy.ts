@@ -29,6 +29,7 @@ class Enemy extends Actor {
 
   public isInteractive = true;
   public isEnemy = true;
+  public isActive = false;
 
   public name: string;
   public description: string;

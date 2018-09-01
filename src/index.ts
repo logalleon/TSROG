@@ -24,6 +24,7 @@ import HelpScreen from './Screen/HelpScreen';
 import UnequipScreen from './Screen/UnequipScreen';
 import { Panel } from './Message/Messenger';
 import InspectScreen from './Screen/InspectScreen';
+import { BASE_LOS, BASE_REGEN } from './Entity/Actor/config';
 
 const height = 240;
 const width = 600;
@@ -31,22 +32,22 @@ window.onload = () => {
   const el = document.getElementById('messages');
   const bottomEl = document.getElementById('bottomMessage');
 
-  const screens: Screen[] = [
-    new MapScreen(),
-    new InventoryScreen(),
-    new InventoryItemScreen(ScreenNames.AMULET, InventoryItems.AMULETS),
-    new InventoryItemScreen(ScreenNames.ARMOR, InventoryItems.ARMOR),
-    new InventoryItemScreen(ScreenNames.FOOD, InventoryItems.FOOD),
-    new InventoryItemScreen(ScreenNames.KEYS, InventoryItems.KEYS),
-    new InventoryItemScreen(ScreenNames.POTIONS, InventoryItems.POTIONS),
-    new InventoryItemScreen(ScreenNames.RING, InventoryItems.RINGS),
-    new InventoryItemScreen(ScreenNames.SCROLL, InventoryItems.SCROLLS),
-    new InventoryItemScreen(ScreenNames.WEAPON, InventoryItems.WEAPONS),
-    new CommandScreen(),
-    new HelpScreen(),
-    new UnequipScreen(),
-    new InspectScreen()
-  ];
+  const screens: any = {
+    [ScreenNames.MAP]: new MapScreen(),
+    [ScreenNames.INVENTORY]: new InventoryScreen(),
+    [ScreenNames.AMULET]: new InventoryItemScreen(ScreenNames.AMULET, InventoryItems.AMULETS),
+    [ScreenNames.ARMOR]: new InventoryItemScreen(ScreenNames.ARMOR, InventoryItems.ARMOR),
+    [ScreenNames.FOOD]: new InventoryItemScreen(ScreenNames.FOOD, InventoryItems.FOOD),
+    [ScreenNames.KEYS]: new InventoryItemScreen(ScreenNames.KEYS, InventoryItems.KEYS),
+    [ScreenNames.POTIONS]: new InventoryItemScreen(ScreenNames.POTIONS, InventoryItems.POTIONS),
+    [ScreenNames.RING]: new InventoryItemScreen(ScreenNames.RING, InventoryItems.RINGS),
+    [ScreenNames.SCROLL]: new InventoryItemScreen(ScreenNames.SCROLL, InventoryItems.SCROLLS),
+    [ScreenNames.WEAPON]: new InventoryItemScreen(ScreenNames.WEAPON, InventoryItems.WEAPONS),
+    [ScreenNames.COMMANDS]: new CommandScreen(),
+    [ScreenNames.HELP]: new HelpScreen(),
+    [ScreenNames.UNEQUIP]: new UnequipScreen(),
+    [ScreenNames.INSPECT]: new InspectScreen()
+  };
   // Adds a player TEST DATAAAAAa
   const actorOptions: ActorOptions = {
     pos: new Vector2(1, 1),
@@ -62,8 +63,8 @@ window.onload = () => {
     actorOptions,
     level: 1,
     maxHp: 10,
-    hpRegen: 0.5,
-    los: 10
+    hpRegen: BASE_REGEN,
+    los: BASE_LOS
   };
   
   const player: Player = new Player(options);
@@ -134,7 +135,9 @@ window.onload = () => {
 
   const g = new Game(screens, player);
   // Bind the current game to all screens
-  g.screens.forEach((screen) => screen.setGame(g));
+  for (let screen in screens) {
+    screens[screen].setGame(g);
+  }
 
   // TESSSSSSSSSSST DATA
   let pickup: Pickup = {

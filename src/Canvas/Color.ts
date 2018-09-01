@@ -43,4 +43,9 @@ const Colors = {
   STANDARD_CORPSE: new Color({ hex: '#202020' })
 };
 
-export { IColor, Color, Colors };
+const StatusColors = {
+  HUNGER: new Color({ html: 'green' }),
+  THIRST: new Color({ html: 'lightblue' })
+}
+
+export { IColor, Color, Colors, StatusColors };

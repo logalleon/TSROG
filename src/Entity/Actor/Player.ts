@@ -14,6 +14,9 @@ import { Colors } from '../../Canvas/Color';
 import Game from '../../Game';
 import { clamp } from '../../Random/Random';
 import { BASE_REGEN_DELAY } from './config';
+import { Status } from '../StatusEffect';
+import { Hunger } from './Status/Hunger';
+import { Thirst } from './Status/Thirst';
 
 const { colorize } = Messenger;
 
@@ -111,6 +114,11 @@ class Player extends Actor {
   private regenDelay = BASE_REGEN_DELAY;
   private regenDelayCounter = 0;
 
+  private statuses: Status[];
+
+  public hunger: Hunger;
+  public thirst: Thirst;
+
   constructor (options: PlayerOptions) {
     super(options.actorOptions);
     for (let key in InventoryItems) {
@@ -121,6 +129,9 @@ class Player extends Actor {
         this[key] = options[key];
       }
     }
+
+    this.hunger = new Hunger();
+    this.thirst = new Thirst();
   }
 
   /**
@@ -204,7 +215,7 @@ class Player extends Actor {
     const weapon = this.equipped[EquipmentSlots.WEAPON];
     const isMassiveDamage = damage >= target.massiveDamageThreshold;
     if (weapon) {
-      return <Message>{
+      return {
         color: Colors.DEFAULT,
         text: `You strike the
         ${colorize(target.formattedName(), Colors.TARGET_DEFAULT)} with your 
@@ -215,7 +226,7 @@ class Player extends Actor {
           Colors.DAMAGE_DEFAULT)} damage!`
       }
     } else {
-      return <Message>{
+      return {
         text: `You strike the ${target.formattedName()} ${target.formattedChar()} for your bare hands for ${damage} damage!`,
         color: Colors.DEFAULT
       };

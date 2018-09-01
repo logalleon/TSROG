@@ -15,6 +15,17 @@
   left: 0;
   width: 100%;
   background: #222;
+  display: flex;
+  align-content: space-between;
+  .status {
+    margin: 0 1rem;
+    &:first-child {
+      margin-left: auto;
+    }
+    &:last-child {
+      margin-right: auto;
+    }
+  }
 }
 .active {
   border: 1px solid deeppink;

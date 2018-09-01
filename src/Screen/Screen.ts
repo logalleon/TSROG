@@ -67,9 +67,8 @@ class Screen implements IScreen {
 
   // Automatically break out of all screens
   returnToMapScreen (): void {
-    const { game } = this;
-    const [mapScreen] = game.screens.filter(screen => screen.name === ScreenNames.MAP);
-    game.activeScreen = mapScreen;
+    const mapScreen = Game.instance.screens[ScreenNames.MAP];
+    Game.instance.activeScreen = mapScreen;
   }
 
   render (messages: Message[]): void {

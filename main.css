@@ -57,6 +57,17 @@
   left: 0;
   width: 100%;
   background: #222;
+  display: flex;
+  align-content: space-between;
+}
+#status-menu .status {
+  margin: 0 1rem;
+}
+#status-menu .status:first-child {
+  margin-left: auto;
+}
+#status-menu .status:last-child {
+  margin-right: auto;
 }
 
 .active {
@@ -135,7 +146,7 @@ body #wrapper #main-window #tilemap p .tile {
   text-align: center;
 }
 body #wrapper #main-window #tilemap p .inspect {
-  animation: inspect 5s infinite;
+  animation: inspect 2.5s infinite;
 }
 
 /*# sourceMappingURL=main.css.map */

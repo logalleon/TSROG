@@ -43,13 +43,14 @@ class Messenger {
   }
 
   writeToPanel (panel: Panel, messages: Message[], setAsActive?: boolean) {
-    console.log(panel, messages);
     if (messages && messages.length) {
-      const html = [this[panel].innerHTML].concat(messages.map((message) => (`
-        <${this.htmlWrapper}>
-          ${Messenger.colorize(message.text, Colors.DEFAULT)}
-        </${this.htmlWrapper}>
-      `)));
+      const html = [this[panel].innerHTML].concat(messages.map((message) => {
+        const classList = message.classList || '';
+        return (`
+          <${this.htmlWrapper} class="${classList}">
+            ${Messenger.colorize(message.text, Colors.DEFAULT)}
+          </${this.htmlWrapper}>
+        `)}));
       if (setAsActive) {
         for (let key in Panel) {
           const value = Panel[key];

@@ -14,9 +14,11 @@
   bottom: 0;
   left: 0;
   width: 100%;
+  height: 10%;
   background: #222;
   display: flex;
   align-content: space-between;
+  align-items: center;
   .status {
     margin: 0 1rem;
     &:first-child {
@@ -38,6 +40,9 @@
   border: 1px solid #333;
   box-sizing: border-box;
   margin: 0;
+  max-height: 90%;
+  overflow-y: scroll;
+  text-align: left;
 }
 
 #panel-1 {

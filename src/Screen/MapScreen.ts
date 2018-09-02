@@ -35,7 +35,8 @@ enum MapScreenInputs {
   DESCEND = '>',
   ASCEND = '<',
   WAIT = 'x',
-  INSPECT = 'i'
+  INSPECT = 'i',
+  SKILLS = 'g'
 }
 
 class MapScreen extends Screen {
@@ -68,7 +69,8 @@ class MapScreen extends Screen {
     [MapScreenInputs.MOVE_DOWN_RIGHT]: this.attemptPlayerMovement.bind(this),
     [MapScreenInputs.DESCEND]: this.attemptDescend,
     [MapScreenInputs.WAIT]: this.playerWait,
-    [MapScreenInputs.INSPECT]: this.showScreen.bind(this, ScreenNames.INSPECT)
+    [MapScreenInputs.INSPECT]: this.showScreen.bind(this, ScreenNames.INSPECT),
+    [MapScreenInputs.SKILLS]: this.showScreen.bind(this, ScreenNames.SKILLS)
   }
 
   constructor() {

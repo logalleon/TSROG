@@ -1,0 +1,36 @@
+.skill {
+  &--highlighted {
+    &:before {
+      content: '>';
+      color: yellow;
+      position: absolute;
+    }
+  }
+  span {
+    display: flex;
+    justify-content: space-between;
+    padding: 0;
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+  &--none {
+    span {
+      color: white !important;
+    }
+  }
+  &--low {
+    span {
+      color: rgb(76, 117, 129) !important;
+    }
+  }
+  &--medium {
+    span {
+      color: orange !important;
+    }
+  }
+  &--high {
+    span {
+      color: lightseagreen !important;
+    }
+  }
+}

@@ -24,7 +24,8 @@ enum ScreenNames {
   SCROLL = 'scroll',
   WEAPON = 'weapon',
   UNEQUIP = 'unequip',
-  INSPECT = 'inspect'
+  INSPECT = 'inspect',
+  SKILLS = 'skill'
 }
 
 interface IScreen {
@@ -78,4 +79,8 @@ class Screen implements IScreen {
 
 }
 
-export { Screen, ScreenNames, ItemReference };
+interface Swappable {
+  storeAndSwapInputMap(nextInputs: InputMap): void
+}
+
+export { Screen, ScreenNames, ItemReference, Swappable };

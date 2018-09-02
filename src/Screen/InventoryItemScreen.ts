@@ -24,9 +24,6 @@ class InventoryItemScreen extends Screen {
 
   private storedInputMaps: InputMap[] = [];
 
-  private inspectingItems: boolean = false;
-  private awaitingConfirmation: boolean = false;
-
   private itemReference = {};
 
   constructor(name: ScreenNames, item: InventoryItems) {

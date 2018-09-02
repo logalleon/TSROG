@@ -2,7 +2,8 @@ import { Color } from '../Canvas/Color';
 
 interface Message {
   text: string,
-  color?: Color
+  color?: Color,
+  classList?: string
 }
 
 interface MessengerOptions {

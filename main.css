@@ -56,9 +56,11 @@
   bottom: 0;
   left: 0;
   width: 100%;
+  height: 10%;
   background: #222;
   display: flex;
   align-content: space-between;
+  align-items: center;
 }
 #status-menu .status {
   margin: 0 1rem;
@@ -81,6 +83,9 @@
   border: 1px solid #333;
   box-sizing: border-box;
   margin: 0;
+  max-height: 90%;
+  overflow-y: scroll;
+  text-align: left;
 }
 
 #panel-1 {
@@ -93,6 +98,31 @@
 
 #panel-3 {
   left: 40%;
+}
+
+.skill--highlighted:before {
+  content: ">";
+  color: yellow;
+  position: absolute;
+}
+.skill span {
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+.skill--none span {
+  color: white !important;
+}
+.skill--low span {
+  color: #4c7581 !important;
+}
+.skill--medium span {
+  color: orange !important;
+}
+.skill--high span {
+  color: lightseagreen !important;
 }
 
 @keyframes inspect {
@@ -134,7 +164,7 @@ body #wrapper #main-window #tilemap {
   display: flex;
   flex-direction: column;
   overflow: scroll;
-  height: 100%;
+  height: 90%;
 }
 body #wrapper #main-window #tilemap p {
   margin: 0;

@@ -25,6 +25,7 @@ import UnequipScreen from './Screen/UnequipScreen';
 import { Panel } from './Message/Messenger';
 import InspectScreen from './Screen/InspectScreen';
 import { BASE_LOS, BASE_REGEN } from './Entity/Actor/config';
+import SkillsScreen from './Screen/SkillsScreen';
 
 const height = 240;
 const width = 600;
@@ -46,7 +47,8 @@ window.onload = () => {
     [ScreenNames.COMMANDS]: new CommandScreen(),
     [ScreenNames.HELP]: new HelpScreen(),
     [ScreenNames.UNEQUIP]: new UnequipScreen(),
-    [ScreenNames.INSPECT]: new InspectScreen()
+    [ScreenNames.INSPECT]: new InspectScreen(),
+    [ScreenNames.SKILLS]: new SkillsScreen()
   };
   // Adds a player TEST DATAAAAAa
   const actorOptions: ActorOptions = {

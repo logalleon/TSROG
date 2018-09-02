@@ -14,9 +14,10 @@ import { Colors } from '../../Canvas/Color';
 import Game from '../../Game';
 import { clamp } from '../../Random/Random';
 import { BASE_REGEN_DELAY } from './config';
-import { Status } from '../StatusEffect';
 import { Hunger } from './Status/Hunger';
 import { Thirst } from './Status/Thirst';
+import { Skill, SkillNames, ISkill, SkillLevels, LevelingAllotment } from './Skill/Skill';
+import { defaultSkills, SkillMap } from './Skill/Skill.data';
 
 const { colorize } = Messenger;
 
@@ -114,7 +115,7 @@ class Player extends Actor {
   private regenDelay = BASE_REGEN_DELAY;
   private regenDelayCounter = 0;
 
-  private statuses: Status[];
+  public skills: SkillMap = {}
 
   public hunger: Hunger;
   public thirst: Thirst;
@@ -129,6 +130,18 @@ class Player extends Actor {
         this[key] = options[key];
       }
     }
+    for (let key in SkillNames) {
+      const skill = SkillNames[key];
+      this.skills[skill] = new Skill({
+        name: <SkillNames>skill,
+        level: SkillLevels.POOR,
+        description: '',
+        xp: 0,
+        scale: [1,2,3,4,5,6,6,7]
+      })
+    }
+
+    this.skills[SkillNames.ALCHEMY].allotment = LevelingAllotment.MEDIUM;
 
     this.hunger = new Hunger();
     this.thirst = new Thirst();

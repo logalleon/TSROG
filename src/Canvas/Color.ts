@@ -44,7 +44,7 @@ const Colors = {
 };
 
 const StatusColors = {
-  HUNGER: new Color({ html: 'green' }),
+  HUNGER: new Color({ html: 'lightgreen' }),
   THIRST: new Color({ html: 'lightblue' })
 }
 

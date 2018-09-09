@@ -8,4 +8,11 @@ interface Entity {
   char: string
 }
 
+interface Description {
+  description: string,
+  descriptionLong: string
+}
+
 export default Entity;
+
+export { Description }

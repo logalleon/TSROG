@@ -1,7 +1,7 @@
 import { Tile, TileTypes } from '../Map/Tile';
 import { Room } from './Room';
 import { Corridor, Direction } from './Corridor';
-import { randomInt, randomIntR, clamp } from '../Random/Random';
+import { randomInt, randomIntR, clamp, pluck } from '../Random/Random';
 import { Color } from '../Canvas/Color';
 import { fontOptions } from '../Canvas/Canvas';
 import { Enemy } from '../Entity/Actor/Enemy';
@@ -12,6 +12,10 @@ import { CreatureTypes, defaultVariations, Variations } from '../Entity/Actor/En
 import { convert } from 'roman-numeral';
 import { RRange } from '../Random/RRange';
 import { pointInBoxCollision } from '../Geometry';
+import { Prop } from '../Entity/Prop/Prop';
+import { Damage, DamageType, Quality, MaterialType } from '../Entity/Prop/Prop.data';
+import { WeaponSpawnParams } from '../Entity/Prop/PropSpawner';
+import { DamageParams } from '../Entity/Prop/Weapon/WeaponInterfaces';
 
 interface FloorPersistance {
   // A reference to the starting index to see how long the persistance should keep up
@@ -144,6 +148,9 @@ class Floor {
     // Make sure to call placement of items with a pos after trim so the positions are correct
     this.spawnEnemies();
     this.setStaircaseTiles();
+
+    // Spawn pickups
+    this.spawnPickups();
     if (this.floorPersistance && this.floorPersistance.persistance) {
       this.willPersistFor = randomIntR(this.floorPersistance.persistance);
       this.floorPersistance.startIndex = this.depth;
@@ -396,7 +403,7 @@ class Floor {
   }
 
   spawnEnemies (): void {
-    const { enemySpawner } = Game.instance;
+    const { enemySpawner } = Game.instance.dungeonGenerator;
     let currentCR = 0;
     while (currentCR < this.maxCR) {
       const e = enemySpawner.createEnemyByCr(
@@ -410,7 +417,27 @@ class Floor {
         this.enemies.push(e);
       }
     }
+  }
 
+  spawnPickups (): void {
+    const { propSpawner } = Game.instance.dungeonGenerator;
+    let totalPickups = randomIntR(this.pickupsRange);
+    while (totalPickups) {
+      const baseDamage: DamageParams = {
+        damageRange: new RRange(4, 8),
+        bonusRange: new RRange(0, 1),
+        type: pluck([DamageType.STRIKE, DamageType.SLASH])
+      }
+      // @TODO debug
+      const params: WeaponSpawnParams = {
+        baseDamage,
+        quality: [Quality.RUINED, Quality.POOR],
+        material: MaterialType.METAL
+      };
+      const pickup = propSpawner.spawnWeapon(params);
+      this.placePickupOnMap(pickup);
+      totalPickups--;
+    }
   }
 
   placeEnemyOnMap (enemy: Enemy): boolean {
@@ -426,6 +453,25 @@ class Floor {
         enemy.roomIndex = roomIndex;
         this.tiles[y][x].isOccupied = true;
         this.tiles[y][x].occupiers = [enemy];
+        return true;
+      }
+      tries--;
+    }
+    return false;
+  }
+
+  placePickupOnMap (pickup: Prop): boolean {
+    // @TODO maybe make this smarter
+    let tries = 10;
+    const placementRange: RRange = new RRange(1, this.rooms.length - 1);
+    const roomIndex = randomIntR(placementRange);
+    const possiblePosition = this.getRandomPointInRoom(this.rooms[roomIndex]);
+    while (tries) {
+      const { x, y } = possiblePosition;
+      if (!this.tiles[y][x].isOccupied) {
+        pickup.pos = possiblePosition;
+        this.tiles[y][x].isOccupied = true;
+        this.tiles[y][x].occupiers = [pickup];
         return true;
       }
       tries--;

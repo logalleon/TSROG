@@ -79,7 +79,7 @@
 .panel {
   position: fixed;
   top: 0;
-  width: 20%;
+  width: 30%;
   border: 1px solid #333;
   box-sizing: border-box;
   margin: 0;
@@ -93,11 +93,11 @@
 }
 
 #panel-2 {
-  left: 20%;
+  left: 30%;
 }
 
 #panel-3 {
-  left: 40%;
+  left: 60%;
 }
 
 .skill--highlighted:before {

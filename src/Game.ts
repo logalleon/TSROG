@@ -39,8 +39,6 @@ class Game {
 
   public currentFloor: Floor;
 
-  public enemySpawner: EnemySpawner;
-
   public effects: Effects;
 
   public statusMenu: StatusMenu;
@@ -79,8 +77,6 @@ class Game {
 
     // Legendary has to load before the floor and dungeon generators
     this.legendary = new Legendary();
-
-    this.enemySpawner = new EnemySpawner();
 
     this.dungeonGenerator = new DungeonGenerator(<DungeonOptions>{
       depth: 8

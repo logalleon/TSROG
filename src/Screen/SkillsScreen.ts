@@ -2,7 +2,7 @@ import { ScreenNames, Screen, Swappable } from "./Screen";
 import Game from "../Game";
 import { InputMap } from "../Input";
 import { Panel, Message } from "../Message/Messenger";
-import { SkillNames, SkillLevelTokens, LevelingAllotment, Skill } from "../Entity/Actor/Skill/Skill";
+import { SkillNames, SkillLevelTokens, LevelingAllotment, Skill, ALLOCATION_ORDER } from "../Entity/Actor/Skill/Skill";
 import { startCase, lowerCase } from 'lodash';
 import { modulo } from "../Geometry";
 import { applyEscapeHandlerBinding } from "./CommonHandlers";
@@ -27,11 +27,12 @@ class SkillsScreen extends Screen implements Swappable {
   public inputs: InputMap;
 
   public currentIndex: number = 0;
+  public currentReference: Skill;
   public length: number = Object.keys(SkillNames).length;
 
   private storedInputMaps: InputMap[] = [];
 
-  public skillDistributionAllotment: number[] = [80, 11, 6.5, 2.5] // leveling allotments of none, low, medium, high
+  public skillDistributionAllotment: number[] = [0, 10, 20, 70] // leveling allotments of none, low, medium, high
 
   constructor() {
     super({});
@@ -45,7 +46,9 @@ class SkillsScreen extends Screen implements Swappable {
         this.currentIndex = modulo((this.currentIndex + 1), this.length);
         this.render();
       },
-      [SkillScreenInputsMap.LEGEND]: this.showLegend.bind(this)
+      [SkillScreenInputsMap.LEGEND]: this.showLegend.bind(this),
+      [SkillScreenInputsMap.ADJUST_DOWN]: this.adjustSkillLevelingAllotment.bind(this),
+      [SkillScreenInputsMap.ADJUST_UP]: this.adjustSkillLevelingAllotment.bind(this)
     });
   }
 
@@ -63,21 +66,28 @@ class SkillsScreen extends Screen implements Swappable {
     this.game.messenger.writeToPanel(Panel.PANEL_1,
       ((): Message[] => {
         const messages: Message[] = [];
+        let index = 0;
         for (let key in SkillNames) {
           const skill = SkillNames[key];
           let skillLevel: string = ''; // @TODO temporary
           if (player.skills[skill]) {
             skillLevel = SkillLevelTokens[player.skills[skill].level];
           }
+          const distributionAmount = Number(distribution[skill]) === 0 ?
+            '' : Number(distribution[skill]).toFixed(1) + '%';
           const message: Message = {
             text: `
               ${startCase(lowerCase(skill))}
               <span class="level">${skillLevel}</span>
-              <span class="distribution">${Number(distribution[skill]).toFixed(1)} %</span>
+              <span class="distribution">${distributionAmount}</span>
             `,
             classList: `skill skill--${player.skills[skill].allotment}`
           };
+          if (this.currentIndex === index) {
+            this.currentReference = player.skills[skill];
+          }
           messages.push(message);
+          index++;
         }
         messages[this.currentIndex].classList += ' skill--highlighted';
         messages.push({ text: 'Press ? for legend' })
@@ -93,7 +103,6 @@ class SkillsScreen extends Screen implements Swappable {
   storeAndSwapInputMap (nextInputs: InputMap): void {
     this.storedInputMaps.push(this.inputs);
     this.inputs = nextInputs;
-    console.log(this.inputs, this.storedInputMaps); // @TODO still some weird duplication
   }
 
   showLegend (): void {
@@ -108,7 +117,6 @@ class SkillsScreen extends Screen implements Swappable {
     }
     messages.push({ text: 'Skill Allocation' });
     messages.push({ text: '-----' });
-    messages.push({ text: 'No skill allocation', classList: 'skill skill--none' });
     for (let key in LevelingAllotment) {
       messages.push({
         text: `${startCase(lowerCase(LevelingAllotment[key]))} skill allocation`,
@@ -117,6 +125,14 @@ class SkillsScreen extends Screen implements Swappable {
     }
     Game.instance.messenger.clearPanel(Panel.PANEL_2);
     Game.instance.messenger.writeToPanel(Panel.PANEL_2, messages);
+  }
+
+  adjustSkillLevelingAllotment (keyValue: string) {
+    if (keyValue === SkillScreenInputsMap.ADJUST_DOWN) {
+      this.currentReference.decreaseLevelingAllocation();
+    } else if (keyValue === SkillScreenInputsMap.ADJUST_UP) {
+      this.currentReference.increaseLevelingAllocation();
+    }
   }
 
   calculateSkillDistribution (): SkillDistributionTree {
@@ -131,25 +147,53 @@ class SkillsScreen extends Screen implements Swappable {
       const skill = player.skills[key];
       distributionTree[skill.allotment].push(skill.name);
     }
-    let remainingDistribution = 100;
+    let initialDistribution;
+    let remainingDistribution = initialDistribution = 100;
     let skillDistributionTree: SkillDistributionTree = {};
-    let order = [LevelingAllotment.HIGH, LevelingAllotment.MEDIUM, LevelingAllotment.LOW, LevelingAllotment.NONE];
-    order.forEach((level, index) => {
+    const LOW_TO_HIGH_ALLOCATION = [].concat(ALLOCATION_ORDER).reverse();
+    // Remove distribution from total
+    let highestIndex = 0;
+    // Find the highest level allotment
+    LOW_TO_HIGH_ALLOCATION.forEach((level, index) => {
       if (distributionTree[level].length) {
-        let portion;
-        if (index === order.length - 1) {
-          console.log(remainingDistribution);
-          portion = remainingDistribution / distributionTree[level].length;
-        } else {
-          remainingDistribution -= this.skillDistributionAllotment[index];
-          portion = this.skillDistributionAllotment[index] / distributionTree[level].length;
-        }
-        distributionTree[level].forEach((name: SkillNames) => {
-          skillDistributionTree[name] = portion;
-        });
+        // Set the high level that has values
+        highestIndex = index;
       }
     });
-    console.log(skillDistributionTree)
+    // Everything will be even
+    if (highestIndex === 0) {
+      const portion = initialDistribution / distributionTree[LevelingAllotment.NONE].length;
+      distributionTree[LevelingAllotment.NONE].forEach((name: SkillNames) => {
+        skillDistributionTree[name] = portion;
+      });
+    // None values will not be added!
+    } else {
+      LOW_TO_HIGH_ALLOCATION.forEach((level, index) => {
+        // skip none allotment
+        if (distributionTree[level].length && index !== 0) {
+          remainingDistribution -= this.skillDistributionAllotment[index];
+        }
+      })
+      LOW_TO_HIGH_ALLOCATION.forEach((level, index) => {
+        if (distributionTree[level].length) {
+          let portion;
+          // If the current index is the highest, use the entire remainder from above
+          if (highestIndex === index) {
+            portion = (this.skillDistributionAllotment[index] + remainingDistribution) / distributionTree[level].length;
+          // Otherwise, use the slice allotted for that particular level
+          } else if (index === 0) {
+            portion = 0;
+          } else {
+            portion = this.skillDistributionAllotment[index] / distributionTree[level].length;
+          }
+          // Split the portion among all skills set to that allotment level
+          distributionTree[level].forEach((name: SkillNames) => {
+            skillDistributionTree[name] = portion;
+          });
+        }
+      });
+    }
+    
     return skillDistributionTree;
   }
 

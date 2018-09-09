@@ -75,7 +75,6 @@ const materialData = {
       S.MAPLE
     ],
     [T.BONE]: [
-
     ],
     [T.LEATHER]: [
 
@@ -85,10 +84,6 @@ const materialData = {
       S.LINEN
     ]
   }
-}
-
-enum WeaponType {
-  MELEE = 'melee'
 }
 
 enum DamageType {
@@ -105,32 +100,12 @@ enum DamageType {
   NECROTIC = 'necrotic'
 }
 
-// For consumption by Legendary
-const weaponData = {
-  weapons: {
-    [WeaponType.MELEE]: {
-      [DamageType.SLASH]: [
-        'short sword',
-        'scimitar'
-      ],
-      [DamageType.STRIKE]: [
-        'mace',
-        'warhammer'
-      ],
-      [DamageType.PIERCE]: [
-        'rapier'
-      ]
-    }
-  }
-}
 
 export {
   Quality,
-  weaponData,
   Material,
   MaterialType,
   MaterialSubtype,
-  WeaponType,
   DamageType,
   materialData,
   Damage

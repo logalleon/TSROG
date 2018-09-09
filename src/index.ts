@@ -8,9 +8,6 @@ import InventoryScreen from './Screen/InventoryScreen';
 import Vector2 from './Vector';
 import { fontOptions } from './Canvas/Canvas';
 import { ActorOptions } from './Entity/Actor/Actor';
-import { Armor, ArmorOptions } from './Entity/Prop/Armor';
-import { Weapon, WeaponOptions } from './Entity/Prop/Weapon';
-import { PropOptions } from './Entity/Prop/Prop';
 import { Quality, Damage, DamageType, Material, MaterialType, MaterialSubtype } from './Entity/Prop/Prop.data';
 import InventoryItemScreen from './Screen/InventoryItemScreen';
 import CommandScreen from './Screen/CommandScreen';
@@ -26,6 +23,10 @@ import { Panel } from './Message/Messenger';
 import InspectScreen from './Screen/InspectScreen';
 import { BASE_LOS, BASE_REGEN } from './Entity/Actor/config';
 import SkillsScreen from './Screen/SkillsScreen';
+import { ArmorOptions, Armor } from './Entity/Prop/Armor/Armor';
+import { PickupProp } from './Entity/Prop/Prop';
+import { IWeapon } from './Entity/Prop/Weapon/WeaponInterfaces';
+import { Weapon } from './Entity/Prop/Weapon/Weapon';
 
 const height = 240;
 const width = 600;
@@ -71,66 +72,62 @@ window.onload = () => {
   
   const player: Player = new Player(options);
 
-  // Some test equipment for the player
-  const armorPropOptions: PropOptions = {
-    isActive: true,
-    color: new Color({ hex: '#ff00ff' }),
-    char: 'A',
-    name: 'Plate Mail',
-    canBePickedUp: true,
-    description: 'A set of plate mail'
-  };
-  const armorOptions: ArmorOptions = {
-    modifier: 4,
-    material: 'Iron',
-    quality: Quality.FAIR,
-    propOptions: armorPropOptions
-  }
-  const plateMail = new Armor(armorOptions);
+  // // Some test equipment for the player
+  // const armorPropOptions: PickupProp = {
+  //   isActive: true,
+  //   color: new Color({ hex: '#ff00ff' }),
+  //   char: 'A',
+  //   name: 'Plate Mail',
+  //   description: 'A set of plate mail'
+  // };
+  // const armorOptions: ArmorOptions = {
+  //   modifier: 4,
+  //   material: 'Iron',
+  //   quality: Quality.FAIR,
+  //   propOptions: armorPropOptions
+  // }
+  // const plateMail = new Armor(armorOptions);
 
-  const armorPropOptions1: PropOptions = {
-    isActive: true,
-    color: new Color({ hex: '#ff00ff' }),
-    char: 'A',
-    name: 'Chain Mail',
-    canBePickedUp: true,
-    description: 'A set of chain mail'
-  };
-  const armorOptions1: ArmorOptions = {
-    modifier: 2,
-    material: 'Tin',
-    quality: Quality.POOR,
-    propOptions: armorPropOptions1
-  };
-  const chainMail = new Armor(armorOptions1);
+  // const armorPropOptions1: PickupProp = {
+  //   isActive: true,
+  //   color: new Color({ hex: '#ff00ff' }),
+  //   char: 'A',
+  //   name: 'Chain Mail',
+  //   description: 'A set of chain mail'
+  // };
+  // const armorOptions1: ArmorOptions = {
+  //   modifier: 2,
+  //   material: 'Tin',
+  //   quality: Quality.POOR,
+  //   propOptions: armorPropOptions1
+  // };
+  // const chainMail = new Armor(armorOptions1);
 
-  const weaponPropOptions: PropOptions = {
-    isActive: true,
-    color: new Color({ hex: '#0033bb' }),
-    char: 'S',
-    name: 'Short Sword',
-    canBePickedUp: true,
-    description: 'A short sword'
-  }
+  // const baseDamage: Damage = {
+  //   damage: StandardDice.d6,
+  //   type: DamageType.SLASH
+  // };
 
-  const baseDamage: Damage = {
-    damage: StandardDice.d6,
-    type: DamageType.SLASH
-  };
-
-  const material: Material = {
-    type: MaterialType.METAL,
-    subtype: MaterialSubtype.BRASS
-  };
-
-  const weaponOptions: WeaponOptions = {
-    baseDamage,
-    material,
-    quality: Quality.FAIR,
-    propOptions: weaponPropOptions
-  };
-
-  const sword = new Weapon(weaponOptions);
+  // const material: Material = {
+  //   type: MaterialType.METAL,
+  //   subtype: MaterialSubtype.BRASS
+  // };
+  // const weaponOptions: IWeapon = {
+  //   isActive: true,
+  //   color: new Color({ hex: '#0033bb' }),
+  //   char: 'S',
+  //   name: 'Short Sword',
+  //   description: 'A short sword',
+  //   descriptionLong: '',
+  //   weight: 5,
+  //   type: InventoryItems.WEAPONS,
+  //   isPickup: true,
+  //   baseDamage,
+  //   material,
+  //   quality: Quality.FAIR,
+  //   pos: Vector2.ZERO
+  // }
+  //const sword = new Weapon(weaponOptions);
 
 
   // END TEST DATA ////////////////////
@@ -142,23 +139,23 @@ window.onload = () => {
   }
 
   // TESSSSSSSSSSST DATA
-  let pickup: Pickup = {
-    type: InventoryItems.ARMOR,
-    item: plateMail
-  }
-  player.addToInventory(pickup);
-  player.attemptToEquip({ index: 0, type: InventoryItems.ARMOR }, EquipmentSlots.ARMOR);
-  pickup = {
-    type: InventoryItems.ARMOR,
-    item: chainMail
-  };
-  player.addToInventory(pickup);
-  pickup = {
-    type: InventoryItems.WEAPONS,
-    item: sword
-  };
-  player.addToInventory(pickup);
-  player.attemptToEquip({ index: 0, type: InventoryItems.WEAPONS }, EquipmentSlots.WEAPON);
+  // let pickup: Pickup = {
+  //   type: InventoryItems.ARMOR,
+  //   item: plateMail
+  // }
+  // player.addToInventory(pickup);
+  //player.attemptToEquip({ index: 0, type: InventoryItems.ARMOR }, EquipmentSlots.ARMOR);
+  // pickup = {
+  //   type: InventoryItems.ARMOR,
+  //   item: chainMail
+  // };
+  // player.addToInventory(pickup);
+  // let pickup: Pickup = {
+  //   type: InventoryItems.WEAPONS,
+  //   item: sword
+  // };
+  // player.addToInventory(pickup);
+  // player.attemptToEquip({ index: 0, type: InventoryItems.WEAPONS }, EquipmentSlots.WEAPON);
 
   g.activeScreen.render([]);
   g.messenger.writeToPanel(Panel.PANEL_1, [{ text: 'This is the map screen', color: Colors.DEFAULT }]);

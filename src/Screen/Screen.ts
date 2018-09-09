@@ -68,6 +68,7 @@ class Screen implements IScreen {
 
   // Automatically break out of all screens
   returnToMapScreen (): void {
+    // Set modified panel widths
     const mapScreen = Game.instance.screens[ScreenNames.MAP];
     Game.instance.activeScreen = mapScreen;
   }

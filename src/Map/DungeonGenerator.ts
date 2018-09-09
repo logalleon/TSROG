@@ -4,6 +4,8 @@ import { clamp } from '../Random/Random';
 import { Floor } from './Floor';
 import { convert } from 'roman-numeral';
 import { TileTypes } from './Tile';
+import { PropSpawner } from '../Entity/Prop/PropSpawner';
+import { EnemySpawner } from '../Entity/Actor/EnemySpawner';
 
 interface DungeonOptions {
   depth: number
@@ -16,7 +18,9 @@ class DungeonGenerator {
   public static MAX_DUNGEON_DEPTH = MAX_DUNGEON_DEPTH;
 
   public floorGenerator: FloorGenerator;
+  public enemySpawner: EnemySpawner;
   public tileSpawner: TileSpawner;
+  public propSpawner: PropSpawner;
 
   public maxDepth: number;
   public initialDepth: number = 0;
@@ -30,7 +34,9 @@ class DungeonGenerator {
     }
     this.maxDepth = clamp(options.depth, 1, DungeonGenerator.MAX_DUNGEON_DEPTH);
     this.floorGenerator = new FloorGenerator(<FloorGeneratorOptions>{});
+    this.enemySpawner = new EnemySpawner();
     this.tileSpawner = new TileSpawner();
+    this.propSpawner = new PropSpawner();
   }
 
   generateNewFloor () {

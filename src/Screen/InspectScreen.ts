@@ -6,12 +6,17 @@ import Vector2 from "../Vector";
 import Game from "../Game";
 import { Prop } from "../Entity/Prop/Prop";
 import { TileTypes } from "../Map/Tile";
+import { applyYesNoBinding, applyEscapeHandlerBinding } from "./CommonHandlers";
+import { Pickup } from "../Entity/Actor/Player";
+import { Weapon } from "../Entity/Prop/Weapon";
 
 class InspectScreen extends Screen {
 
   public identifier: Panel = Panel.PANEL_1;
   public name: ScreenNames = ScreenNames.INSPECT;
   public inputs: InputMap;
+
+  private storedInputMaps: InputMap[] = [];
 
   constructor () {
     super({});
@@ -66,7 +71,38 @@ class InspectScreen extends Screen {
       }
       const tile = tiles[inspectPos.y][inspectPos.x];
       this.unHighlightTiles();
-      const text = tile.isOccupied ? (<Prop>tile.occupiers[0]).descriptionLong : tile.description; // @TODO this obviously has to exclude the player
+      let text: string;
+      if (tile.isOccupied) {
+        const prop: Prop = tile.occupiers[0];
+        text = prop.descriptionLong; // @TODO this obviously has to exclude the player
+        if (prop.canBePickedUp) {
+          Game.instance.messenger.clearPanel(Panel.PANEL_2);
+          Game.instance.messenger.writeToPanel(Panel.PANEL_2, [{
+            text: `Equip the ${prop.name}? [y/n]`
+          }], true);
+          this.storeAndSwapInputMap(
+            applyEscapeHandlerBinding(this,
+              applyYesNoBinding(
+                this, {},
+                () => {
+                  const pickup: Pickup = {
+                    type: (<Weapon>prop).type,
+                    item: prop
+                  }
+                  Game.instance.player.addToInventory(pickup);
+                  // @TODO move this to a pickup / inventory management manager
+                },
+                () => {
+                  console.log('no')
+                }
+              ),
+              Panel.PANEL_2
+            )
+          );
+        }
+      } else {
+        text = tile.description;
+      }
       // @TODO it really seems at this point that mutliple entities need to exist on the same tile and that a selection process has to exist like in DF
       // Set the active screen back to the map
       Game.instance.activeScreen = Game.instance.screens[ScreenNames.MAP];
@@ -75,6 +111,11 @@ class InspectScreen extends Screen {
 
   render () {
     this.highlightTiles();
+  }
+
+  storeAndSwapInputMap (nextInputs: InputMap): void {
+    this.storedInputMaps.push(this.inputs);
+    this.inputs = nextInputs;
   }
 
   highlightTiles () {

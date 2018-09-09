@@ -54,6 +54,8 @@ interface ISkill {
   scale: number[]
 }
 
+const ALLOCATION_ORDER = [LevelingAllotment.HIGH, LevelingAllotment.MEDIUM, LevelingAllotment.LOW, LevelingAllotment.NONE];
+
 class Skill implements ISkill {
 
   public name: SkillNames;
@@ -94,6 +96,34 @@ class Skill implements ISkill {
     }
   }
 
+  increaseLevelingAllocation (): void {
+    switch (this.allotment) {
+      case LevelingAllotment.NONE:
+        this.allotment = LevelingAllotment.LOW;
+        break;
+      case LevelingAllotment.LOW:
+        this.allotment = LevelingAllotment.MEDIUM;
+        break;
+      case LevelingAllotment.MEDIUM:
+        this.allotment = LevelingAllotment.HIGH;
+        break;
+    }
+  }
+
+  decreaseLevelingAllocation (): void {
+    switch (this.allotment) {
+      case LevelingAllotment.HIGH:
+        this.allotment = LevelingAllotment.MEDIUM;
+        break;
+      case LevelingAllotment.MEDIUM:
+        this.allotment = LevelingAllotment.LOW;
+        break;
+      case LevelingAllotment.LOW:
+        this.allotment = LevelingAllotment.NONE;
+        break;
+    }
+  }
+
 }
 
-export { SkillLevels, SkillNames, ISkill, Skill, SkillLevelTokens, LevelingAllotment };
+export { SkillLevels, SkillNames, ISkill, Skill, SkillLevelTokens, LevelingAllotment, ALLOCATION_ORDER };

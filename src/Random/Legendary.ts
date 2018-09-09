@@ -1,10 +1,11 @@
 import { LegendaryData, ArbitraryData } from './language.data';
 import { randomInt, pluck, weightedPluck } from './Random';
-import { weaponData, materialData } from '../Entity/Prop/Prop.data';
+import { materialData } from '../Entity/Prop/Prop.data';
+import { weaponData } from '../Entity/Prop/Weapon/Weapon.data';
 
 class Legendary {
 
-  private lists;
+  public lists;
 
   constructor () {
     // Load language libraries
@@ -56,8 +57,8 @@ class Legendary {
    * @param source 
    */
   parse (source: string): string {
-    const lists = source.match(/\[.+\]/g);
-    const adHocLists = source.match(/\{.+\}/g);
+    const lists = source.match(/\[.+?\]/g);
+    const adHocLists = source.match(/\{.+?\}/g);
     if (lists) {
       source = this.parseLists(lists, source);
     }
@@ -175,6 +176,15 @@ class Legendary {
     }
     diveIn(ref);
     return pluck(selections);
+  }
+
+  recursiveslyParse = (str: string): string => {
+    let parsed = this.parse(str);
+    if (str === parsed) {
+      return parsed;
+    } else {
+      return this.recursiveslyParse(parsed);
+    }
   }
 
 }

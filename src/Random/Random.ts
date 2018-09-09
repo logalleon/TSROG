@@ -4,6 +4,13 @@ const pluck = (arr: Array<any>): any => {
   return arr[randomInt(0, arr.length - 1)];
 }
 
+const pluckAndReduce = (arr: Array<any>): any => {
+  const index = randomInt(0, arr.length - 1);
+  const item: any = arr[index];
+  arr = [].concat(arr.slice(0, index), arr.slice(index + 1));
+  return item;
+}
+
 const weightedPluck = (arr: string[]): string => {
   const scalars = {};
   const items = [].concat(arr);
@@ -55,4 +62,19 @@ const clamp = (value: number, low: number, high: number): number => {
   return value;
 }
 
-export { randomInt, pluck, clamp, weightedPluck, randomIntR };
+/**
+ * Shuffles array in place.
+ * @param {Array} a items An array containing the items.
+ */
+const shuffle = (a: Array<any>): Array<any> => {
+  var j, x, i;
+  for (i = a.length - 1; i > 0; i--) {
+      j = Math.floor(Math.random() * (i + 1));
+      x = a[i];
+      a[i] = a[j];
+      a[j] = x;
+  }
+  return a;
+}
+
+export { randomInt, pluck, clamp, weightedPluck, randomIntR, pluckAndReduce, shuffle };

@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Prop_1 = require("./Prop");
-class Amulet extends Prop_1.Prop {
+const Prop_1 = require("../Prop");
+class KeyItem extends Prop_1.AbstractMaterialPickupProp {
     constructor(options) {
         super(options);
     }
 }
-exports.Amulet = Amulet;
+exports.KeyItem = KeyItem;
 //# sourceMappingURL=Amulet.js.map

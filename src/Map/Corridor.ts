@@ -1,7 +1,8 @@
 import { Room } from './Room';
-import { randomInt, clamp } from '../Random/Random';
 import Vector2 from '../Vector';
-import { RRange } from '../Random/RRange';
+import { Random } from 'ossuary';
+import { IntegerRange } from 'ossuary/dist/lib/Random';
+
 
 enum Direction {
   North,
@@ -25,14 +26,14 @@ class Corridor {
 
   setup (
     room: Room,
-    corridorLength: RRange,
-    widthRange: RRange,
-    heightRange: RRange,
+    corridorLength: IntegerRange,
+    widthRange: IntegerRange,
+    heightRange: IntegerRange,
     columns: number,
     rows: number,
     isInitialCorridor: boolean
   ) {
-    this.direction = <Direction>randomInt(0, 3);
+    this.direction = <Direction>Random.randomInt(0, 3);
     // See unity video, but this makes sure the map doesn't double back on itself constantly
     const oppositeDirection = <Direction>(<number>(room.enteringCorridor + 2) % 4);
     // If the room is doubling back, "turn" the map
@@ -42,12 +43,12 @@ class Corridor {
       correctedDirection = correctedDirection % 4;
       this.direction = correctedDirection;
     }
-    this.length = randomInt(corridorLength.low, corridorLength.high);
+    this.length = Random.randomInt(corridorLength.low, corridorLength.high);
     let maxLength = corridorLength.high;
     switch (this.direction) {
       case Direction.North:
         this.startingPosition = new Vector2(
-          randomInt(room.pos.x, room.pos.x + room.roomWidth - 1),
+          Random.randomInt(room.pos.x, room.pos.x + room.roomWidth - 1),
           room.pos.y + room.roomHeight
         );
         // The maximum length is the height of the board from the top of the room it's coming from
@@ -56,13 +57,13 @@ class Corridor {
       case Direction.East:
         this.startingPosition = new Vector2(
           room.pos.x + room.roomWidth,
-          randomInt(room.pos.y, room.pos.y + room.roomHeight - 1)
+          Random.randomInt(room.pos.y, room.pos.y + room.roomHeight - 1)
         );
         maxLength = columns - this.startingPosition.x - widthRange.low;
         break;
       case Direction.South:
         this.startingPosition = new Vector2(
-          randomInt(room.pos.x, room.pos.x + room.roomWidth),
+          Random.randomInt(room.pos.x, room.pos.x + room.roomWidth),
           room.pos.y
         );
         maxLength = this.startingPosition.y - heightRange.low;
@@ -70,12 +71,12 @@ class Corridor {
       case Direction.West:
         this.startingPosition = new Vector2(
           room.pos.x,
-          randomInt(room.pos.y, room.pos.y + room.roomHeight)
+          Random.randomInt(room.pos.y, room.pos.y + room.roomHeight)
         );
         maxLength = this.startingPosition.x - widthRange.low;
         break;
     }
-    this.length = clamp(this.length, 1, maxLength);
+    this.length = Random.clamp(this.length, 1, maxLength);
     this.setEndPosition();
   }
 

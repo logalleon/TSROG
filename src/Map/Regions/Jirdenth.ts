@@ -12,33 +12,33 @@ const regionData: RegionData = {
   `
 };
 
-const floorOptions: FloorOptions[] = [
-  {
-    regionName: RegionNames.Jirdenth,
-    name: `
-      The
-      {Desecrated|Ruined|Devoured|Forgotten|Secret}
-      {Temple|Sanctum|Halls}
-      of
-      [civilizations.dwarf.names]
-    `
-  },
-  {
-    regionName: RegionNames.Jirdenth,
-    name: `
-      The
-      {Overgrown|Rusted|Lonesome|Unspoken|Trapped}
-      {Bridges|Halls|Factories|Workshops}
-    `
-  },
-  {
-    regionName: RegionNames.Jirdenth,
-    name: `
-      The
-      [${MaterialType.METAL}|${MaterialType.STONE}]
-      {Works|Forge|Stockpile|Stores}
-    `
-  }
-];
+// const floorOptions: FloorOptions[] = [
+//   {
+//     regionName: RegionNames.Jirdenth,
+//     name: `
+//       The
+//       {Desecrated|Ruined|Devoured|Forgotten|Secret}
+//       {Temple|Sanctum|Halls}
+//       of
+//       [civilizations.dwarf.names]
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Jirdenth,
+//     name: `
+//       The
+//       {Overgrown|Rusted|Lonesome|Unspoken|Trapped}
+//       {Bridges|Halls|Factories|Workshops}
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Jirdenth,
+//     name: `
+//       The
+//       [${MaterialType.METAL}|${MaterialType.STONE}]
+//       {Works|Forge|Stockpile|Stores}
+//     `
+//   }
+// ];
 
-export { regionData, floorOptions };
+// export { regionData, floorOptions };

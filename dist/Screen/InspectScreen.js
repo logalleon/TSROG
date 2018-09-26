@@ -73,10 +73,8 @@ class InspectScreen extends Screen_1.Screen {
                         text: `Equip the ${prop.name}? [y/n]`
                     }], true);
                 this.storeAndSwapInputMap(CommonHandlers_1.applyEscapeHandlerBinding(this, CommonHandlers_1.applyYesNoBinding(this, {}, () => {
-                    const pickup = {
-                        type: prop.type,
-                        item: prop
-                    };
+                    const type = prop.type;
+                    const pickup = { type, item: prop };
                     Game_1.default.instance.player.addToInventory(pickup);
                     // @TODO move this to a pickup / inventory management manager
                 }, () => {

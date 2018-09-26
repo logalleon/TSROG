@@ -15,48 +15,48 @@ const regionData: RegionData = {
   `
 };
 
-const floorOptions: FloorOptions[] = [
-  {
-    regionName: RegionNames.Burm,
-    name: `
+// const floorOptions: FloorOptions[] = [
+//   {
+//     regionName: RegionNames.Burm,
+//     name: `
     
-    `
-  },
-  {
-    regionName: RegionNames.Burm,
-    name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Burm,
+//     name: `
     
-    `
-  },
-  {
-    regionName: RegionNames.Burm,
-    name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Burm,
+//     name: `
     
-    `
-  }
-];
-const tileData: TileOptions[] = [
-  // Floor
-  {
-    isPassible: false,
-    description: 'Rough hewn wall',
-    char: '0',
-    color: new Color({ html: 'red' }),
-    depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
-    type: TileTypes.FLOOR
-  },
-  // Walls
-  {
-  isPassible: false,
-    description: 'Rough hewn wall',
-    char: '0',
-    color: new Color({ html: 'red' }),
-    depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
-    type: TileTypes.WALL
-  }
-];
-tileData.forEach((tile) => {
-  tile.region = RegionNames.Burm;
-});
+//     `
+//   }
+// ];
+// const tileData: TileOptions[] = [
+//   // Floor
+//   {
+//     isPassible: false,
+//     description: 'Rough hewn wall',
+//     char: '0',
+//     color: new Color({ html: 'red' }),
+//     depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+//     type: TileTypes.FLOOR
+//   },
+//   // Walls
+//   {
+//   isPassible: false,
+//     description: 'Rough hewn wall',
+//     char: '0',
+//     color: new Color({ html: 'red' }),
+//     depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+//     type: TileTypes.WALL
+//   }
+// ];
+// tileData.forEach((tile) => {
+//   tile.region = RegionNames.Burm;
+// });
 
-export { regionData, floorOptions, tileData };
+// export { regionData, floorOptions, tileData };

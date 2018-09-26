@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const FloorGenerator_1 = require("./FloorGenerator");
 const TileSpawner_1 = require("./TileSpawner");
-const Random_1 = require("../Random/Random");
 const PropSpawner_1 = require("../Entity/Prop/PropSpawner");
 const EnemySpawner_1 = require("../Entity/Actor/EnemySpawner");
+const ossuary_1 = require("ossuary");
 const MAX_DUNGEON_DEPTH = 100;
 exports.MAX_DUNGEON_DEPTH = MAX_DUNGEON_DEPTH;
 class DungeonGenerator {
@@ -15,7 +15,7 @@ class DungeonGenerator {
         for (let key in options) {
             this[key] = options[key];
         }
-        this.maxDepth = Random_1.clamp(options.depth, 1, DungeonGenerator.MAX_DUNGEON_DEPTH);
+        this.maxDepth = ossuary_1.Random.clamp(options.depth, 1, DungeonGenerator.MAX_DUNGEON_DEPTH);
         this.floorGenerator = new FloorGenerator_1.FloorGenerator({});
         this.enemySpawner = new EnemySpawner_1.EnemySpawner();
         this.tileSpawner = new TileSpawner_1.TileSpawner();

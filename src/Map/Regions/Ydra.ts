@@ -11,25 +11,25 @@ const regionData: RegionData = {
   `
 };
 
-const floorOptions: FloorOptions[] = [
-  {
-    regionName: RegionNames.Ydra,
-    name: `
+// const floorOptions: FloorOptions[] = [
+//   {
+//     regionName: RegionNames.Ydra,
+//     name: `
     
-    `
-  },
-  {
-    regionName: RegionNames.Ydra,
-    name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Ydra,
+//     name: `
     
-    `
-  },
-  {
-    regionName: RegionNames.Ydra,
-    name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Ydra,
+//     name: `
     
-    `
-  }
-];
+//     `
+//   }
+// ];
 
-export { regionData, floorOptions };
+// export { regionData, floorOptions };

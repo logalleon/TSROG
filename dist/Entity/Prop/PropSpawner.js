@@ -1,26 +1,30 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Game_1 = require("../../Game");
-const Random_1 = require("../../Random/Random");
 const Color_1 = require("../../Canvas/Color");
 const Weapon_data_1 = require("./Weapon/Weapon.data");
 const Weapon_1 = require("./Weapon/Weapon");
+const DetailGenerator_1 = require("./DetailGenerator");
+const ossuary_1 = require("ossuary");
 class PropSpawner {
     constructor() {
+        this.detailGenerator = new DetailGenerator_1.DetailGenerator();
     }
     spawnWeapon(params) {
+        console.log(params);
         const { legendary } = Game_1.default.instance;
-        const bonus = Random_1.randomIntR(params.baseDamage.bonusRange);
-        const damage = `d${Random_1.randomIntR(params.baseDamage.damageRange)}`;
-        let type = Array.isArray(params.baseDamage.type) ? Random_1.pluck(params.baseDamage.type) : params.baseDamage.type; // @TODO this isn't right
-        const quality = Random_1.pluck(params.quality);
+        const bonus = ossuary_1.Random.randomIntRange(params.baseDamage.bonusRange);
+        const damage = `d${ossuary_1.Random.randomIntRange(params.baseDamage.damageRange)}`;
+        let type = Array.isArray(params.baseDamage.type) ? ossuary_1.Random.pluck(params.baseDamage.type) : params.baseDamage.type; // @TODO this isn't right
+        const quality = ossuary_1.Random.pluck(params.quality);
         const index = legendary.parse(`[weapons.melee.${type}]`);
         let material;
         if (Array.isArray(params.material)) {
-            material = Random_1.pluck(params.material);
+            material = ossuary_1.Random.pluck(params.material);
         }
         else {
-            const subtype = legendary.parse(`[${params.material}]`);
+            const subtype = legendary.parse(`[materials.${params.material}]`);
+            console.log(subtype, 'sub');
             material = {
                 type: params.material,
                 subtype
@@ -30,7 +34,7 @@ class PropSpawner {
             damage,
             type
         };
-        const weaponOfTypeDefaults = Weapon_data_1.WeaponLookupTable[Weapon_data_1.MeleeWeapons[index]];
+        const weaponOfTypeDefaults = Weapon_data_1.WeaponLookupTable[1]; // @TODO wat
         const weaponDefaults = Weapon_data_1.weaponDefaultProperties;
         const options = Object.assign({}, {
             color: Color_1.Colors.RED,

@@ -11,25 +11,25 @@ const regionData: RegionData = {
   `
 };
 
-const floorOptions: FloorOptions[] = [
-  {
-    regionName: RegionNames.Ranwarir,
-    name: `
+// const floorOptions: FloorOptions[] = [
+//   {
+//     regionName: RegionNames.Ranwarir,
+//     name: `
     
-    `
-  },
-  {
-    regionName: RegionNames.Ranwarir,
-    name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Ranwarir,
+//     name: `
     
-    `
-  },
-  {
-    regionName: RegionNames.Ranwarir,
-    name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Ranwarir,
+//     name: `
     
-    `
-  }
-];
+//     `
+//   }
+// ];
 
-export { regionData, floorOptions };
+// export { regionData, floorOptions };

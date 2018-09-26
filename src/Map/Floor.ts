@@ -1,7 +1,6 @@
 import { Tile, TileTypes } from '../Map/Tile';
 import { Room } from './Room';
 import { Corridor, Direction } from './Corridor';
-import { randomInt, randomIntR, clamp, pluck } from '../Random/Random';
 import { Color } from '../Canvas/Color';
 import { fontOptions } from '../Canvas/Canvas';
 import { Enemy } from '../Entity/Actor/Enemy';
@@ -10,37 +9,39 @@ import Vector2 from '../Vector';
 import { RegionNames } from './Regions/Regions';
 import { CreatureTypes, defaultVariations, Variations } from '../Entity/Actor/Enemy.data';
 import { convert } from 'roman-numeral';
-import { RRange } from '../Random/RRange';
 import { pointInBoxCollision } from '../Geometry';
 import { Prop } from '../Entity/Prop/Prop';
 import { Damage, DamageType, Quality, MaterialType } from '../Entity/Prop/Prop.data';
 import { WeaponSpawnParams } from '../Entity/Prop/PropSpawner';
 import { DamageParams } from '../Entity/Prop/Weapon/WeaponInterfaces';
+import { Random } from 'ossuary';
+import { IntegerRange } from 'ossuary/dist/lib/Random';
+
 
 interface FloorPersistance {
   // A reference to the starting index to see how long the persistance should keep up
   startIndex?: number,
-  persistance?: RRange
+  persistance?: IntegerRange
 }
 
 // @TODO there are probably many more options that will go into this
 interface FloorOptions {
   maxCR: number,
-  floorCRRange: RRange,
-  variantEnemiesRange: RRange,
-  pickupsRange: RRange,
-  roomWidthRange: RRange,
-  roomHeightRange: RRange,
-  corridorLengthRange: RRange,
+  floorCRRange: IntegerRange,
+  variantEnemiesRange: IntegerRange,
+  pickupsRange: IntegerRange,
+  roomWidthRange: IntegerRange,
+  roomHeightRange: IntegerRange,
+  corridorLengthRange: IntegerRange,
   floorWidth: number,
   floorHeight: number,
-  numRoomsRange: RRange,
+  numRoomsRange: IntegerRange,
   // This is assigned by the dungeon generator
   depth?: number,
   // Floors with a persistance value will persist for RANGE number of floors
   floorPersistance?: FloorPersistance,
   // Range at which first generation can occur
-  depthRange: RRange,
+  depthRange: IntegerRange,
   name: string,
   regionName: RegionNames
 }
@@ -52,19 +53,19 @@ class Floor {
   public corridors: Corridor[] = [];
   public enemies: Enemy[] = [];
   public activeEnemies: Enemy[] = [];
-  public variantEnemiesRange: RRange;
+  public variantEnemiesRange: IntegerRange;
   public maxCR: number;
-  public floorCRRange: RRange;
+  public floorCRRange: IntegerRange;
 
-  public pickupsRange: RRange;
+  public pickupsRange: IntegerRange;
 
-  public roomWidthRange: RRange;
-  public roomHeightRange: RRange;
-  public corridorLengthRange: RRange;
-  public numRoomsRange: RRange;
+  public roomWidthRange: IntegerRange;
+  public roomHeightRange: IntegerRange;
+  public corridorLengthRange: IntegerRange;
+  public numRoomsRange: IntegerRange;
 
   public depth: number;
-  public depthRange: RRange;
+  public depthRange: IntegerRange;
 
   public floorWidth: number;
   public floorHeight: number;
@@ -91,7 +92,7 @@ class Floor {
     this.rooms = [];
     this.corridors = [];
 
-    const numRooms = randomIntR(this.numRoomsRange);
+    const numRooms = Random.randomIntRange(this.numRoomsRange);
     const numCorridors = numRooms - 1;
 
     this.rooms.push(new Room());
@@ -152,7 +153,7 @@ class Floor {
     // Spawn pickups
     this.spawnPickups();
     if (this.floorPersistance && this.floorPersistance.persistance) {
-      this.willPersistFor = randomIntR(this.floorPersistance.persistance);
+      this.willPersistFor = Random.randomIntRange(this.floorPersistance.persistance);
       this.floorPersistance.startIndex = this.depth;
     }
   }
@@ -233,19 +234,19 @@ class Floor {
     const startingRoom = this.rooms[0];
     let startingPosition = this.getRandomPointInRoom(startingRoom);
     // Don't set staircases near the edge of rooms.
-    clamp(startingPosition.x, startingRoom.pos.x + 1, startingRoom.pos.x + startingRoom.roomWidth - 2);
-    clamp(startingPosition.y, startingRoom.pos.y + 1, startingRoom.pos.y + startingRoom.roomHeight - 2);
+    Random.clamp(startingPosition.x, startingRoom.pos.x + 1, startingRoom.pos.x + startingRoom.roomWidth - 2);
+    Random.clamp(startingPosition.y, startingRoom.pos.y + 1, startingRoom.pos.y + startingRoom.roomHeight - 2);
     this.tiles[startingPosition.y][startingPosition.x] = Game.instance.dungeonGenerator.tileSpawner.getTile({
       type: TileTypes.FLOOR_UP
     });
     this.floorStart = startingPosition;
     if (this.depth !== Game.instance.dungeonGenerator.maxDepth - 1) {
       // @TODO hard-coded? maybe the location of ending staircase should depend on floor options
-      const endingRoom = this.rooms[randomInt(this.rooms.length - 3, this.rooms.length - 1)];
+      const endingRoom = this.rooms[Random.randomInt(this.rooms.length - 3, this.rooms.length - 1)];
       let endingPosition = this.getRandomPointInRoom(endingRoom);
       // Don't set staircases near the edge of rooms.
-      clamp(endingPosition.x, endingRoom.pos.x + 1, endingRoom.pos.x + endingRoom.roomWidth - 2);
-      clamp(endingPosition.y, endingRoom.pos.y + 1, endingRoom.pos.y + endingRoom.roomHeight - 2);
+      Random.clamp(endingPosition.x, endingRoom.pos.x + 1, endingRoom.pos.x + endingRoom.roomWidth - 2);
+      Random.clamp(endingPosition.y, endingRoom.pos.y + 1, endingRoom.pos.y + endingRoom.roomHeight - 2);
       this.tiles[endingPosition.y][endingPosition.x] = Game.instance.dungeonGenerator.tileSpawner.getTile({
         type: TileTypes.FLOOR_DOWN
       });
@@ -374,12 +375,12 @@ class Floor {
   }
 
   getRandomPointInRoom (room: Room): Vector2 {
-    const x = randomInt(room.pos.x, room.roomWidth + room.pos.x);
-    const y = randomInt(room.pos.y, room.roomHeight + room.pos.y);
-    // Just fucking clamp to the bounds of the map
+    const x = Random.randomInt(room.pos.x, room.roomWidth + room.pos.x);
+    const y = Random.randomInt(room.pos.y, room.roomHeight + room.pos.y);
+    // Just fucking Random.clamp to the bounds of the map
     return new Vector2(
-      clamp(x, 0, this.floorWidth - 1),
-      clamp(y, 0, this.floorHeight - 1)
+      Random.clamp(x, 0, this.floorWidth - 1),
+      Random.clamp(y, 0, this.floorHeight - 1)
     );
   }
 
@@ -407,7 +408,7 @@ class Floor {
     let currentCR = 0;
     while (currentCR < this.maxCR) {
       const e = enemySpawner.createEnemyByCr(
-        randomIntR(this.floorCRRange),
+        Random.randomIntRange(this.floorCRRange),
         null,
         this.regionName
       );
@@ -421,12 +422,12 @@ class Floor {
 
   spawnPickups (): void {
     const { propSpawner } = Game.instance.dungeonGenerator;
-    let totalPickups = randomIntR(this.pickupsRange);
+    let totalPickups = Random.randomIntRange(this.pickupsRange);
     while (totalPickups) {
       const baseDamage: DamageParams = {
-        damageRange: new RRange(4, 8),
-        bonusRange: new RRange(0, 1),
-        type: pluck([DamageType.STRIKE, DamageType.SLASH])
+        damageRange: new IntegerRange(4, 8),
+        bonusRange: new IntegerRange(0, 1),
+        type: Random.pluck([DamageType.STRIKE, DamageType.SLASH])
       }
       // @TODO debug
       const params: WeaponSpawnParams = {
@@ -443,8 +444,8 @@ class Floor {
   placeEnemyOnMap (enemy: Enemy): boolean {
     // @TODO maybe make this smarter
     let tries = 5;
-    const placementRange: RRange = new RRange(1, this.rooms.length - 1);
-    const roomIndex = randomIntR(placementRange);
+    const placementRange: IntegerRange = new IntegerRange(1, this.rooms.length - 1);
+    const roomIndex = Random.randomIntRange(placementRange);
     const possiblePosition = this.getRandomPointInRoom(this.rooms[roomIndex]);
     while (tries) {
       const { x, y } = possiblePosition;
@@ -463,8 +464,8 @@ class Floor {
   placePickupOnMap (pickup: Prop): boolean {
     // @TODO maybe make this smarter
     let tries = 10;
-    const placementRange: RRange = new RRange(1, this.rooms.length - 1);
-    const roomIndex = randomIntR(placementRange);
+    const placementRange: IntegerRange = new IntegerRange(1, this.rooms.length - 1);
+    const roomIndex = Random.randomIntRange(placementRange);
     const possiblePosition = this.getRandomPointInRoom(this.rooms[roomIndex]);
     while (tries) {
       const { x, y } = possiblePosition;

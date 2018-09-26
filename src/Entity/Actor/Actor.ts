@@ -2,7 +2,7 @@ import Entity from '../Entity';
 import Vector2 from '../../Vector';
 import { Color } from '../../Canvas/Color';
 import { Message } from '../../Message/Messenger';
-import { rollDice, StandardDice } from '../../Random/Dice';
+import { Dice } from 'ossuary'
 import Game from '../../Game';
 import { Promise as Bluebird } from 'bluebird';
 
@@ -59,13 +59,13 @@ class Actor implements Entity {
   }
 
   attemptAttack (target: Actor): boolean {
-    const dice = `${StandardDice.d20}+${this.cth}`;
-    return (rollDice(dice) >= target.ac);
+    const dice = `${Dice.StandardDice.d20}+${this.cth}`;
+    return (Dice.rollDice(dice) >= target.ac);
   }
 
   attack (target: Actor): number {
     console.log(this.damage);
-    const damage = rollDice(this.damage);
+    const damage = Dice.rollDice(this.damage);
     target.hp -= damage;
     return damage;
   }

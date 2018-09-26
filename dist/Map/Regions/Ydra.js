@@ -10,26 +10,22 @@ const regionData = {
     diabolical realm.
   `
 };
-exports.regionData = regionData;
-const floorOptions = [
-    {
-        regionName: Regions_1.RegionNames.Ydra,
-        name: `
-    
-    `
-    },
-    {
-        regionName: Regions_1.RegionNames.Ydra,
-        name: `
-    
-    `
-    },
-    {
-        regionName: Regions_1.RegionNames.Ydra,
-        name: `
-    
-    `
-    }
-];
-exports.floorOptions = floorOptions;
+// const floorOptions: FloorOptions[] = [
+//   {
+//     regionName: RegionNames.Ydra,
+//     name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Ydra,
+//     name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Ydra,
+//     name: `
+//     `
+//   }
+// ];
+// export { regionData, floorOptions };
 //# sourceMappingURL=Ydra.js.map

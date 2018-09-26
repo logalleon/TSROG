@@ -6,7 +6,6 @@ import Vector2 from './Vector';
 import { Messenger, Message, Panel } from './Message/Messenger';
 import { Enemy } from './Entity/Actor/Enemy';
 import { DungeonGenerator, DungeonOptions } from './Map/DungeonGenerator';
-import { Legendary } from './Random/Legendary';
 import { Floor } from './Map/Floor';
 import { js as EasyStar, js } from '../custom_modules/easystarjs';
 import { Promise } from 'bluebird';
@@ -15,6 +14,10 @@ import { Effects } from './Effects';
 import { StatusMenu } from './UI/StatusMenu';
 import RaycastVisibility from './Map/Visibility';
 import { Colors } from './Canvas/Color';
+import { materialData } from './Entity/Prop/Prop.data';
+import { weaponData } from './Entity/Prop/Weapon/Weapon.data';
+import { Parser } from 'ossuary';
+import { ScreenNameMap } from '.';
 
 interface ScreenMap {
   string: Screen
@@ -26,7 +29,7 @@ class Game {
 
   public static instance: Game | null = null;
 
-  public screens: ScreenMap;
+  public screens: ScreenNameMap;
   public activeScreen: Screen;
 
   public player: Player;
@@ -35,7 +38,7 @@ class Game {
 
   public dungeonGenerator: DungeonGenerator;
 
-  public legendary: Legendary;
+  public legendary: Parser;
 
   public currentFloor: Floor;
 
@@ -52,7 +55,7 @@ class Game {
   private raycaster: RaycastVisibility;
 
   constructor (
-      screens: ScreenMap,
+      screens: ScreenNameMap,
       player: Player
     ) {
 
@@ -76,7 +79,7 @@ class Game {
     window.onkeyup = this.handleInput.bind(this);
 
     // Legendary has to load before the floor and dungeon generators
-    this.legendary = new Legendary();
+    this.legendary = new Parser(Object.assign({}, materialData, weaponData));
 
     this.dungeonGenerator = new DungeonGenerator(<DungeonOptions>{
       depth: 8

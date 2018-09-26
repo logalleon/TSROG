@@ -4,31 +4,31 @@ const Actor_1 = require("./Actor");
 const Messenger_1 = require("../../Message/Messenger");
 const Color_1 = require("../../Canvas/Color");
 const Game_1 = require("../../Game");
-const Random_1 = require("../../Random/Random");
 const config_1 = require("./config");
 const Hunger_1 = require("./Status/Hunger");
 const Thirst_1 = require("./Status/Thirst");
 const Skill_1 = require("./Skill/Skill");
+const ossuary_1 = require("ossuary");
 const { colorize } = Messenger_1.Messenger;
 var InventoryItems;
 (function (InventoryItems) {
-    InventoryItems["AMULETS"] = "amulets";
-    InventoryItems["ARMOR"] = "armor";
-    InventoryItems["FOOD"] = "food";
-    InventoryItems["KEYS"] = "keys";
-    InventoryItems["POTIONS"] = "potions";
-    InventoryItems["RINGS"] = "rings";
-    InventoryItems["SCROLLS"] = "scrolls";
-    InventoryItems["WEAPONS"] = "weapons";
+    InventoryItems["AMULETS"] = "AMULETS";
+    InventoryItems["ARMOR"] = "ARMOR";
+    InventoryItems["FOOD"] = "FOOD";
+    InventoryItems["KEYS"] = "KEYS";
+    InventoryItems["POTIONS"] = "POTIONS";
+    InventoryItems["RINGS"] = "RINGS";
+    InventoryItems["SCROLLS"] = "SCROLLS";
+    InventoryItems["WEAPONS"] = "WEAPON";
 })(InventoryItems || (InventoryItems = {}));
 exports.InventoryItems = InventoryItems;
 var EquipmentSlots;
 (function (EquipmentSlots) {
-    EquipmentSlots["NECK"] = "neck";
-    EquipmentSlots["ARMOR"] = "armor";
-    EquipmentSlots["LEFT_HAND"] = "left hand";
-    EquipmentSlots["RIGHT_HAND"] = "right hand";
-    EquipmentSlots["WEAPON"] = "weapon";
+    EquipmentSlots["NECK"] = "NECK";
+    EquipmentSlots["ARMOR"] = "ARMOR";
+    EquipmentSlots["LEFT_HAND"] = "LEFT_HAND";
+    EquipmentSlots["RIGHT_HAND"] = "RIGHT_HAND";
+    EquipmentSlots["WEAPON"] = "WEAPON";
 })(EquipmentSlots || (EquipmentSlots = {}));
 exports.EquipmentSlots = EquipmentSlots;
 class Player extends Actor_1.Actor {
@@ -37,14 +37,6 @@ class Player extends Actor_1.Actor {
         // Movement and turn-related activities
         this.hasMoveInteracted = false;
         this.hasMoved = false;
-        // Currently equipped items
-        this.equipped = {
-            [EquipmentSlots.NECK]: null,
-            [EquipmentSlots.ARMOR]: null,
-            [EquipmentSlots.LEFT_HAND]: null,
-            [EquipmentSlots.RIGHT_HAND]: null,
-            [EquipmentSlots.WEAPON]: null
-        };
         this.equippedAccessors = {
             [EquipmentSlots.NECK]: null,
             [EquipmentSlots.ARMOR]: null,
@@ -55,6 +47,13 @@ class Player extends Actor_1.Actor {
         this.regenDelay = config_1.BASE_REGEN_DELAY;
         this.regenDelayCounter = 0;
         this.skills = {};
+        this.equipped = {
+            [EquipmentSlots.NECK]: null,
+            [EquipmentSlots.ARMOR]: null,
+            [EquipmentSlots.LEFT_HAND]: null,
+            [EquipmentSlots.RIGHT_HAND]: null,
+            [EquipmentSlots.WEAPON]: null
+        };
         for (let key in InventoryItems) {
             this[InventoryItems[key]] = [];
         }
@@ -98,7 +97,7 @@ class Player extends Actor_1.Actor {
     updateHp() {
         if (this.regenDelayCounter === 0) {
             this.hp += this.hpRegen;
-            this.hp = Random_1.clamp(this.hp, 0, this.maxHp);
+            this.hp = ossuary_1.Random.clamp(this.hp, 0, this.maxHp);
         }
     }
     addToInventory(pickup) {

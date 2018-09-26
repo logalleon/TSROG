@@ -2,7 +2,9 @@ import { TileOptions, TileTypes, Tile } from './Tile';
 import { Color } from '../Canvas/Color';
 // @TODO something isn't right here import { MAX_DUNGEON_DEPTH } from './DungeonGenerator';
 import { tileData as LorlerachTiles } from '../Map/Regions/Lorlerach';
-import { RRange } from '../Random/RRange';
+import { Random } from 'ossuary';
+
+const { IntegerRange } = Random;
 
 const MAX_DUNGEON_DEPTH = 100;
 
@@ -15,7 +17,7 @@ const generalTiles: TileOptions[] = [
     description: 'Hard stone floor',
     char: '.',
     color: new Color({ hex: '#333' }),
-    depthRange: new RRange(0, MAX_DUNGEON_DEPTH),
+    depthRange: new IntegerRange(0, MAX_DUNGEON_DEPTH),
     type: TileTypes.FLOOR
   },
   <TileOptions>{
@@ -23,7 +25,7 @@ const generalTiles: TileOptions[] = [
     description: 'Hard chert floor',
     char: '.',
     color: new Color({ hex: '#777' }),
-    depthRange: new RRange(0, MAX_DUNGEON_DEPTH),
+    depthRange: new IntegerRange(0, MAX_DUNGEON_DEPTH),
     type: TileTypes.FLOOR
   },
   <TileOptions>{
@@ -31,7 +33,7 @@ const generalTiles: TileOptions[] = [
     description: 'Rough hewn floor',
     char: '.',
     color: new Color({ html: 'green' }),
-    depthRange: new RRange(5, MAX_DUNGEON_DEPTH),
+    depthRange: new IntegerRange(5, MAX_DUNGEON_DEPTH),
     type: TileTypes.FLOOR
   },
   <TileOptions>{
@@ -39,7 +41,7 @@ const generalTiles: TileOptions[] = [
     description: 'Rough magma floor',
     char: '.',
     color: new Color({ html: 'orange' }),
-    depthRange: new RRange(10, MAX_DUNGEON_DEPTH),
+    depthRange: new IntegerRange(10, MAX_DUNGEON_DEPTH),
     type: TileTypes.FLOOR
   },
   <TileOptions>{
@@ -47,7 +49,7 @@ const generalTiles: TileOptions[] = [
     description: 'Rough hewn wall',
     char: '0',
     color: new Color({ html: 'red' }),
-    depthRange: new RRange(5, MAX_DUNGEON_DEPTH),
+    depthRange: new IntegerRange(5, MAX_DUNGEON_DEPTH),
     type: TileTypes.WALL,
     blocksVisibility: true
   },
@@ -56,7 +58,7 @@ const generalTiles: TileOptions[] = [
     description: 'Rough magma wall',
     char: '|',
     color: new Color({ html: 'orange' }),
-    depthRange: new RRange(10, MAX_DUNGEON_DEPTH),
+    depthRange: new IntegerRange(10, MAX_DUNGEON_DEPTH),
     type: TileTypes.WALL,
     blocksVisibility: true
   },
@@ -65,7 +67,7 @@ const generalTiles: TileOptions[] = [
     description: 'A wall',
     char: '|',
     color: new Color({ html: 'white' }),
-    depthRange: new RRange(0, MAX_DUNGEON_DEPTH),
+    depthRange: new IntegerRange(0, MAX_DUNGEON_DEPTH),
     type: TileTypes.WALL,
     blocksVisibility: true
   },
@@ -74,7 +76,7 @@ const generalTiles: TileOptions[] = [
     description: 'A door',
     char: 'D',
     color: new Color({ html: 'red' }),
-    depthRange: new RRange(0, MAX_DUNGEON_DEPTH),
+    depthRange: new IntegerRange(0, MAX_DUNGEON_DEPTH),
     type: TileTypes.DOOR
   }
 ];
@@ -85,7 +87,7 @@ const floorUpDown: TileOptions[] = [
     description: 'Staircase up',
     char: '<',
     color: new Color({ html: 'teal' }),
-    depthRange: new RRange(0, MAX_DUNGEON_DEPTH),
+    depthRange: new IntegerRange(0, MAX_DUNGEON_DEPTH),
     type: TileTypes.FLOOR_UP
   },
   <TileOptions>{
@@ -93,7 +95,7 @@ const floorUpDown: TileOptions[] = [
     description: 'Staircase down',
     char: '>',
     color: new Color({ html: 'teal' }),
-    depthRange: new RRange(0, MAX_DUNGEON_DEPTH),
+    depthRange: new IntegerRange(0, MAX_DUNGEON_DEPTH),
     type: TileTypes.FLOOR_DOWN
   }
 ];
@@ -104,7 +106,7 @@ const voidTiles: TileOptions[] = [
     description: 'void',
     char: 'x',
     color: new Color({ html: 'black' }),
-    depthRange: new RRange(0, MAX_DUNGEON_DEPTH),
+    depthRange: new IntegerRange(0, MAX_DUNGEON_DEPTH),
     type: TileTypes.VOID,
     blocksVisibility: true
   }

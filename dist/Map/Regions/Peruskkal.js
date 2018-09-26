@@ -12,28 +12,25 @@ const regionData = {
     black blood constructed by the lesser Mad Ones.
   `
 };
-exports.regionData = regionData;
-const floorOptions = [
-    {
-        regionName: Regions_1.RegionNames.Peruskkal,
-        name: `
-      The
-      {Endless|Twisted|Fractured|Blood-stained}
-      {Haunt|Chasm|Maze}
-    `
-    },
-    {
-        regionName: Regions_1.RegionNames.Peruskkal,
-        name: `
-    
-    `
-    },
-    {
-        regionName: Regions_1.RegionNames.Peruskkal,
-        name: `
-    
-    `
-    }
-];
-exports.floorOptions = floorOptions;
+// const floorOptions: FloorOptions[] = [
+//   {
+//     regionName: RegionNames.Peruskkal,
+//     name: `
+//       The
+//       {Endless|Twisted|Fractured|Blood-stained}
+//       {Haunt|Chasm|Maze}
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Peruskkal,
+//     name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Peruskkal,
+//     name: `
+//     `
+//   }
+// ];
+// export { regionData, floorOptions };
 //# sourceMappingURL=Peruskkal.js.map

@@ -2,8 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Regions_1 = require("./Regions");
 const Deity_1 = require("../../Data/Deity");
-const Tile_1 = require("../Tile");
-const Color_1 = require("../../Canvas/Color");
 const MAX_DUNGEON_DEPTH = 100; // @TODO proper import
 const regionData = {
     name: Regions_1.RegionNames.Burm,
@@ -13,50 +11,45 @@ const regionData = {
     mortal sun again.
   `
 };
-exports.regionData = regionData;
-const floorOptions = [
-    {
-        regionName: Regions_1.RegionNames.Burm,
-        name: `
-    
-    `
-    },
-    {
-        regionName: Regions_1.RegionNames.Burm,
-        name: `
-    
-    `
-    },
-    {
-        regionName: Regions_1.RegionNames.Burm,
-        name: `
-    
-    `
-    }
-];
-exports.floorOptions = floorOptions;
-const tileData = [
-    // Floor
-    {
-        isPassible: false,
-        description: 'Rough hewn wall',
-        char: '0',
-        color: new Color_1.Color({ html: 'red' }),
-        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
-        type: Tile_1.TileTypes.FLOOR
-    },
-    // Walls
-    {
-        isPassible: false,
-        description: 'Rough hewn wall',
-        char: '0',
-        color: new Color_1.Color({ html: 'red' }),
-        depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
-        type: Tile_1.TileTypes.WALL
-    }
-];
-exports.tileData = tileData;
-tileData.forEach((tile) => {
-    tile.region = Regions_1.RegionNames.Burm;
-});
+// const floorOptions: FloorOptions[] = [
+//   {
+//     regionName: RegionNames.Burm,
+//     name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Burm,
+//     name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Burm,
+//     name: `
+//     `
+//   }
+// ];
+// const tileData: TileOptions[] = [
+//   // Floor
+//   {
+//     isPassible: false,
+//     description: 'Rough hewn wall',
+//     char: '0',
+//     color: new Color({ html: 'red' }),
+//     depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+//     type: TileTypes.FLOOR
+//   },
+//   // Walls
+//   {
+//   isPassible: false,
+//     description: 'Rough hewn wall',
+//     char: '0',
+//     color: new Color({ html: 'red' }),
+//     depthRange: { low: 5, high: MAX_DUNGEON_DEPTH },
+//     type: TileTypes.WALL
+//   }
+// ];
+// tileData.forEach((tile) => {
+//   tile.region = RegionNames.Burm;
+// });
+// export { regionData, floorOptions, tileData };
 //# sourceMappingURL=Burm.js.map

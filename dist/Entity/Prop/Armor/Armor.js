@@ -1,14 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Prop_1 = require("./Prop");
-class Armor extends Prop_1.Prop {
+const Prop_1 = require("../Prop");
+class Armor extends Prop_1.AbstractMaterialPickupProp {
     constructor(options) {
-        super(options.propOptions);
-        for (let key in options) {
-            if (key !== 'propOptions') {
-                this[key] = options[key];
-            }
-        }
+        super(options);
     }
 }
 exports.Armor = Armor;

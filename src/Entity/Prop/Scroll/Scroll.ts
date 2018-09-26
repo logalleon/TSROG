@@ -1,8 +1,8 @@
-import { Prop, PropOptions } from './Prop';
+import { PickupProp, MaterialProp, Prop, AbstractPickupProp } from '../Prop';
 
-class Scroll extends Prop {
+class Scroll extends AbstractPickupProp {
 
-  constructor (options: PropOptions) {
+  constructor (options: PickupProp) {
     super(options);
   }
 

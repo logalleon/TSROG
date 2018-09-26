@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Vector_1 = require("../Vector");
 const Game_1 = require("../Game");
-const Random_1 = require("../Random/Random");
 const Tile_1 = require("./Tile");
 const Screen_1 = require("../Screen/Screen");
 const Geometry_1 = require("../Geometry");
+const ossuary_1 = require("ossuary");
 class RaycastVisibility {
     constructor(mapWidth, mapHeight) {
         this.mapWidth = mapWidth;
@@ -17,10 +17,10 @@ class RaycastVisibility {
     }
     resetLos(origin, losRange) {
         const { tiles } = Game_1.default.instance.currentFloor;
-        // const left = clamp(origin.x - losRange, 0, this.mapWidth);
-        // const right = clamp(origin.x + losRange, 0, this.mapWidth);
-        // const top = clamp(origin.y - losRange - 1, 0, this.mapHeight);
-        // const bottom = clamp(origin.y + losRange + 1, 0, this.mapHeight); @todo this is buggy
+        // const left = Random.clamp(origin.x - losRange, 0, this.mapWidth);
+        // const right = Random.clamp(origin.x + losRange, 0, this.mapWidth);
+        // const top = Random.clamp(origin.y - losRange - 1, 0, this.mapHeight);
+        // const bottom = Random.clamp(origin.y + losRange + 1, 0, this.mapHeight); @todo this is buggy
         for (let y = 0; y < Game_1.default.instance.currentFloor.floorHeight; y++) {
             for (let x = 0; x < Game_1.default.instance.currentFloor.floorWidth; x++) {
                 tiles[y][x].isVisible = false;
@@ -36,11 +36,11 @@ class RaycastVisibility {
         // Redraw the origin tile
         Game_1.default.instance.screens[Screen_1.ScreenNames.MAP].redrawTile(origin);
         // Calculate clipping for the x coordinate
-        const left = Random_1.clamp(origin.x - losRange, 0, this.mapWidth);
-        const right = Random_1.clamp(origin.x + losRange, 0, this.mapWidth);
+        const left = ossuary_1.Random.clamp(origin.x - losRange, 0, this.mapWidth);
+        const right = ossuary_1.Random.clamp(origin.x + losRange, 0, this.mapWidth);
         // Calculate clipping for the y coordinate
-        const top = Random_1.clamp(origin.y - losRange - 1, 0, this.mapHeight);
-        const bottom = Random_1.clamp(origin.y + losRange + 1, 0, this.mapHeight);
+        const top = ossuary_1.Random.clamp(origin.y - losRange - 1, 0, this.mapHeight);
+        const bottom = ossuary_1.Random.clamp(origin.y + losRange + 1, 0, this.mapHeight);
         for (let x = left; x < right; x++) {
             this.traceLine(origin, x, top, losRange);
             this.traceLine(origin, x, bottom - 1, losRange);

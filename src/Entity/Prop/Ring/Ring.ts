@@ -1,8 +1,8 @@
-import { Prop, PropOptions } from './Prop';
+import { PickupProp, MaterialProp, AbstractMaterialPickupProp, Prop, MaterialPickupProp } from '../Prop';
 
-class Ring extends Prop {
+class Ring extends AbstractMaterialPickupProp {
 
-  constructor (options: PropOptions) {
+  constructor (options: MaterialPickupProp) {
     super(options);
   }
 

@@ -1,5 +1,5 @@
 import { Quality } from "./Prop.data";
-import { randomInt } from "../../Random/Random";
+import { Random } from "ossuary";
 
 class DetailGenerator {
 
@@ -7,17 +7,17 @@ class DetailGenerator {
     switch (quality) {
       case Quality.RUINED:
       case Quality.POOR:
-        return randomInt(1, 3);
+        return Random.randomInt(1, 3);
       case Quality.FAIR:
       case Quality.COMMON:
-        return randomInt(1, 4);
+        return Random.randomInt(1, 4);
       case Quality.GOOD:
       case Quality.EXCEPTIONAL:
-        return randomInt(2, 5);
+        return Random.randomInt(2, 5);
       case Quality.LEGENDARY:
-        return randomInt(5, 7);
+        return Random.randomInt(5, 7);
       case Quality.MYTHICAL:
-        return randomInt(6, 10);
+        return Random.randomInt(6, 10);
     }
   }
 

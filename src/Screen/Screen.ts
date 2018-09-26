@@ -10,22 +10,22 @@ interface ItemReference {
 }
 
 enum ScreenNames {
-  MAP = 'map',
-  INVENTORY = 'inventory',
-  MESSAGES = 'messages',
-  HELP = 'help',
-  COMMANDS = 'commands',
-  ARMOR = 'armor',
-  AMULET = 'amulet',
-  POTIONS = 'potions',
-  FOOD = 'food',
-  KEYS = 'keyItems',
-  RING = 'ring',
-  SCROLL = 'scroll',
-  WEAPON = 'weapon',
-  UNEQUIP = 'unequip',
-  INSPECT = 'inspect',
-  SKILLS = 'skill'
+  MAP = 'MAP',
+  INVENTORY = 'INVENTORY',
+  MESSAGES = 'MESSAGES',
+  HELP = 'HELP',
+  COMMANDS = 'COMMANDS',
+  ARMOR = 'ARMOR',
+  AMULET = 'AMULET',
+  POTIONS = 'POTIONS',
+  FOOD = 'FOOD',
+  KEYS = 'KEYS',
+  RING = 'RING',
+  SCROLL = 'SCROLL',
+  WEAPON = 'WEAPON',
+  UNEQUIP = 'UNEQUIP',
+  INSPECT = 'INSPECT',
+  SKILLS = 'SKILLS'
 }
 
 interface IScreen {

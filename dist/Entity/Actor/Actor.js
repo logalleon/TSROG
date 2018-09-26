@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Dice_1 = require("../../Random/Dice");
+const ossuary_1 = require("ossuary");
 const bluebird_1 = require("bluebird");
 var AttackRange;
 (function (AttackRange) {
@@ -28,12 +28,12 @@ class Actor {
         this.pos = destination;
     }
     attemptAttack(target) {
-        const dice = `${Dice_1.StandardDice.d20}+${this.cth}`;
-        return (Dice_1.rollDice(dice) >= target.ac);
+        const dice = `${ossuary_1.Dice.StandardDice.d20}+${this.cth}`;
+        return (ossuary_1.Dice.rollDice(dice) >= target.ac);
     }
     attack(target) {
         console.log(this.damage);
-        const damage = Dice_1.rollDice(this.damage);
+        const damage = ossuary_1.Dice.rollDice(this.damage);
         target.hp -= damage;
         return damage;
     }

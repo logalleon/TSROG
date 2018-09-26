@@ -1,7 +1,7 @@
 import { TileOptions, Tile, TileTypes } from './Tile';
 import { tileData } from './Tile.data';
-import { pluck } from '../Random/Random';
 import { RegionNames } from './Regions/Regions';
+import { Random } from 'ossuary';
 
 interface TileRequestOptions {
   depth?: number,
@@ -49,8 +49,8 @@ class TileSpawner {
     if (!possibleTiles.length) {
       throw new Error('No tile selected? Uh ooh . . .');
     }
-    const tileOptions = pluck(possibleTiles);
-    const tile: Tile = new Tile(pluck(possibleTiles));
+    const tileOptions = Random.pluck(possibleTiles);
+    const tile: Tile = new Tile(Random.pluck(possibleTiles));
     return tile;
   }
 

@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Random_1 = require("../Random/Random");
 const Floor_1 = require("./Floor");
 const Game_1 = require("../Game");
 const Floor_data_1 = require("./Floor.data");
+const ossuary_1 = require("ossuary");
 class FloorGenerator {
     constructor(options) {
         this.floorData = Floor_data_1.floorData;
@@ -18,7 +18,7 @@ class FloorGenerator {
             }
             return allowed;
         });
-        return new Floor_1.Floor(Random_1.pluck(possibleFloors));
+        return new Floor_1.Floor(ossuary_1.Random.pluck(possibleFloors));
     }
     /**
      * Generates similar persistance floor

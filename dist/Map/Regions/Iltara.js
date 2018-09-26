@@ -10,14 +10,12 @@ const regionData = {
     dark and impossible world that it might be forgotten, forever.
   `
 };
-exports.regionData = regionData;
-const floorOptions = [
-    {
-        regionName: Regions_1.RegionNames.Iltara,
-        name: `
-    
-    `
-    }
-];
-exports.floorOptions = floorOptions;
+// const floorOptions: FloorOptions[] = [
+//   {
+//     regionName: RegionNames.Iltara,
+//     name: `
+//     `
+//   }
+// ];
+// export { regionData, floorOptions };
 //# sourceMappingURL=Iltara.js.map

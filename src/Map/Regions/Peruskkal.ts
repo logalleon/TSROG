@@ -13,27 +13,27 @@ const regionData: RegionData = {
   `
 };
 
-const floorOptions: FloorOptions[] = [
-  {
-    regionName: RegionNames.Peruskkal,
-    name: `
-      The
-      {Endless|Twisted|Fractured|Blood-stained}
-      {Haunt|Chasm|Maze}
-    `
-  },
-  {
-    regionName: RegionNames.Peruskkal,
-    name: `
+// const floorOptions: FloorOptions[] = [
+//   {
+//     regionName: RegionNames.Peruskkal,
+//     name: `
+//       The
+//       {Endless|Twisted|Fractured|Blood-stained}
+//       {Haunt|Chasm|Maze}
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Peruskkal,
+//     name: `
     
-    `
-  },
-  {
-    regionName: RegionNames.Peruskkal,
-    name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Peruskkal,
+//     name: `
     
-    `
-  }
-];
+//     `
+//   }
+// ];
 
-export { regionData, floorOptions };
+// export { regionData, floorOptions };

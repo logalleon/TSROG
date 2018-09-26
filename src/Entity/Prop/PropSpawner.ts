@@ -1,15 +1,14 @@
 import Game from '../../Game';
 import { DamageType, Quality, Material, MaterialType, MaterialSubtype, Damage } from './Prop.data';
-import { randomIntR, pluck } from '../../Random/Random';
 import { Colors } from '../../Canvas/Color';
-import { Legendary } from '../../Random/Legendary';
-import { RRange } from '../../Random/RRange';
 import { InventoryItems } from '../Actor/Player';
-import { WeaponSpawnParams, IWeapon, DamageParams } from './Weapon/WeaponInterfaces';
+import { WeaponSpawnParams, DamageParams } from './Weapon/WeaponInterfaces';
 import Vector2 from '../../Vector';
 import { WeaponLookupTable, MeleeWeapons, weaponDefaultProperties } from './Weapon/Weapon.data';
 import { Weapon } from './Weapon/Weapon';
 import { DetailGenerator } from './DetailGenerator';
+import { Random } from 'ossuary';
+import { MaterialProp, PickupProp, DamagingProp, Prop } from './Prop';
 
 class PropSpawner {
  
@@ -22,15 +21,15 @@ class PropSpawner {
   spawnWeapon (params: WeaponSpawnParams): Weapon {
     console.log(params);
     const { legendary } = Game.instance;
-    const bonus = randomIntR(params.baseDamage.bonusRange);
-    const damage = `d${randomIntR(params.baseDamage.damageRange)}`;
-    let type: DamageType = Array.isArray(params.baseDamage.type) ? pluck(<DamageType[]>params.baseDamage.type) : params.baseDamage.type; // @TODO this isn't right
-    const quality = pluck(params.quality);
+    const bonus = Random.randomIntRange(params.baseDamage.bonusRange);
+    const damage = `d${Random.randomIntRange(params.baseDamage.damageRange)}`;
+    let type: DamageType = Array.isArray(params.baseDamage.type) ? Random.pluck(<DamageType[]>params.baseDamage.type) : params.baseDamage.type; // @TODO this isn't right
+    const quality = Random.pluck(params.quality);
     const index = legendary.parse(`[weapons.melee.${type}]`);
 
     let material: Material;
     if (Array.isArray(params.material)) {
-      material = pluck(params.material)
+      material = Random.pluck(params.material)
     } else {
       const subtype: MaterialSubtype = <MaterialSubtype>legendary.parse(`[materials.${params.material}]`);
       console.log(subtype, 'sub');
@@ -47,7 +46,7 @@ class PropSpawner {
     const weaponOfTypeDefaults = WeaponLookupTable[1]; // @TODO wat
     const weaponDefaults = weaponDefaultProperties;
 
-    const options: IWeapon = (<any>Object).assign({}, {
+    const options: Prop & MaterialProp & PickupProp & DamagingProp = (<any>Object).assign({}, {
       color: Colors.RED,
       weight: 0,
       material,

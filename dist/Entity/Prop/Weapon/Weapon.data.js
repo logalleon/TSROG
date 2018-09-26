@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Prop_data_1 = require("../Prop.data");
-const Prop_1 = require("../Prop");
 const Player_1 = require("../../Actor/Player");
 const Vector_1 = require("../../../Vector");
+const Detail_data_1 = require("../Detail.data");
 var WeaponType;
 (function (WeaponType) {
     WeaponType["MELEE"] = "melee";
@@ -45,19 +45,24 @@ var PartNames;
 (function (PartNames) {
     PartNames["HILT"] = "hilt";
     PartNames["POMMEL"] = "pommel";
+    PartNames["BLADE"] = "blade";
 })(PartNames || (PartNames = {}));
 let M = MeleeWeapons;
 let R = RangedWeapons;
 let P = PartNames;
+let MT = Prop_data_1.MaterialType;
 const Parts = {
     [P.HILT]: {
         name: P.HILT,
-        decorations: [
-            {
-                decoration: Prop_1.Decoration.INLAID,
-                decorationMaterials: [Prop_data_1.MaterialType.STONE]
-            }
-        ]
+        details: [Detail_data_1.Inlaid([MT.STONE])]
+    },
+    [P.POMMEL]: {
+        name: P.POMMEL,
+        details: [Detail_data_1.Inlaid([MT.BONE])]
+    },
+    [P.BLADE]: {
+        name: P.BLADE,
+        details: [Detail_data_1.Scratched()]
     }
 };
 exports.Parts = Parts;
@@ -65,7 +70,9 @@ const WeaponLookupTable = {
     [M.SHORT_SWORD]: {
         char: 's',
         parts: [
-            Parts[P.HILT]
+            Parts[P.HILT],
+            Parts[P.BLADE],
+            Parts[P.POMMEL]
         ],
         name: 'short sword'
     },
@@ -76,14 +83,13 @@ const weaponData = {
         [WeaponType.MELEE]: {
             [Prop_data_1.DamageType.SLASH]: [
                 M.SHORT_SWORD,
-                'scimitar'
             ],
             [Prop_data_1.DamageType.STRIKE]: [
-                'mace',
-                'warhammer'
+                M.MACE,
+                M.WARHAMMER
             ],
             [Prop_data_1.DamageType.PIERCE]: [
-                'rapier'
+                M.RAPIER
             ]
         }
     }
@@ -91,7 +97,7 @@ const weaponData = {
 exports.weaponData = weaponData;
 const weaponDefaultProperties = {
     type: Player_1.InventoryItems.WEAPONS,
-    isPickup: true,
+    canBePickedUp: true,
     isActive: true,
     pos: Vector_1.default.ZERO
 };

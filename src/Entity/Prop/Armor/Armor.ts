@@ -1,24 +1,18 @@
-import { Prop, PropOptions } from './Prop';
-import { Quality } from './Prop.data';
+import { Quality } from "../Prop.data";
+import { PickupProp, AbstractMaterialPickupProp, Prop, MaterialProp } from "../Prop";
 
 interface ArmorOptions {
   modifier: number,
   material: string,
   quality: Quality,
-  propOptions: PropOptions
 }
 
-class Armor extends Prop {
+class Armor extends AbstractMaterialPickupProp {
 
   public modifier: number;
 
-  constructor (options: ArmorOptions) {
-    super(options.propOptions);
-    for (let key in options) {
-      if (key !== 'propOptions') {
-        this[key] = options[key];
-      }
-    }
+  constructor (options: Prop & PickupProp & MaterialProp) {
+    super(options);
   }
 
 }

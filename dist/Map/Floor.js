@@ -3,13 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Tile_1 = require("../Map/Tile");
 const Room_1 = require("./Room");
 const Corridor_1 = require("./Corridor");
-const Random_1 = require("../Random/Random");
 const Game_1 = require("../Game");
 const Vector_1 = require("../Vector");
 const roman_numeral_1 = require("roman-numeral");
-const RRange_1 = require("../Random/RRange");
 const Geometry_1 = require("../Geometry");
 const Prop_data_1 = require("../Entity/Prop/Prop.data");
+const ossuary_1 = require("ossuary");
+const Random_1 = require("ossuary/dist/lib/Random");
 class Floor {
     constructor(options) {
         this.rooms = [];
@@ -24,7 +24,7 @@ class Floor {
         this.generateName();
         this.rooms = [];
         this.corridors = [];
-        const numRooms = Random_1.randomIntR(this.numRoomsRange);
+        const numRooms = ossuary_1.Random.randomIntRange(this.numRoomsRange);
         const numCorridors = numRooms - 1;
         this.rooms.push(new Room_1.Room());
         this.corridors.push(new Corridor_1.Corridor());
@@ -52,7 +52,7 @@ class Floor {
         // Spawn pickups
         this.spawnPickups();
         if (this.floorPersistance && this.floorPersistance.persistance) {
-            this.willPersistFor = Random_1.randomIntR(this.floorPersistance.persistance);
+            this.willPersistFor = ossuary_1.Random.randomIntRange(this.floorPersistance.persistance);
             this.floorPersistance.startIndex = this.depth;
         }
     }
@@ -128,19 +128,19 @@ class Floor {
         const startingRoom = this.rooms[0];
         let startingPosition = this.getRandomPointInRoom(startingRoom);
         // Don't set staircases near the edge of rooms.
-        Random_1.clamp(startingPosition.x, startingRoom.pos.x + 1, startingRoom.pos.x + startingRoom.roomWidth - 2);
-        Random_1.clamp(startingPosition.y, startingRoom.pos.y + 1, startingRoom.pos.y + startingRoom.roomHeight - 2);
+        ossuary_1.Random.clamp(startingPosition.x, startingRoom.pos.x + 1, startingRoom.pos.x + startingRoom.roomWidth - 2);
+        ossuary_1.Random.clamp(startingPosition.y, startingRoom.pos.y + 1, startingRoom.pos.y + startingRoom.roomHeight - 2);
         this.tiles[startingPosition.y][startingPosition.x] = Game_1.default.instance.dungeonGenerator.tileSpawner.getTile({
             type: Tile_1.TileTypes.FLOOR_UP
         });
         this.floorStart = startingPosition;
         if (this.depth !== Game_1.default.instance.dungeonGenerator.maxDepth - 1) {
             // @TODO hard-coded? maybe the location of ending staircase should depend on floor options
-            const endingRoom = this.rooms[Random_1.randomInt(this.rooms.length - 3, this.rooms.length - 1)];
+            const endingRoom = this.rooms[ossuary_1.Random.randomInt(this.rooms.length - 3, this.rooms.length - 1)];
             let endingPosition = this.getRandomPointInRoom(endingRoom);
             // Don't set staircases near the edge of rooms.
-            Random_1.clamp(endingPosition.x, endingRoom.pos.x + 1, endingRoom.pos.x + endingRoom.roomWidth - 2);
-            Random_1.clamp(endingPosition.y, endingRoom.pos.y + 1, endingRoom.pos.y + endingRoom.roomHeight - 2);
+            ossuary_1.Random.clamp(endingPosition.x, endingRoom.pos.x + 1, endingRoom.pos.x + endingRoom.roomWidth - 2);
+            ossuary_1.Random.clamp(endingPosition.y, endingRoom.pos.y + 1, endingRoom.pos.y + endingRoom.roomHeight - 2);
             this.tiles[endingPosition.y][endingPosition.x] = Game_1.default.instance.dungeonGenerator.tileSpawner.getTile({
                 type: Tile_1.TileTypes.FLOOR_DOWN
             });
@@ -264,10 +264,10 @@ class Floor {
             (this.tiles[y][x + 1] && this.tiles[y][x + 1].type === Tile_1.TileTypes.FLOOR));
     }
     getRandomPointInRoom(room) {
-        const x = Random_1.randomInt(room.pos.x, room.roomWidth + room.pos.x);
-        const y = Random_1.randomInt(room.pos.y, room.roomHeight + room.pos.y);
-        // Just fucking clamp to the bounds of the map
-        return new Vector_1.default(Random_1.clamp(x, 0, this.floorWidth - 1), Random_1.clamp(y, 0, this.floorHeight - 1));
+        const x = ossuary_1.Random.randomInt(room.pos.x, room.roomWidth + room.pos.x);
+        const y = ossuary_1.Random.randomInt(room.pos.y, room.roomHeight + room.pos.y);
+        // Just fucking Random.clamp to the bounds of the map
+        return new Vector_1.default(ossuary_1.Random.clamp(x, 0, this.floorWidth - 1), ossuary_1.Random.clamp(y, 0, this.floorHeight - 1));
     }
     inBounds(width, height, v) {
         return v.x >= 0 &&
@@ -291,7 +291,7 @@ class Floor {
         const { enemySpawner } = Game_1.default.instance.dungeonGenerator;
         let currentCR = 0;
         while (currentCR < this.maxCR) {
-            const e = enemySpawner.createEnemyByCr(Random_1.randomIntR(this.floorCRRange), null, this.regionName);
+            const e = enemySpawner.createEnemyByCr(ossuary_1.Random.randomIntRange(this.floorCRRange), null, this.regionName);
             currentCR += e.cr;
             // If the enemy can't be placed, don't place it
             if (this.placeEnemyOnMap(e)) {
@@ -301,20 +301,20 @@ class Floor {
     }
     spawnPickups() {
         const { propSpawner } = Game_1.default.instance.dungeonGenerator;
-        let totalPickups = Random_1.randomIntR(this.pickupsRange);
+        let totalPickups = ossuary_1.Random.randomIntRange(this.pickupsRange);
         while (totalPickups) {
             const baseDamage = {
-                damageRange: new RRange_1.RRange(4, 8),
-                bonusRange: new RRange_1.RRange(0, 1),
-                type: Prop_data_1.DamageType.STRIKE
+                damageRange: new Random_1.IntegerRange(4, 8),
+                bonusRange: new Random_1.IntegerRange(0, 1),
+                type: ossuary_1.Random.pluck([Prop_data_1.DamageType.STRIKE, Prop_data_1.DamageType.SLASH])
             };
+            // @TODO debug
             const params = {
                 baseDamage,
-                qualityRange: [Prop_data_1.Quality.POOR, Prop_data_1.Quality.FAIR],
+                quality: [Prop_data_1.Quality.RUINED, Prop_data_1.Quality.POOR],
                 material: Prop_data_1.MaterialType.METAL
             };
             const pickup = propSpawner.spawnWeapon(params);
-            console.log(pickup);
             this.placePickupOnMap(pickup);
             totalPickups--;
         }
@@ -322,8 +322,8 @@ class Floor {
     placeEnemyOnMap(enemy) {
         // @TODO maybe make this smarter
         let tries = 5;
-        const placementRange = new RRange_1.RRange(1, this.rooms.length - 1);
-        const roomIndex = Random_1.randomIntR(placementRange);
+        const placementRange = new Random_1.IntegerRange(1, this.rooms.length - 1);
+        const roomIndex = ossuary_1.Random.randomIntRange(placementRange);
         const possiblePosition = this.getRandomPointInRoom(this.rooms[roomIndex]);
         while (tries) {
             const { x, y } = possiblePosition;
@@ -341,8 +341,8 @@ class Floor {
     placePickupOnMap(pickup) {
         // @TODO maybe make this smarter
         let tries = 10;
-        const placementRange = new RRange_1.RRange(1, this.rooms.length - 1);
-        const roomIndex = Random_1.randomIntR(placementRange);
+        const placementRange = new Random_1.IntegerRange(1, this.rooms.length - 1);
+        const roomIndex = ossuary_1.Random.randomIntRange(placementRange);
         const possiblePosition = this.getRandomPointInRoom(this.rooms[roomIndex]);
         while (tries) {
             const { x, y } = possiblePosition;

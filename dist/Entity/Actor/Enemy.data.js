@@ -1,22 +1,42 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Dice_1 = require("../../Random/Dice");
 const Color_1 = require("../../Canvas/Color");
+const ossuary_1 = require("ossuary");
 var CreatureTypes;
 (function (CreatureTypes) {
-    CreatureTypes["UNDEAD"] = "undead";
-    CreatureTypes["BEAST"] = "beast";
+    CreatureTypes["UNDEAD"] = "UNDEAD";
+    CreatureTypes["BEAST"] = "BEAST";
 })(CreatureTypes || (CreatureTypes = {}));
 exports.CreatureTypes = CreatureTypes;
 const { BEAST, UNDEAD } = CreatureTypes;
 var Variations;
 (function (Variations) {
-    Variations["FEROCIOUS"] = "ferocious";
-    Variations["CURSED"] = "cursed";
+    Variations["FEROCIOUS"] = "FEROCIOUS";
+    Variations["CURSED"] = "CURSED";
 })(Variations || (Variations = {}));
 exports.Variations = Variations;
 const defaultVariations = {
     [Variations.FEROCIOUS]: {
+        name: Variations.FEROCIOUS,
+        xpmod: {
+            xp: {
+                multiply: 1.2
+            }
+        },
+        crmod: {
+            cr: {
+                add: 1
+            }
+        },
+        modifications: [
+            {
+                hp: {
+                    multiply: 1.4
+                }
+            }
+        ],
+    },
+    [Variations.CURSED]: {
         name: Variations.FEROCIOUS,
         xpmod: {
             xp: {
@@ -49,7 +69,7 @@ const zombie = {
         hp: 6,
         ac: 6,
         char: 'z',
-        damage: Dice_1.StandardDice.d2
+        damage: ossuary_1.Dice.StandardDice.d2
     }
 };
 const skeleton = {
@@ -62,7 +82,7 @@ const skeleton = {
         hp: 5,
         ac: 6,
         char: 's',
-        damage: Dice_1.StandardDice.d2
+        damage: ossuary_1.Dice.StandardDice.d2
     }
 };
 const baseEnemies = [

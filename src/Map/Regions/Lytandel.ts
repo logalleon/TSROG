@@ -13,25 +13,25 @@ const regionData: RegionData = {
   `
 };
 
-const floorOptions: FloorOptions[] = [
-  {
-    regionName: RegionNames.Lytandel,
-    name: `
+// const floorOptions: FloorOptions[] = [
+//   {
+//     regionName: RegionNames.Lytandel,
+//     name: `
     
-    `
-  },
-  {
-    regionName: RegionNames.Lytandel,
-    name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Lytandel,
+//     name: `
     
-    `
-  },
-  {
-    regionName: RegionNames.Lytandel,
-    name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Lytandel,
+//     name: `
     
-    `
-  }
-];
+//     `
+//   }
+// ];
 
-export { regionData, floorOptions };
+// export { regionData, floorOptions };

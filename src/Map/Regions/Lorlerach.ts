@@ -1,12 +1,13 @@
 import { RegionData, RegionNames } from './Regions';
 import { FloorOptions } from '../Floor';
-import { RRange } from '../../Random/RRange';
 import { TileOptions, TileTypes } from '../Tile';
 import { Color } from '../../Canvas/Color';
 import { EnemyOptions } from '../../Entity/Actor/Enemy';
 import { ActorOptions } from '../../Entity/Actor/Actor';
 import { CreatureTypes } from '../../Entity/Actor/Enemy.data';
-import { StandardDice } from '../../Random/Dice';
+import { Random, Dice } from 'ossuary';
+
+const { IntegerRange } = Random;
 
 const MAX_DUNGEON_DEPTH = 100; // @TODO proper import
 
@@ -31,19 +32,19 @@ const floorOptions: FloorOptions[] = [
         {Woe|Yearning|Sorrow|Loss|Rust|Dust}
       `,
       maxCR: 4,
-      floorCRRange: new RRange(1, 1),
-      variantEnemiesRange: new RRange(0, 1),
-      pickupsRange: new RRange(1, 2),
-      roomWidthRange: new RRange(3, 7),
-      roomHeightRange: new RRange(3, 7),
-      corridorLengthRange: new RRange(4, 10),
+      floorCRRange: new IntegerRange(1, 1),
+      variantEnemiesRange: new IntegerRange(0, 1),
+      pickupsRange: new IntegerRange(1, 2),
+      roomWidthRange: new IntegerRange(3, 7),
+      roomHeightRange: new IntegerRange(3, 7),
+      corridorLengthRange: new IntegerRange(4, 10),
       floorHeight: 80,
       floorWidth: 80,
-      numRoomsRange: new RRange(4, 8),
+      numRoomsRange: new IntegerRange(4, 8),
       floorPersistance: {
-        persistance: new RRange(1, 4)
+        persistance: new IntegerRange(1, 4)
       },
-      depthRange: new RRange(0, 10)
+      depthRange: new IntegerRange(0, 10)
     },
     {
       regionName: RegionNames.Lorlerach,
@@ -53,19 +54,19 @@ const floorOptions: FloorOptions[] = [
         {Caves|Caverns|Grounds|Maze|Wastes|Passages|Blight}
       `,
       maxCR: 4,
-      floorCRRange: new RRange(1, 1),
-      variantEnemiesRange: new RRange(0, 1),
-      pickupsRange: new RRange(1, 2),
-      roomWidthRange: new RRange(3, 7),
-      roomHeightRange: new RRange(3, 7),
-      corridorLengthRange: new RRange(4, 10),
+      floorCRRange: new IntegerRange(1, 1),
+      variantEnemiesRange: new IntegerRange(0, 1),
+      pickupsRange: new IntegerRange(1, 2),
+      roomWidthRange: new IntegerRange(3, 7),
+      roomHeightRange: new IntegerRange(3, 7),
+      corridorLengthRange: new IntegerRange(4, 10),
       floorHeight: 80,
       floorWidth: 80,
-      numRoomsRange: new RRange(4, 8),
+      numRoomsRange: new IntegerRange(4, 8),
       floorPersistance: {
-        persistance: new RRange(1, 4)
+        persistance: new IntegerRange(1, 4)
       },
-      depthRange: new RRange(0, 10)
+      depthRange: new IntegerRange(0, 10)
     },
     {
       regionName: RegionNames.Lorlerach,
@@ -76,19 +77,19 @@ const floorOptions: FloorOptions[] = [
         {Bones|Skulls|Fractures|Dust|Fear|Undying|Gravefrost|Death Chill}
       `,
       maxCR: 4,
-      floorCRRange: new RRange(1, 1),
-      variantEnemiesRange: new RRange(0, 1),
-      pickupsRange: new RRange(1, 2),
-      roomWidthRange: new RRange(3, 7),
-      roomHeightRange: new RRange(3, 7),
-      corridorLengthRange: new RRange(4, 10),
+      floorCRRange: new IntegerRange(1, 1),
+      variantEnemiesRange: new IntegerRange(0, 1),
+      pickupsRange: new IntegerRange(1, 2),
+      roomWidthRange: new IntegerRange(3, 7),
+      roomHeightRange: new IntegerRange(3, 7),
+      corridorLengthRange: new IntegerRange(4, 10),
       floorHeight: 80,
       floorWidth: 80,
-      numRoomsRange: new RRange(4, 8),
+      numRoomsRange: new IntegerRange(4, 8),
       floorPersistance: {
-        persistance: new RRange(1, 4)
+        persistance: new IntegerRange(1, 4)
       },
-      depthRange: new RRange(0, 10)
+      depthRange: new IntegerRange(0, 10)
     }
 ];
 
@@ -147,7 +148,7 @@ const husk: EnemyOptions = {
     char: 'h',
     hp: 4,
     ac: 4,
-    damage: StandardDice.d2,
+    damage: Dice.StandardDice.d2,
     color: new Color({ html: 'beige' })
   }
 };

@@ -1,1 +1,1 @@
-{"version":3,"file":"Ring.js","sourceRoot":"","sources":["../../../../src/Entity/Prop/Ring/Ring.ts"],"names":[],"mappings":";;AAAA,iCAA2C;AAE3C,MAAM,IAAK,SAAQ,WAAI;IAErB,YAAa,OAAoB;QAC/B,KAAK,CAAC,OAAO,CAAC,CAAC;IACjB,CAAC;CAEF;AAEQ,oBAAI"}
+{"version":3,"file":"Ring.js","sourceRoot":"","sources":["../../../../src/Entity/Prop/Ring/Ring.ts"],"names":[],"mappings":";;AAAA,kCAAyG;AAEzG,MAAM,IAAK,SAAQ,iCAA0B;IAE3C,YAAa,OAA2B;QACtC,KAAK,CAAC,OAAO,CAAC,CAAC;IACjB,CAAC;CAEF;AAEQ,oBAAI"}

@@ -1,44 +1,22 @@
-import { IWeapon } from './WeaponInterfaces';
 import { Material, Quality, Damage, MaterialType, MaterialSubtype } from '../Prop.data';
 import { InventoryItems } from '../../Actor/Player';
 import Vector2 from '../../../Vector';
 import { Color } from '../../../Canvas/Color';
 import { Description } from '../../Entity';
 import { Parts, WeaponLookupTable } from './Weapon.data';
-import { Part } from '../Prop';
-import { pluck, pluckAndReduce, shuffle } from '../../../Random/Random';
+import { Part, AbstractPickupProp, AbstractDamagingProp, Prop, PickupProp, AbstractDamagingPickupMaterialProp, MaterialProp, DamagingProp, HasParts, DamagingPickupMaterialProp } from '../Prop';
 import Game from '../../../Game';
 import { DetailFn, PhraseFn } from '../Detail.data';
+import { Random } from 'ossuary';
+import { shuffle } from '../../../Util';
 
-class Weapon implements IWeapon {
 
-  public name: string;
-  public description: string;
-  public descriptionLong: string;
-
-  public pos: Vector2;
-  public char: string;
-  public color: Color;
-  
-  public isActive: boolean;
-
-  public material: Material;
-  public quality: Quality;
-
-  public baseDamage: Damage;
-  public additionalDamage: Damage[];
-
-  public weight: number;
-  public isPickup = true;
-
-  public type: InventoryItems = InventoryItems.WEAPONS;
+class Weapon extends AbstractDamagingPickupMaterialProp implements HasParts {
 
   public parts: Part[];
 
-  constructor (options: IWeapon) {
-    for (let key in options) {
-      this[key] = options[key];
-    }
+  constructor (options: DamagingPickupMaterialProp) {
+    super(options);
   }
 
   getDamage (): string {
@@ -68,7 +46,7 @@ class Weapon implements IWeapon {
       const part: Part = parts[i];
       const { name, details } = part;
       description += ` The ${name} `;
-      const phrase: PhraseFn = pluck(details);
+      const phrase: PhraseFn = Random.pluck(details);
       description += `${Game.instance.legendary.recursiveslyParse(phrase(this.quality, Game.instance))}`
         .replace(/\n/g, '')
         .replace(/\t/g, '');

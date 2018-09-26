@@ -1,14 +1,12 @@
-import { PickupProp, MaterialProp, DamagingProp } from "../Prop";
+import { PickupProp, MaterialProp, DamagingProp, HasParts, AbstractMaterialProp, AbstractDamagingProp } from "../Prop";
 import { DamageType, Quality, MaterialType, Material } from "../Prop.data";
-import { RRange } from "../../../Random/RRange";
 import Vector2 from "../../../Vector";
 import { InventoryItems } from "../../Actor/Player";
-
-type IWeapon = PickupProp & MaterialProp & DamagingProp;
+import { Random } from "ossuary";
 
 interface DamageParams {
-  bonusRange: RRange,
-  damageRange: RRange,
+  bonusRange: Random.IntegerRange,
+  damageRange: Random.IntegerRange,
   type: DamageType | DamageType[]
 }
 
@@ -26,9 +24,9 @@ interface WeaponChar {
 
 interface WeaponDefaultProps {
   pos: Vector2,
-  isPickup: boolean,
+  canBePickedUp: boolean,
   type: InventoryItems,
   isActive: boolean
 }
 
-export { IWeapon, WeaponSpawnParams, DamageParams, WeaponChar, WeaponDefaultProps }
+export { WeaponSpawnParams, DamageParams, WeaponChar, WeaponDefaultProps }

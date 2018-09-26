@@ -4,12 +4,14 @@ const Screen_1 = require("./Screen/Screen");
 const Input_1 = require("./Input");
 const Messenger_1 = require("./Message/Messenger");
 const DungeonGenerator_1 = require("./Map/DungeonGenerator");
-const Legendary_1 = require("./Random/Legendary");
 const easystarjs_1 = require("../custom_modules/easystarjs");
 const Effects_1 = require("./Effects");
 const StatusMenu_1 = require("./UI/StatusMenu");
 const Visibility_1 = require("./Map/Visibility");
 const Color_1 = require("./Canvas/Color");
+const Prop_data_1 = require("./Entity/Prop/Prop.data");
+const Weapon_data_1 = require("./Entity/Prop/Weapon/Weapon.data");
+const ossuary_1 = require("ossuary");
 class Game {
     constructor(screens, player) {
         this.easystarClosedTile = 0;
@@ -34,7 +36,7 @@ class Game {
         window.onkeydown = this.handleInput.bind(this);
         window.onkeyup = this.handleInput.bind(this);
         // Legendary has to load before the floor and dungeon generators
-        this.legendary = new Legendary_1.Legendary();
+        this.legendary = new ossuary_1.Parser(Object.assign({}, Prop_data_1.materialData, Weapon_data_1.weaponData));
         this.dungeonGenerator = new DungeonGenerator_1.DungeonGenerator({
             depth: 8
         });

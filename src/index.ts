@@ -13,7 +13,6 @@ import InventoryItemScreen from './Screen/InventoryItemScreen';
 import CommandScreen from './Screen/CommandScreen';
 import { Color, Colors } from './Canvas/Color';
 import { Enemy, EnemyOptions } from './Entity/Actor/Enemy';
-import { StandardDice } from './Random/Dice';
 import { EnemySpawner } from './Entity/Actor/EnemySpawner';
 import { CreatureTypes, Variations, defaultVariations } from './Entity/Actor/Enemy.data';
 import { StatusMenu } from './UI/StatusMenu';
@@ -23,18 +22,23 @@ import { Panel } from './Message/Messenger';
 import InspectScreen from './Screen/InspectScreen';
 import { BASE_LOS, BASE_REGEN } from './Entity/Actor/config';
 import SkillsScreen from './Screen/SkillsScreen';
-import { ArmorOptions, Armor } from './Entity/Prop/Armor/Armor';
 import { PickupProp } from './Entity/Prop/Prop';
 import { IWeapon } from './Entity/Prop/Weapon/WeaponInterfaces';
 import { Weapon } from './Entity/Prop/Weapon/Weapon';
 
 const height = 240;
 const width = 600;
+
+type S = keyof typeof ScreenNames;
+type ScreenNameMap = {
+  [Key in S]: Screen
+}
+
 window.onload = () => {
   const el = document.getElementById('messages');
   const bottomEl = document.getElementById('bottomMessage');
 
-  const screens: any = {
+  const screens: ScreenNameMap = {
     [ScreenNames.MAP]: new MapScreen(),
     [ScreenNames.INVENTORY]: new InventoryScreen(),
     [ScreenNames.AMULET]: new InventoryItemScreen(ScreenNames.AMULET, InventoryItems.AMULETS),
@@ -49,7 +53,8 @@ window.onload = () => {
     [ScreenNames.HELP]: new HelpScreen(),
     [ScreenNames.UNEQUIP]: new UnequipScreen(),
     [ScreenNames.INSPECT]: new InspectScreen(),
-    [ScreenNames.SKILLS]: new SkillsScreen()
+    [ScreenNames.SKILLS]: new SkillsScreen(),
+    [ScreenNames.MESSAGES]: new SkillsScreen() // @TODO fix
   };
   // Adds a player TEST DATAAAAAa
   const actorOptions: ActorOptions = {
@@ -162,3 +167,5 @@ window.onload = () => {
 
   (<any>window).game = g;
 };
+
+export { ScreenNameMap }

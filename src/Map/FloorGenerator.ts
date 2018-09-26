@@ -1,12 +1,12 @@
 import { Room } from './Room';
 import { Corridor, Direction } from './Corridor';
-import { randomInt, pluck } from '../Random/Random';
 import { Color } from '../Canvas/Color';
 import { fontOptions } from '../Canvas/Canvas';
 import { Enemy } from '../Entity/Actor/Enemy';
 import { FloorOptions, Floor, FloorPersistance } from './Floor';
 import Game from '../Game';
 import { floorData } from './Floor.data';
+import { Random } from 'ossuary';
 
 interface FloorGeneratorOptions {
   depth?: number
@@ -30,7 +30,7 @@ class FloorGenerator {
       }
       return allowed;
     });
-    return new Floor(pluck(possibleFloors));
+    return new Floor(Random.pluck(possibleFloors));
   }
 
   /**

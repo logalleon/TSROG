@@ -1,6 +1,6 @@
 import { Quality, MaterialType, Material, MaterialSubtype } from "./Prop.data";
-import { pluck } from "../../Random/Random";
 import Game from "../../Game";
+import { Random } from "ossuary";
 
 type PhraseFn = (quality: Quality, game: Game) => string;
 type DetailFn = (materials?: Material[] | MaterialType[]) => PhraseFn;
@@ -15,7 +15,7 @@ enum Descriptors {
 }
 
 const parseMaterial = (materials: Material[] | MaterialType[], game: Game): Material => {
-  const material: Material | MaterialType = pluck(materials);
+  const material: Material | MaterialType = Random.pluck(materials);
   let m: any = {};
   // It's only a material type, choose the subtype
   if (!(<Material>material).subtype) {

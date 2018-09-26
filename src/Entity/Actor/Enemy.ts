@@ -7,7 +7,7 @@ import { Promise as Bluebird } from 'bluebird';
 import { Player } from './Player';
 import { Variation, Variations, VariantModification, CreatureTypes } from './Enemy.data';
 import { RegionNames } from '../../Map/Regions/Regions';
-import { RRange } from '../../Random/RRange';
+import { Random } from 'ossuary';
 
 const { colorize } = Messenger;
 
@@ -20,7 +20,7 @@ interface EnemyOptions {
   cr: number
   xp: number
   regions?: RegionNames[]
-  depthRange?: RRange
+  depthRange?: Random.IntegerRange
   variation?: Variation
   description?: string
 }
@@ -34,7 +34,7 @@ class Enemy extends Actor {
   public name: string;
   public description: string;
   public regions: RegionNames[];
-  public depthRange: RRange;
+  public depthRange: Random.IntegerRange;
 
   public cr: number;
   public xp: number;

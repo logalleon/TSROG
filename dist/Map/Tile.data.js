@@ -4,7 +4,8 @@ const Tile_1 = require("./Tile");
 const Color_1 = require("../Canvas/Color");
 // @TODO something isn't right here import { MAX_DUNGEON_DEPTH } from './DungeonGenerator';
 const Lorlerach_1 = require("../Map/Regions/Lorlerach");
-const RRange_1 = require("../Random/RRange");
+const ossuary_1 = require("ossuary");
+const { IntegerRange } = ossuary_1.Random;
 const MAX_DUNGEON_DEPTH = 100;
 /**
  * It's apparently really important to pass "isPassible" to these . . . need to refactor
@@ -15,7 +16,7 @@ const generalTiles = [
         description: 'Hard stone floor',
         char: '.',
         color: new Color_1.Color({ hex: '#333' }),
-        depthRange: new RRange_1.RRange(0, MAX_DUNGEON_DEPTH),
+        depthRange: new IntegerRange(0, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.FLOOR
     },
     {
@@ -23,7 +24,7 @@ const generalTiles = [
         description: 'Hard chert floor',
         char: '.',
         color: new Color_1.Color({ hex: '#777' }),
-        depthRange: new RRange_1.RRange(0, MAX_DUNGEON_DEPTH),
+        depthRange: new IntegerRange(0, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.FLOOR
     },
     {
@@ -31,7 +32,7 @@ const generalTiles = [
         description: 'Rough hewn floor',
         char: '.',
         color: new Color_1.Color({ html: 'green' }),
-        depthRange: new RRange_1.RRange(5, MAX_DUNGEON_DEPTH),
+        depthRange: new IntegerRange(5, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.FLOOR
     },
     {
@@ -39,7 +40,7 @@ const generalTiles = [
         description: 'Rough magma floor',
         char: '.',
         color: new Color_1.Color({ html: 'orange' }),
-        depthRange: new RRange_1.RRange(10, MAX_DUNGEON_DEPTH),
+        depthRange: new IntegerRange(10, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.FLOOR
     },
     {
@@ -47,7 +48,7 @@ const generalTiles = [
         description: 'Rough hewn wall',
         char: '0',
         color: new Color_1.Color({ html: 'red' }),
-        depthRange: new RRange_1.RRange(5, MAX_DUNGEON_DEPTH),
+        depthRange: new IntegerRange(5, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.WALL,
         blocksVisibility: true
     },
@@ -56,7 +57,7 @@ const generalTiles = [
         description: 'Rough magma wall',
         char: '|',
         color: new Color_1.Color({ html: 'orange' }),
-        depthRange: new RRange_1.RRange(10, MAX_DUNGEON_DEPTH),
+        depthRange: new IntegerRange(10, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.WALL,
         blocksVisibility: true
     },
@@ -65,7 +66,7 @@ const generalTiles = [
         description: 'A wall',
         char: '|',
         color: new Color_1.Color({ html: 'white' }),
-        depthRange: new RRange_1.RRange(0, MAX_DUNGEON_DEPTH),
+        depthRange: new IntegerRange(0, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.WALL,
         blocksVisibility: true
     },
@@ -74,7 +75,7 @@ const generalTiles = [
         description: 'A door',
         char: 'D',
         color: new Color_1.Color({ html: 'red' }),
-        depthRange: new RRange_1.RRange(0, MAX_DUNGEON_DEPTH),
+        depthRange: new IntegerRange(0, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.DOOR
     }
 ];
@@ -84,7 +85,7 @@ const floorUpDown = [
         description: 'Staircase up',
         char: '<',
         color: new Color_1.Color({ html: 'teal' }),
-        depthRange: new RRange_1.RRange(0, MAX_DUNGEON_DEPTH),
+        depthRange: new IntegerRange(0, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.FLOOR_UP
     },
     {
@@ -92,7 +93,7 @@ const floorUpDown = [
         description: 'Staircase down',
         char: '>',
         color: new Color_1.Color({ html: 'teal' }),
-        depthRange: new RRange_1.RRange(0, MAX_DUNGEON_DEPTH),
+        depthRange: new IntegerRange(0, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.FLOOR_DOWN
     }
 ];
@@ -102,7 +103,7 @@ const voidTiles = [
         description: 'void',
         char: 'x',
         color: new Color_1.Color({ html: 'black' }),
-        depthRange: new RRange_1.RRange(0, MAX_DUNGEON_DEPTH),
+        depthRange: new IntegerRange(0, MAX_DUNGEON_DEPTH),
         type: Tile_1.TileTypes.VOID,
         blocksVisibility: true
     }

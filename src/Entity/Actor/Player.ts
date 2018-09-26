@@ -1,43 +1,36 @@
 import Vector2 from '../../Vector';
 import { Actor, ActorOptions } from './Actor';
-import { Amulet } from '../Prop/Amulet';
-import { Armor } from '../Prop/Armor';
-import { Food } from '../Prop/Food';
-import { Potion } from '../Prop/Potion';
-import { Ring } from '../Prop/Ring';
-import { Scroll } from '../Prop/Scroll';
-import { Weapon } from '../Prop/Weapon';
-import { Prop } from '../Prop/Prop';
+import { Prop, PickupProp } from '../Prop/Prop';
 import { Message, Messenger } from '../../Message/Messenger';
 import { Enemy } from './Enemy';
 import { Colors } from '../../Canvas/Color';
 import Game from '../../Game';
-import { clamp } from '../../Random/Random';
 import { BASE_REGEN_DELAY } from './config';
 import { Hunger } from './Status/Hunger';
 import { Thirst } from './Status/Thirst';
 import { Skill, SkillNames, ISkill, SkillLevels, LevelingAllotment } from './Skill/Skill';
 import { defaultSkills, SkillMap } from './Skill/Skill.data';
+import { Random } from 'ossuary';
 
 const { colorize } = Messenger;
 
 enum InventoryItems {
-  AMULETS = 'amulets',
-  ARMOR = 'armor',
-  FOOD = 'food',
-  KEYS = 'keys',
-  POTIONS = 'potions',
-  RINGS = 'rings',
-  SCROLLS = 'scrolls',
-  WEAPONS = 'weapons'
+  AMULETS = 'AMULETS',
+  ARMOR = 'ARMOR',
+  FOOD = 'FOOD',
+  KEYS = 'KEYS',
+  POTIONS = 'POTIONS',
+  RINGS = 'RINGS',
+  SCROLLS = 'SCROLLS',
+  WEAPONS = 'WEAPON'
 }
 
 enum EquipmentSlots {
-  NECK = 'neck',
-  ARMOR = 'armor',
-  LEFT_HAND = 'left hand',
-  RIGHT_HAND = 'right hand',
-  WEAPON = 'weapon'
+  NECK = 'NECK',
+  ARMOR = 'ARMOR',
+  LEFT_HAND = 'LEFT_HAND',
+  RIGHT_HAND = 'RIGHT_HAND',
+  WEAPON = 'WEAPON'
 }
 
 interface PlayerOptions {
@@ -48,20 +41,14 @@ interface PlayerOptions {
   los: number
 }
 
-interface EquippedInventoryItemAccessors {
-  [EquipmentSlots.NECK]: EquippedItemAccessor | null,
-  [EquipmentSlots.ARMOR]: EquippedItemAccessor | null,
-  [EquipmentSlots.LEFT_HAND]: EquippedItemAccessor | null,
-  [EquipmentSlots.RIGHT_HAND]: EquippedItemAccessor | null,
-  [EquipmentSlots.WEAPON]: EquippedItemAccessor | null
+type ES = keyof typeof EquipmentSlots;
+
+type EquippedInventoryItemAccessors = {
+  [Key in ES]: EquippedItemAccessor | null
 }
 
-interface EquippedItems {
-  [EquipmentSlots.NECK]: Amulet | null,
-  [EquipmentSlots.ARMOR]: Armor | null,
-  [EquipmentSlots.LEFT_HAND]: Ring | null,
-  [EquipmentSlots.RIGHT_HAND]: Ring | null,
-  [EquipmentSlots.WEAPON]: Weapon | null
+type EquippedItems = {
+  [Key in ES]: PickupProp | null
 }
 
 interface Pickup {
@@ -96,13 +83,7 @@ class Player extends Actor {
   public [InventoryItems.WEAPONS]: Weapon[];
 
   // Currently equipped items
-  public equipped: EquippedItems = {
-    [EquipmentSlots.NECK]: null,
-    [EquipmentSlots.ARMOR]: null,
-    [EquipmentSlots.LEFT_HAND]: null,
-    [EquipmentSlots.RIGHT_HAND]: null,
-    [EquipmentSlots.WEAPON]: null
-  };
+  public equipped: EquippedItems;
 
   public equippedAccessors: EquippedInventoryItemAccessors = {
     [EquipmentSlots.NECK]: null,
@@ -122,6 +103,13 @@ class Player extends Actor {
 
   constructor (options: PlayerOptions) {
     super(options.actorOptions);
+    this.equipped = {
+      [EquipmentSlots.NECK]: null,
+      [EquipmentSlots.ARMOR]: null,
+      [EquipmentSlots.LEFT_HAND]: null,
+      [EquipmentSlots.RIGHT_HAND]: null,
+      [EquipmentSlots.WEAPON]: null
+    };
     for (let key in InventoryItems) {
       this[InventoryItems[key]] = [];
     }
@@ -169,7 +157,7 @@ class Player extends Actor {
   updateHp (): void {
     if (this.regenDelayCounter === 0) {
       this.hp += this.hpRegen;
-      this.hp = clamp(this.hp, 0, this.maxHp);
+      this.hp = Random.clamp(this.hp, 0, this.maxHp);
     }
   }
 

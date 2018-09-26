@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Enemy_1 = require("../Actor/Enemy");
 const Enemy_data_1 = require("./Enemy.data");
-const Random_1 = require("../../Random/Random");
 const Lorlerach_1 = require("../../Map/Regions/Lorlerach");
+const ossuary_1 = require("ossuary");
 class EnemySpawner {
     constructor() {
         // this.baseEnemies = this.loadEnemies();
@@ -31,13 +31,13 @@ class EnemySpawner {
         if (this.enemiesByCR[cr]) {
             let options;
             if (region) {
-                options = Random_1.pluck(this.enemiesByCR[cr].filter((enemyOptions) => {
+                options = ossuary_1.Random.pluck(this.enemiesByCR[cr].filter((enemyOptions) => {
                     const regions = enemyOptions.regions;
                     return (typeof regions === 'undefined' || regions.indexOf(region) !== -1);
                 }));
             }
             else {
-                options = Random_1.pluck(this.enemiesByCR[cr]);
+                options = ossuary_1.Random.pluck(this.enemiesByCR[cr]);
             }
             return new Enemy_1.Enemy(options, variant);
         }
@@ -47,7 +47,7 @@ class EnemySpawner {
     }
     createEnemyByCreatureType(creatureType, variant, region) {
         if (this.enemiesByCreatureType[creatureType]) {
-            const options = Random_1.pluck(this.enemiesByCreatureType[creatureType]);
+            const options = ossuary_1.Random.pluck(this.enemiesByCreatureType[creatureType]);
             return new Enemy_1.Enemy(options, variant);
         }
         else {

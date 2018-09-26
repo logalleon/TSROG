@@ -12,26 +12,22 @@ const regionData = {
     tombs filled with the scrawled writings of insane monks.
   `
 };
-exports.regionData = regionData;
-const floorOptions = [
-    {
-        regionName: Regions_1.RegionNames.Lytandel,
-        name: `
-    
-    `
-    },
-    {
-        regionName: Regions_1.RegionNames.Lytandel,
-        name: `
-    
-    `
-    },
-    {
-        regionName: Regions_1.RegionNames.Lytandel,
-        name: `
-    
-    `
-    }
-];
-exports.floorOptions = floorOptions;
+// const floorOptions: FloorOptions[] = [
+//   {
+//     regionName: RegionNames.Lytandel,
+//     name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Lytandel,
+//     name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Lytandel,
+//     name: `
+//     `
+//   }
+// ];
+// export { regionData, floorOptions };
 //# sourceMappingURL=Lytandel.js.map

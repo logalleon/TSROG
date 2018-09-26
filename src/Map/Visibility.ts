@@ -1,10 +1,10 @@
 import Vector2 from "../Vector";
 import Game from "../Game";
-import { clamp } from "../Random/Random";
 import { TileTypes } from "./Tile";
 import MapScreen, { MapScreenInputs } from "../Screen/MapScreen";
 import { ScreenNames } from "../Screen/Screen";
 import { distance } from "../Geometry";
+import { Random } from "ossuary";
 
 class RaycastVisibility {
 
@@ -23,15 +23,15 @@ class RaycastVisibility {
 
   resetLos (origin: Vector2, losRange?: number) {
     const { tiles } = Game.instance.currentFloor;
-    // const left = clamp(origin.x - losRange, 0, this.mapWidth);
-    // const right = clamp(origin.x + losRange, 0, this.mapWidth);
-    // const top = clamp(origin.y - losRange - 1, 0, this.mapHeight);
-    // const bottom = clamp(origin.y + losRange + 1, 0, this.mapHeight); @todo this is buggy
+    // const left = Random.clamp(origin.x - losRange, 0, this.mapWidth);
+    // const right = Random.clamp(origin.x + losRange, 0, this.mapWidth);
+    // const top = Random.clamp(origin.y - losRange - 1, 0, this.mapHeight);
+    // const bottom = Random.clamp(origin.y + losRange + 1, 0, this.mapHeight); @todo this is buggy
     for (let y = 0; y < Game.instance.currentFloor.floorHeight; y++) {
       for (let x = 0; x < Game.instance.currentFloor.floorWidth; x++) {
         tiles[y][x].isVisible = false;
         // @TODO the map screen really should have its own refernce
-        Game.instance.screens[ScreenNames.MAP].redrawTile(new Vector2(x, y));
+        (Game.instance.screens[ScreenNames.MAP] as MapScreen).redrawTile(new Vector2(x, y));
       }
     }
   }
@@ -41,13 +41,13 @@ class RaycastVisibility {
     // The origin is always visible
     tiles[origin.y][origin.x].isVisible = true;
     // Redraw the origin tile
-    Game.instance.screens[ScreenNames.MAP].redrawTile(origin);
+    (Game.instance.screens[ScreenNames.MAP] as MapScreen).redrawTile(origin);
     // Calculate clipping for the x coordinate
-    const left = clamp(origin.x - losRange, 0, this.mapWidth);
-    const right = clamp(origin.x + losRange, 0, this.mapWidth);
+    const left = Random.clamp(origin.x - losRange, 0, this.mapWidth);
+    const right = Random.clamp(origin.x + losRange, 0, this.mapWidth);
     // Calculate clipping for the y coordinate
-    const top = clamp(origin.y - losRange - 1, 0, this.mapHeight);
-    const bottom = clamp(origin.y + losRange + 1, 0, this.mapHeight);
+    const top = Random.clamp(origin.y - losRange - 1, 0, this.mapHeight);
+    const bottom = Random.clamp(origin.y + losRange + 1, 0, this.mapHeight);
     for (let x = left; x < right; x++) {
       this.traceLine(origin, x, top, losRange);
       this.traceLine(origin, x, bottom - 1, losRange);
@@ -101,7 +101,7 @@ class RaycastVisibility {
       }
 
       // Redraw the tile to expose it
-      Game.instance.screens[ScreenNames.MAP].redrawTile(new Vector2(x, y));
+      (Game.instance.screens[ScreenNames.MAP] as MapScreen).redrawTile(new Vector2(x, y));
 
       // Stop looping after exposing a los-blocking tile
       if (tiles[y][x].blocksVisibility) {

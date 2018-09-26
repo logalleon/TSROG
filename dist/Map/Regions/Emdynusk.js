@@ -12,31 +12,30 @@ const regionData = {
     they were taken by the Touch of ${Deity_1.DeityNames.Xhsoa}.
   `
 };
-exports.regionData = regionData;
-const floorOptions = [
-    {
-        regionName: Regions_1.RegionNames.Emdynusk,
-        name: `
-      The
-      {Lost|Mired|Corrupted}
-      {Village|Quarters|Town|Wasteland|Burrow}
-    `
-    },
-    {
-        regionName: Regions_1.RegionNames.Emdynusk,
-        name: `
-      [civilizations.human.names]\s
-      {Sorrow|Madness|Folly|Fall|Hatred|Longing|Disease|Grave}
-    `
-    },
-    {
-        regionName: Regions_1.RegionNames.Emdynusk,
-        name: `
-      The
-      {Longing|Infinite|Insane|Secret|Furtive}
-      {Graves|Corpse|Madness|Knives|Claws|Wind|Passages|Labyrinth|Daggers|Stricken|Heretics}
-    `
-    }
-];
-exports.floorOptions = floorOptions;
+// const floorOptions: FloorOptions[] = [
+//   {
+//     regionName: RegionNames.Emdynusk,
+//     name: `
+//       The
+//       {Lost|Mired|Corrupted}
+//       {Village|Quarters|Town|Wasteland|Burrow}
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Emdynusk,
+//     name: `
+//       [civilizations.human.names]\s
+//       {Sorrow|Madness|Folly|Fall|Hatred|Longing|Disease|Grave}
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Emdynusk,
+//     name: `
+//       The
+//       {Longing|Infinite|Insane|Secret|Furtive}
+//       {Graves|Corpse|Madness|Knives|Claws|Wind|Passages|Labyrinth|Daggers|Stricken|Heretics}
+//     `
+//   }
+// ];
+// export { regionData, floorOptions };
 //# sourceMappingURL=Emdynusk.js.map

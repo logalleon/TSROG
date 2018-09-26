@@ -1,8 +1,8 @@
-import { Prop, PropOptions } from './Prop';
+import { PickupProp, MaterialProp, Prop, AbstractPickupProp } from '../Prop';
 
-class Food extends Prop {
+class Food extends AbstractPickupProp {
 
-  constructor (options: PropOptions) {
+  constructor (options: Prop & PickupProp) {
     super(options);
   }
 

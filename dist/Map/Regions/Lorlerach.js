@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Regions_1 = require("./Regions");
-const RRange_1 = require("../../Random/RRange");
 const Tile_1 = require("../Tile");
 const Color_1 = require("../../Canvas/Color");
 const Enemy_data_1 = require("../../Entity/Actor/Enemy.data");
-const Dice_1 = require("../../Random/Dice");
+const ossuary_1 = require("ossuary");
+const { IntegerRange } = ossuary_1.Random;
 const MAX_DUNGEON_DEPTH = 100; // @TODO proper import
 const regionData = {
     name: Regions_1.RegionNames.Lorlerach,
@@ -28,19 +28,19 @@ const floorOptions = [
         {Woe|Yearning|Sorrow|Loss|Rust|Dust}
       `,
         maxCR: 4,
-        floorCRRange: new RRange_1.RRange(1, 1),
-        variantEnemiesRange: new RRange_1.RRange(0, 1),
-        pickupsRange: new RRange_1.RRange(1, 2),
-        roomWidthRange: new RRange_1.RRange(3, 7),
-        roomHeightRange: new RRange_1.RRange(3, 7),
-        corridorLengthRange: new RRange_1.RRange(4, 10),
+        floorCRRange: new IntegerRange(1, 1),
+        variantEnemiesRange: new IntegerRange(0, 1),
+        pickupsRange: new IntegerRange(1, 2),
+        roomWidthRange: new IntegerRange(3, 7),
+        roomHeightRange: new IntegerRange(3, 7),
+        corridorLengthRange: new IntegerRange(4, 10),
         floorHeight: 80,
         floorWidth: 80,
-        numRoomsRange: new RRange_1.RRange(4, 8),
+        numRoomsRange: new IntegerRange(4, 8),
         floorPersistance: {
-            persistance: new RRange_1.RRange(1, 4)
+            persistance: new IntegerRange(1, 4)
         },
-        depthRange: new RRange_1.RRange(0, 10)
+        depthRange: new IntegerRange(0, 10)
     },
     {
         regionName: Regions_1.RegionNames.Lorlerach,
@@ -50,19 +50,19 @@ const floorOptions = [
         {Caves|Caverns|Grounds|Maze|Wastes|Passages|Blight}
       `,
         maxCR: 4,
-        floorCRRange: new RRange_1.RRange(1, 1),
-        variantEnemiesRange: new RRange_1.RRange(0, 1),
-        pickupsRange: new RRange_1.RRange(1, 2),
-        roomWidthRange: new RRange_1.RRange(3, 7),
-        roomHeightRange: new RRange_1.RRange(3, 7),
-        corridorLengthRange: new RRange_1.RRange(4, 10),
+        floorCRRange: new IntegerRange(1, 1),
+        variantEnemiesRange: new IntegerRange(0, 1),
+        pickupsRange: new IntegerRange(1, 2),
+        roomWidthRange: new IntegerRange(3, 7),
+        roomHeightRange: new IntegerRange(3, 7),
+        corridorLengthRange: new IntegerRange(4, 10),
         floorHeight: 80,
         floorWidth: 80,
-        numRoomsRange: new RRange_1.RRange(4, 8),
+        numRoomsRange: new IntegerRange(4, 8),
         floorPersistance: {
-            persistance: new RRange_1.RRange(1, 4)
+            persistance: new IntegerRange(1, 4)
         },
-        depthRange: new RRange_1.RRange(0, 10)
+        depthRange: new IntegerRange(0, 10)
     },
     {
         regionName: Regions_1.RegionNames.Lorlerach,
@@ -73,19 +73,19 @@ const floorOptions = [
         {Bones|Skulls|Fractures|Dust|Fear|Undying|Gravefrost|Death Chill}
       `,
         maxCR: 4,
-        floorCRRange: new RRange_1.RRange(1, 1),
-        variantEnemiesRange: new RRange_1.RRange(0, 1),
-        pickupsRange: new RRange_1.RRange(1, 2),
-        roomWidthRange: new RRange_1.RRange(3, 7),
-        roomHeightRange: new RRange_1.RRange(3, 7),
-        corridorLengthRange: new RRange_1.RRange(4, 10),
+        floorCRRange: new IntegerRange(1, 1),
+        variantEnemiesRange: new IntegerRange(0, 1),
+        pickupsRange: new IntegerRange(1, 2),
+        roomWidthRange: new IntegerRange(3, 7),
+        roomHeightRange: new IntegerRange(3, 7),
+        corridorLengthRange: new IntegerRange(4, 10),
         floorHeight: 80,
         floorWidth: 80,
-        numRoomsRange: new RRange_1.RRange(4, 8),
+        numRoomsRange: new IntegerRange(4, 8),
         floorPersistance: {
-            persistance: new RRange_1.RRange(1, 4)
+            persistance: new IntegerRange(1, 4)
         },
-        depthRange: new RRange_1.RRange(0, 10)
+        depthRange: new IntegerRange(0, 10)
     }
 ];
 exports.floorOptions = floorOptions;
@@ -144,7 +144,7 @@ const husk = {
         char: 'h',
         hp: 4,
         ac: 4,
-        damage: Dice_1.StandardDice.d2,
+        damage: ossuary_1.Dice.StandardDice.d2,
         color: new Color_1.Color({ html: 'beige' })
     }
 };

@@ -10,26 +10,22 @@ const regionData = {
     who await the return of time-lost masters who dare not be disturbed.
   `
 };
-exports.regionData = regionData;
-const floorOptions = [
-    {
-        regionName: Regions_1.RegionNames.Ranwarir,
-        name: `
-    
-    `
-    },
-    {
-        regionName: Regions_1.RegionNames.Ranwarir,
-        name: `
-    
-    `
-    },
-    {
-        regionName: Regions_1.RegionNames.Ranwarir,
-        name: `
-    
-    `
-    }
-];
-exports.floorOptions = floorOptions;
+// const floorOptions: FloorOptions[] = [
+//   {
+//     regionName: RegionNames.Ranwarir,
+//     name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Ranwarir,
+//     name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Ranwarir,
+//     name: `
+//     `
+//   }
+// ];
+// export { regionData, floorOptions };
 //# sourceMappingURL=Ranwarir.js.map

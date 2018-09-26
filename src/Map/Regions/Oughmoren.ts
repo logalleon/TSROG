@@ -1,5 +1,6 @@
 import { RegionData, RegionNames } from './Regions';
 import { FloorOptions } from '../Floor';
+import { DeityNames } from '../../Data/Deity';
 
 const regionData: RegionData = {
   name: RegionNames.Oughmoren,
@@ -12,25 +13,25 @@ const regionData: RegionData = {
   `
 };
 
-const floorOptions: FloorOptions[] = [
-  {
-    regionName: RegionNames.Oughmoren,
-    name: `
+// const floorOptions: FloorOptions[] = [
+//   {
+//     regionName: RegionNames.Oughmoren,
+//     name: `
     
-    `
-  },
-  {
-    regionName: RegionNames.Oughmoren,
-    name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Oughmoren,
+//     name: `
     
-    `
-  },
-  {
-    regionName: RegionNames.Oughmoren,
-    name: `
+//     `
+//   },
+//   {
+//     regionName: RegionNames.Oughmoren,
+//     name: `
     
-    `
-  }
-];
+//     `
+//   }
+// ];
 
-export { regionData, floorOptions };
+// export { regionData, floorOptions };

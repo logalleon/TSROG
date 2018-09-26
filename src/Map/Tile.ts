@@ -1,7 +1,7 @@
 import { Color } from '../Canvas/Color';
 import Vector2 from '../Vector';
 import { RegionNames } from './Regions/Regions';
-import { RRange } from '../Random/RRange';
+import { Random } from 'ossuary';
 
 enum TileTypes {
   WALL = 'wall',
@@ -17,7 +17,7 @@ interface TileOptions {
   description: string,
   char: string,
   color: Color,
-  depthRange?: RRange,
+  depthRange?: Random.IntegerRange,
   occupiers?: any[],
   isOccupied?: boolean,
   type: TileTypes,

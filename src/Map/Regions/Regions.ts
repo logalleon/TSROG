@@ -1,4 +1,4 @@
-enum RegionNames {
+enum RegionNames { // This is descending in depth
   Lorlerach = 'Lorlerach',
   Jirdenth = 'Jirdenth',
   Emdynusk = 'Emdynusk',

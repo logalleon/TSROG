@@ -1,9 +1,9 @@
 import { Enemy, EnemyOptions } from '../Actor/Enemy';
 import { baseEnemies, CreatureTypes, Variation } from './Enemy.data';
-import { randomInt, pluck } from '../../Random/Random';
 import { RegionNames } from '../../Map/Regions/Regions';
 
 import { enemyOptions as LEO } from '../../Map/Regions/Lorlerach';
+import { Random } from 'ossuary';
 
 interface EnemyHashMap {
   [key: string]: EnemyOptions[]
@@ -48,12 +48,12 @@ class EnemySpawner {
     if (this.enemiesByCR[cr]) {
       let options;
       if (region) {
-        options = pluck(this.enemiesByCR[cr].filter((enemyOptions) => {
+        options = Random.pluck(this.enemiesByCR[cr].filter((enemyOptions) => {
           const regions: RegionNames[] = enemyOptions.regions;
           return (typeof regions === 'undefined' || regions.indexOf(region) !== -1);
         }));
       } else {
-        options = pluck(this.enemiesByCR[cr]);
+        options = Random.pluck(this.enemiesByCR[cr]);
       }
       return new Enemy(options, variant);
     } else {
@@ -63,7 +63,7 @@ class EnemySpawner {
 
   createEnemyByCreatureType (creatureType: CreatureTypes, variant?: Variation, region?: RegionNames) {
     if (this.enemiesByCreatureType[creatureType]) {
-      const options = pluck(this.enemiesByCreatureType[creatureType]);
+      const options = Random.pluck(this.enemiesByCreatureType[creatureType]);
       return new Enemy(options, variant);
     } else {
       console.log('No enemies by that creature type')

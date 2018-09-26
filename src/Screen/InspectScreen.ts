@@ -4,11 +4,10 @@ import { InputMap } from "../Input";
 import MapScreen, { MapScreenInputs } from "./MapScreen";
 import Vector2 from "../Vector";
 import Game from "../Game";
-import { Prop } from "../Entity/Prop/Prop";
+import { Prop, PickupProp } from "../Entity/Prop/Prop";
 import { TileTypes } from "../Map/Tile";
 import { applyYesNoBinding, applyEscapeHandlerBinding } from "./CommonHandlers";
-import { Pickup } from "../Entity/Actor/Player";
-import { Weapon } from "../Entity/Prop/Weapon";
+import { Pickup, InventoryItems } from "../Entity/Actor/Player";
 
 class InspectScreen extends Screen {
 
@@ -73,7 +72,7 @@ class InspectScreen extends Screen {
       this.unHighlightTiles();
       let text: string;
       if (tile.isOccupied) {
-        const prop: Prop = tile.occupiers[0];
+        const prop: PickupProp = tile.occupiers[0];
         text = prop.descriptionLong; // @TODO this obviously has to exclude the player
         if (prop.canBePickedUp) {
           Game.instance.messenger.clearPanel(Panel.PANEL_2);
@@ -85,10 +84,8 @@ class InspectScreen extends Screen {
               applyYesNoBinding(
                 this, {},
                 () => {
-                  const pickup: Pickup = {
-                    type: (<Weapon>prop).type,
-                    item: prop
-                  }
+                  const type: InventoryItems = prop.type;
+                  const pickup: Pickup = { type, item: prop };
                   Game.instance.player.addToInventory(pickup);
                   // @TODO move this to a pickup / inventory management manager
                 },
@@ -127,7 +124,7 @@ class InspectScreen extends Screen {
         if (currentFloor.inBounds(floorWidth, floorHeight, new Vector2(x, y)) &&
           tiles[y][x].type !== TileTypes.VOID
           ) {
-          const selector = Game.instance.screens[ScreenNames.MAP].getTileId(y, x);
+          const selector = (Game.instance.screens[ScreenNames.MAP] as MapScreen).getTileId(y, x);
           document.getElementById(selector).classList.add('inspect');
         }
       }
@@ -141,7 +138,7 @@ class InspectScreen extends Screen {
     for (let x = pos.x - 1; x <= pos.x + 1; x++) {
       for (let y = pos.y - 1; y <= pos.y + 1; y++) {
         if (currentFloor.inBounds(floorWidth, floorHeight, new Vector2(x, y))) {
-          const selector = Game.instance.screens[ScreenNames.MAP].getTileId(y, x);
+          const selector = (Game.instance.screens[ScreenNames.MAP] as MapScreen).getTileId(y, x);
           document.getElementById(selector).classList.remove('inspect');
         }
       }

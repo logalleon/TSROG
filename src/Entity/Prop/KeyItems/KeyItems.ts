@@ -1,22 +1,11 @@
-import { Prop, PropOptions, Quality } from './Prop';
+import { PickupProp, MaterialProp, Prop, AbstractPickupProp } from '../Prop';
 
-interface KeyItemsOptions {
-  propOptions: PropOptions
-}
+class Food extends AbstractPickupProp {
 
-class KeyItems extends Prop {
-
-  public modifier: number;
-
-  constructor (options: KeyItemsOptions) {
-    super(options.propOptions);
-    for (let key in options) {
-      if (key !== 'propOptions') {
-        this[key] = options[key];
-      }
-    }
+  constructor (options: Prop & PickupProp) {
+    super(options);
   }
 
 }
 
-export { KeyItems, KeyItemsOptions };
+export { Food };

@@ -5,6 +5,7 @@
       "moduleResolution": "node",
       "sourceMap": true,
       "outDir": "dist",
+      "skipLibCheck": true,
       "lib": [ "es2015", "es2016", "dom", "es5", "es6", "es7", "dom.iterable" ]
   }
 }

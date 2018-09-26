@@ -3,7 +3,6 @@ import { Pickup, HasParts, Part } from "../Prop";
 import { WeaponChar, WeaponDefaultProps } from "./WeaponInterfaces";
 import { InventoryItems } from "../../Actor/Player";
 import Vector2 from "../../../Vector";
-import { pluck } from "../../../Random/Random";
 import Game from "../../../Game";
 import { Inlaid, Scratched } from "../Detail.data";
 
@@ -115,7 +114,7 @@ const weaponData = {
 
 const weaponDefaultProperties: WeaponDefaultProps = {
   type: InventoryItems.WEAPONS,
-  isPickup: true,
+  canBePickedUp: true,
   isActive: true,
   pos: Vector2.ZERO
 }

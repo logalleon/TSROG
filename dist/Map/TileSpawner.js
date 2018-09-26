@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Tile_1 = require("./Tile");
 const Tile_data_1 = require("./Tile.data");
-const Random_1 = require("../Random/Random");
+const ossuary_1 = require("ossuary");
 class TileSpawner {
     constructor() {
         this.tileData = Tile_data_1.tileData;
@@ -36,8 +36,8 @@ class TileSpawner {
         if (!possibleTiles.length) {
             throw new Error('No tile selected? Uh ooh . . .');
         }
-        const tileOptions = Random_1.pluck(possibleTiles);
-        const tile = new Tile_1.Tile(Random_1.pluck(possibleTiles));
+        const tileOptions = ossuary_1.Random.pluck(possibleTiles);
+        const tile = new Tile_1.Tile(ossuary_1.Random.pluck(possibleTiles));
         return tile;
     }
 }

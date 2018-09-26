@@ -1,1 +1,1 @@
-{"version":3,"file":"Amulet.js","sourceRoot":"","sources":["../../../../src/Entity/Prop/Amulet/Amulet.ts"],"names":[],"mappings":";;AAAA,iCAA2C;AAE3C,MAAM,MAAO,SAAQ,WAAI;IAEvB,YAAa,OAAoB;QAC/B,KAAK,CAAC,OAAO,CAAC,CAAC;IACjB,CAAC;CAEF;AAEQ,wBAAM"}
+{"version":3,"file":"Amulet.js","sourceRoot":"","sources":["../../../../src/Entity/Prop/Amulet/Amulet.ts"],"names":[],"mappings":";;AAAA,kCAAqF;AAErF,MAAM,OAAQ,SAAQ,iCAA0B;IAE9C,YAAa,OAAyC;QACpD,KAAK,CAAC,OAAO,CAAC,CAAC;IACjB,CAAC;CAEF;AAEQ,0BAAO"}

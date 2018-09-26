@@ -1,11 +1,11 @@
-import { Prop, PropOptions } from './Prop';
+import { PickupProp, MaterialProp, AbstractMaterialPickupProp, Prop } from '../Prop';
 
-class Amulet extends Prop {
+class KeyItem extends AbstractMaterialPickupProp {
 
-  constructor (options: PropOptions) {
+  constructor (options: Prop & MaterialProp & PickupProp) {
     super(options);
   }
 
 }
 
-export { Amulet };
+export { KeyItem };

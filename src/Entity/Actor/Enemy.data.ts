@@ -1,12 +1,12 @@
 import { EnemyOptions } from './Enemy';
 import { ActorOptions } from './Actor';
-import { StandardDice } from '../../Random/Dice';
 import { Color, Colors } from '../../Canvas/Color';
 import { RegionNames } from '../../Map/Regions/Regions';
+import { Dice } from 'ossuary';
 
 enum CreatureTypes {
-  UNDEAD = 'undead',
-  BEAST = 'beast'
+  UNDEAD = 'UNDEAD',
+  BEAST = 'BEAST'
 }
 
 const {
@@ -15,8 +15,8 @@ const {
 } = CreatureTypes;
 
 enum Variations {
-  FEROCIOUS = 'ferocious',
-  CURSED = 'cursed'
+  FEROCIOUS = 'FEROCIOUS',
+  CURSED = 'CURSED'
 }
 
 interface Variation {
@@ -33,12 +33,13 @@ interface VariantModification {
   }
 }
 
-interface VariantMap {
-  [key: string]: Variation
+type V = keyof typeof Variations;
+type VariantMap = {
+  [Key in V]: Variation
 }
 
 const defaultVariations: VariantMap = {
-  [Variations.FEROCIOUS]: <Variation>{
+  [Variations.FEROCIOUS]: {
     name: Variations.FEROCIOUS,
     xpmod: <VariantModification>{
       xp: {
@@ -57,7 +58,27 @@ const defaultVariations: VariantMap = {
         }
       }
     ],
-  }
+  } as Variation,
+  [Variations.CURSED]: { // TODO
+    name: Variations.FEROCIOUS,
+    xpmod: <VariantModification>{
+      xp: {
+        multiply: 1.2
+      }
+    },
+    crmod: <VariantModification>{
+      cr: {
+        add: 1
+      }
+    },
+    modifications: <VariantModification[]>[
+      {
+        hp: {
+          multiply: 1.4
+        }
+      }
+    ],
+  } as Variation
 };
 
 // Base enemies
@@ -71,7 +92,7 @@ const zombie: EnemyOptions = {
     hp: 6,
     ac: 6,
     char: 'z',
-    damage: StandardDice.d2
+    damage: Dice.StandardDice.d2
   }
 };
 
@@ -85,7 +106,7 @@ const skeleton: EnemyOptions = {
     hp: 5,
     ac: 6,
     char: 's',
-    damage: StandardDice.d2
+    damage: Dice.StandardDice.d2
   }
 };
 

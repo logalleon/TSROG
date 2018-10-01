@@ -1,13 +1,13 @@
-import { Screen, ScreenNames, ItemReference } from './Screen';
-import Game from '../Game';
-import { InputMap, keyCodeToChar } from '../Input';
-import { fontOptions, padding } from '../Canvas/Canvas'
-import { Player, InventoryItems, EquipmentSlots, EquippedItemAccessor } from '../Entity/Actor/Player';
-import { Prop } from '../Entity/Prop/Prop';
-import { Colors } from '../Canvas/Color';
-import { Message, Panel } from '../Message/Messenger';
+import { Screen, ScreenNames, ItemReference } from '../Screen';
+import Game from '../../Game';
+import { InputMap, keyCodeToChar } from '../../Input';
+import { fontOptions, padding } from '../../Canvas/Canvas'
+import { Player, InventoryItems, EquipmentSlots, EquippedItemAccessor } from '../../Entity/Actor/Player';
+import { Prop } from '../../Entity/Prop/Prop';
+import { Colors } from '../../Canvas/Color';
+import { Message, Panel } from '../../Message/Messenger';
 import { startCase } from 'lodash';
-import { ConfirmKeyBindings, EscapeKeyBinding, applyEscapeHandlerBinding, applyYesNoBinding } from './CommonHandlers';
+import { ConfirmKeyBindings, EscapeKeyBinding, applyEscapeHandlerBinding, applyYesNoBinding } from '../CommonHandlers';
 
 enum optionsKey {
   EQUIP = 'e',
@@ -19,7 +19,6 @@ class InventoryItemScreen extends Screen {
 
   public name: ScreenNames;
   public item: InventoryItems;
-  public game: Game;
   public inputs: InputMap;
 
   private storedInputMaps: InputMap[] = [];
@@ -33,7 +32,7 @@ class InventoryItemScreen extends Screen {
   }
 
   render() {
-    const { messenger } = this.game;
+    const { messenger } = Game.instance;
     this.renderInventoryItems();
     messenger.renderReturnToMap();
   }
@@ -46,13 +45,13 @@ class InventoryItemScreen extends Screen {
   }
 
   renderInventoryItems () {
-    const { player } = this.game;
+    const { player } = Game.instance;
     // Start with A
     let keyCode = 65;
     let i = 0;
-    this.game.messenger.clearPanel(Panel.PANEL_1);
-    this.game.messenger.writeToPanel(Panel.PANEL_1, this.renderTitle());
-    this.game.messenger.writeToPanel(Panel.PANEL_1,
+    Game.instance.messenger.clearPanel(Panel.PANEL_1);
+    Game.instance.messenger.writeToPanel(Panel.PANEL_1, this.renderTitle());
+    Game.instance.messenger.writeToPanel(Panel.PANEL_1,
       player[this.item].map((item: Prop, index: number): Message => {
         console.log(item);
         const message: Message = {
@@ -93,8 +92,8 @@ class InventoryItemScreen extends Screen {
         [optionsKey.INSPECT]: this.showInspect.bind(this, itemReferenceAccessor),
         [optionsKey.UNEQUIP]: this.showUnequipPrompt.bind(this, itemReferenceAccessor)
     }, Panel.PANEL_2));
-    this.game.messenger.clearPanel(Panel.PANEL_2);
-    this.game.messenger.writeToPanel(Panel.PANEL_2,
+    Game.instance.messenger.clearPanel(Panel.PANEL_2);
+    Game.instance.messenger.writeToPanel(Panel.PANEL_2,
       [
         {
           text: `${optionsKey.EQUIP}) equip`
@@ -124,15 +123,15 @@ class InventoryItemScreen extends Screen {
               index,
               type: this.item
             };
-            if (this.game.player.attemptToEquip(accessor, itemReference.slot)) {
-              this.game.messenger.writeToPanel(Panel.PANEL_3,
+            if (Game.instance.player.attemptToEquip(accessor, itemReference.slot)) {
+              Game.instance.messenger.writeToPanel(Panel.PANEL_3,
               [
                 { text: `Successfully equipped ${item.name}.` }
               ]
               );
             } else {
-              const equippedItem = this.game.player.equipped[itemReference.slot];
-              this.game.messenger.writeToPanel(Panel.PANEL_3,
+              const equippedItem = Game.instance.player.equipped[itemReference.slot];
+              Game.instance.messenger.writeToPanel(Panel.PANEL_3,
                 [
                   { text: `Cannot equip ${item.name}. ${equippedItem.name} is equipped in that slot.` }
                 ]
@@ -143,8 +142,8 @@ class InventoryItemScreen extends Screen {
         ),
       Panel.PANEL_3, Panel.PANEL_2)
     );
-    this.game.messenger.clearPanel(Panel.PANEL_3);
-    this.game.messenger.writeToPanel(Panel.PANEL_3, [message], true);
+    Game.instance.messenger.clearPanel(Panel.PANEL_3);
+    Game.instance.messenger.writeToPanel(Panel.PANEL_3, [message], true);
   }
 
   storeAndSwapInputMap (nextInputs: InputMap): void {
@@ -156,8 +155,8 @@ class InventoryItemScreen extends Screen {
   showInspect (itemReferenceAccessor: string) {
     const item = this.itemReference[itemReferenceAccessor];
     this.storeAndSwapInputMap(applyEscapeHandlerBinding(this, {}, Panel.PANEL_3, Panel.PANEL_2));
-    this.game.messenger.clearPanel(Panel.PANEL_3);
-    this.game.messenger.writeToPanel(Panel.PANEL_3, [{
+    Game.instance.messenger.clearPanel(Panel.PANEL_3);
+    Game.instance.messenger.writeToPanel(Panel.PANEL_3, [{
       text: `Description ${item.descriptionLong}`
     }], true);
   }
@@ -176,8 +175,8 @@ class InventoryItemScreen extends Screen {
         ),
       Panel.PANEL_3, Panel.PANEL_2)
     );
-    this.game.messenger.clearPanel(Panel.PANEL_3);
-    this.game.messenger.writeToPanel(Panel.PANEL_3, [message], true);
+    Game.instance.messenger.clearPanel(Panel.PANEL_3);
+    Game.instance.messenger.writeToPanel(Panel.PANEL_3, [message], true);
   }
 }
 

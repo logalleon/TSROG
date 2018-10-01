@@ -3,40 +3,14 @@ import Game from '../Game';
 import { invalidInput, Message, Panel } from '../Message/Messenger';
 import { Prop } from '../Entity/Prop/Prop';
 import { EquipmentSlots } from '../Entity/Actor/Player';
+import { IScreen, ScreenNames } from './ScreenInterfaces';
 
 interface ItemReference {
   item: Prop|null,
   slot: EquipmentSlots
 }
 
-enum ScreenNames {
-  MAP = 'MAP',
-  INVENTORY = 'INVENTORY',
-  MESSAGES = 'MESSAGES',
-  HELP = 'HELP',
-  COMMANDS = 'COMMANDS',
-  ARMOR = 'ARMOR',
-  AMULET = 'AMULET',
-  POTIONS = 'POTIONS',
-  FOOD = 'FOOD',
-  KEYS = 'KEYS',
-  RING = 'RING',
-  SCROLL = 'SCROLL',
-  WEAPON = 'WEAPON',
-  UNEQUIP = 'UNEQUIP',
-  INSPECT = 'INSPECT',
-  SKILLS = 'SKILLS'
-}
 
-interface IScreen {
-  name: ScreenNames,
-  game: Game,
-  inputs: InputMap,
-  setGame(game: Game): void,
-  handleInput(keyValue: string): Message[],
-  render(messages: Message[]): void,
-  returnToMapScreen(): void
-}
 
 class Screen implements IScreen {
 
@@ -54,11 +28,9 @@ class Screen implements IScreen {
     this.inputs = (<any>Object).assign({}, inputs, this.inputs, this.returnToMap);
   }
 
-  setGame (game: Game): void {
-    this.game = game;
-  }
-
   handleInput (keyValue: string): Message[] {
+    console.log(keyValue, 'kv');
+    console.log(this.inputs);
     if (this.inputs[keyValue]) {
       return this.inputs[keyValue].call(this, keyValue);
     } else {
@@ -69,19 +41,17 @@ class Screen implements IScreen {
   // Automatically break out of all screens
   returnToMapScreen (): void {
     // Set modified panel widths
-    const mapScreen = Game.instance.screens[ScreenNames.MAP];
-    Game.instance.activeScreen = mapScreen;
+    const mapScreen = Game.instance.screenManager.screens[ScreenNames.MAP] as Screen;
+    Game.instance.screenManager.activeScreen = mapScreen;
   }
 
-  render (messages: Message[]): void {
+  render (messages?: Message[]): void {
     this.game.messenger.clearPanel(this.identifier);
-    this.game.messenger.writeToPanel(this.identifier, messages);
+    if (messages) {
+      this.game.messenger.writeToPanel(this.identifier, messages);
+    }
   }
 
 }
 
-interface Swappable {
-  storeAndSwapInputMap(nextInputs: InputMap): void
-}
-
-export { Screen, ScreenNames, ItemReference, Swappable };
+export { Screen, ScreenNames, ItemReference };

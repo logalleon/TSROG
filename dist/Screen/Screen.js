@@ -2,26 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Game_1 = require("../Game");
 const Messenger_1 = require("../Message/Messenger");
-var ScreenNames;
-(function (ScreenNames) {
-    ScreenNames["MAP"] = "MAP";
-    ScreenNames["INVENTORY"] = "INVENTORY";
-    ScreenNames["MESSAGES"] = "MESSAGES";
-    ScreenNames["HELP"] = "HELP";
-    ScreenNames["COMMANDS"] = "COMMANDS";
-    ScreenNames["ARMOR"] = "ARMOR";
-    ScreenNames["AMULET"] = "AMULET";
-    ScreenNames["POTIONS"] = "POTIONS";
-    ScreenNames["FOOD"] = "FOOD";
-    ScreenNames["KEYS"] = "KEYS";
-    ScreenNames["RING"] = "RING";
-    ScreenNames["SCROLL"] = "SCROLL";
-    ScreenNames["WEAPON"] = "WEAPON";
-    ScreenNames["UNEQUIP"] = "UNEQUIP";
-    ScreenNames["INSPECT"] = "INSPECT";
-    ScreenNames["SKILLS"] = "SKILLS";
-})(ScreenNames || (ScreenNames = {}));
-exports.ScreenNames = ScreenNames;
+const ScreenInterfaces_1 = require("./ScreenInterfaces");
+exports.ScreenNames = ScreenInterfaces_1.ScreenNames;
 class Screen {
     constructor(inputs) {
         this.returnToMap = {
@@ -30,10 +12,9 @@ class Screen {
         };
         this.inputs = Object.assign({}, inputs, this.inputs, this.returnToMap);
     }
-    setGame(game) {
-        this.game = game;
-    }
     handleInput(keyValue) {
+        console.log(keyValue, 'kv');
+        console.log(this.inputs);
         if (this.inputs[keyValue]) {
             return this.inputs[keyValue].call(this, keyValue);
         }
@@ -44,12 +25,14 @@ class Screen {
     // Automatically break out of all screens
     returnToMapScreen() {
         // Set modified panel widths
-        const mapScreen = Game_1.default.instance.screens[ScreenNames.MAP];
-        Game_1.default.instance.activeScreen = mapScreen;
+        const mapScreen = Game_1.default.instance.screenManager.screens[ScreenInterfaces_1.ScreenNames.MAP];
+        Game_1.default.instance.screenManager.activeScreen = mapScreen;
     }
     render(messages) {
         this.game.messenger.clearPanel(this.identifier);
-        this.game.messenger.writeToPanel(this.identifier, messages);
+        if (messages) {
+            this.game.messenger.writeToPanel(this.identifier, messages);
+        }
     }
 }
 exports.Screen = Screen;

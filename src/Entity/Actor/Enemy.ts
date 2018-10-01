@@ -159,7 +159,7 @@ class Enemy extends Actor {
    */
   move (destination: Vector2): void {
     // Update the tile references to the enemy
-    Game.instance.updateEnemyPosition(this.pos, destination, this);
+    Game.instance.entityManager.updateEnemyPosition(this.pos, destination, this);
     // Update the open / closed tiles for pathfinding
     Game.instance.updateEasystarTiles();
     super.move(destination);

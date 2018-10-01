@@ -1,0 +1,33 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var MapScreenInputs;
+(function (MapScreenInputs) {
+    MapScreenInputs["INVENTORY"] = "I";
+    MapScreenInputs["AMULET"] = "t";
+    MapScreenInputs["ARMOR"] = "u";
+    MapScreenInputs["FOOD"] = "o";
+    MapScreenInputs["KEYS"] = "y";
+    MapScreenInputs["POTIONS"] = "p";
+    MapScreenInputs["RING"] = "n";
+    MapScreenInputs["SCROLL"] = "l";
+    MapScreenInputs["WEAPONS"] = "k";
+    MapScreenInputs["COMMANDS"] = "?";
+    MapScreenInputs["EQUIPMENT"] = "E";
+    MapScreenInputs["MESSAGES"] = "M";
+    MapScreenInputs["HELP"] = "/";
+    MapScreenInputs["MOVE_UP"] = "w";
+    MapScreenInputs["MOVE_LEFT"] = "a";
+    MapScreenInputs["MOVE_DOWN"] = "s";
+    MapScreenInputs["MOVE_RIGHT"] = "d";
+    MapScreenInputs["MOVE_UP_LEFT"] = "q";
+    MapScreenInputs["MOVE_UP_RIGHT"] = "e";
+    MapScreenInputs["MOVE_DOWN_LEFT"] = "z";
+    MapScreenInputs["MOVE_DOWN_RIGHT"] = "c";
+    MapScreenInputs["DESCEND"] = ">";
+    MapScreenInputs["ASCEND"] = "<";
+    MapScreenInputs["WAIT"] = "x";
+    MapScreenInputs["INSPECT"] = "i";
+    MapScreenInputs["SKILLS"] = "g";
+})(MapScreenInputs || (MapScreenInputs = {}));
+exports.MapScreenInputs = MapScreenInputs;
+//# sourceMappingURL=Map.js.map

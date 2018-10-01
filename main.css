@@ -125,6 +125,17 @@
   color: lightseagreen !important;
 }
 
+.equipment {
+  border: 1px solid #444;
+  width: 80px;
+  height: 80px;
+  display: inline-block;
+  margin: 1rem;
+}
+.equipment--highlighted {
+  border: 1px solid #999;
+}
+
 @keyframes inspect {
   50% {
     color: #e4b109;

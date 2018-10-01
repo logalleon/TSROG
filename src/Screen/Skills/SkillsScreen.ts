@@ -1,12 +1,13 @@
-import { ScreenNames, Screen, Swappable } from "./Screen";
-import Game from "../Game";
-import { InputMap } from "../Input";
-import { Panel, Message } from "../Message/Messenger";
-import { SkillNames, SkillLevelTokens, LevelingAllotment, Skill, ALLOCATION_ORDER } from "../Entity/Actor/Skill/Skill";
+import { ScreenNames, Screen } from "../Screen";
+import Game from "../../Game";
+import { InputMap } from "../../Input";
+import { Panel, Message } from "../../Message/Messenger";
+import { SkillNames, SkillLevelTokens, LevelingAllotment, Skill, ALLOCATION_ORDER } from "../../Entity/Actor/Skill/Skill";
 import { startCase, lowerCase } from 'lodash';
-import { modulo } from "../Geometry";
-import { applyEscapeHandlerBinding } from "./CommonHandlers";
-import { Colors } from "../Canvas/Color";
+import { modulo } from "../../Geometry";
+import { applyEscapeHandlerBinding } from "../CommonHandlers";
+import { Colors } from "../../Canvas/Color";
+import { Swappable } from "../ScreenInterfaces";
 
 enum SkillScreenInputsMap {
   DOWN = 'Down',

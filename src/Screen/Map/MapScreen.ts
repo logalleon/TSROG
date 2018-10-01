@@ -1,43 +1,15 @@
-import { Screen, ScreenNames } from './Screen';
-import Game from '../Game';
-import { InputMap } from '../Input';
-import { clearCanvas, fontOptions, CanvasProps } from '../Canvas/Canvas';
-import Vector2 from '../Vector';
-import { Message, Panel } from '../Message/Messenger';
-import { Colors } from '../Canvas/Color';
-import { Floor } from '../Map/Floor';
-import { Tile, TileTypes } from '../Map/Tile';
+import { Screen, ScreenNames } from '../Screen';
+import Game from '../../Game';
+import { InputMap } from '../../Input';
+import { clearCanvas, fontOptions, CanvasProps } from '../../Canvas/Canvas';
+import Vector2 from '../../Vector';
+import { Message, Panel } from '../../Message/Messenger';
+import { Colors } from '../../Canvas/Color';
+import { Floor } from '../../Map/Floor';
+import { Tile, TileTypes } from '../../Map/Tile';
 import { convert } from 'roman-numeral';
-import { Enemy } from '../Entity/Actor/Enemy';
-
-enum MapScreenInputs {
-  INVENTORY = 'I',
-  AMULET = 't',
-  ARMOR = 'u',
-  FOOD = 'o',
-  KEYS = 'y',
-  POTIONS = 'p',
-  RING = 'n',
-  SCROLL = 'l',
-  WEAPONS = 'k',
-  COMMANDS = '?',
-  UNEQUIP = 'U',
-  MESSAGES = 'M',
-  HELP = '/',
-  MOVE_UP = 'w',
-  MOVE_LEFT = 'a',
-  MOVE_DOWN = 's',
-  MOVE_RIGHT = 'd',
-  MOVE_UP_LEFT = 'q',
-  MOVE_UP_RIGHT = 'e',
-  MOVE_DOWN_LEFT = 'z',
-  MOVE_DOWN_RIGHT = 'c',
-  DESCEND = '>',
-  ASCEND = '<',
-  WAIT = 'x',
-  INSPECT = 'i',
-  SKILLS = 'g'
-}
+import { Enemy } from '../../Entity/Actor/Enemy';
+import { MapScreenInputs } from '../Map/Map';
 
 class MapScreen extends Screen {
 
@@ -56,7 +28,7 @@ class MapScreen extends Screen {
     [MapScreenInputs.SCROLL]: this.showScreen.bind(this, ScreenNames.SCROLL),
     [MapScreenInputs.WEAPONS]: this.showScreen.bind(this, ScreenNames.WEAPON),
     [MapScreenInputs.COMMANDS]: this.showScreen.bind(this, ScreenNames.COMMANDS),
-    [MapScreenInputs.UNEQUIP]: this.showScreen.bind(this, ScreenNames.UNEQUIP),
+    [MapScreenInputs.EQUIPMENT]: this.showScreen.bind(this, ScreenNames.EQUIPMENT),
     [MapScreenInputs.MESSAGES]: this.showScreen.bind(this, ScreenNames.MESSAGES),
     [MapScreenInputs.HELP]: this.showScreen.bind(this, ScreenNames.HELP),
     [MapScreenInputs.MOVE_UP]: this.attemptPlayerMovement.bind(this),
@@ -167,7 +139,7 @@ class MapScreen extends Screen {
       const { isPassible, isOccupied, occupiers } = tiles[nextPos.y][nextPos.x];
       if (isPassible && !isOccupied) {
         const prevPos = player.pos;
-        Game.instance.updatePlayerPos(player, nextPos);
+        Game.instance.entityManager.updatePlayerPos(player, nextPos);
         this.redrawTile(prevPos);
         this.redrawTile(nextPos);
       } else if (isOccupied) {
@@ -207,7 +179,7 @@ class MapScreen extends Screen {
   }
 
   showScreen (screen: ScreenNames) {
-    Game.instance.activeScreen = Game.instance.screens[screen];
+    Game.instance.screenManager.activeScreen = Game.instance.screenManager.screens[screen];
   }
 
   attemptDescend (): void | Message[] {

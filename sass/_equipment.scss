@@ -1,0 +1,25 @@
+.equipment {
+  border: 1px solid #444;
+  width: 80px;
+  height: 80px;
+  display: inline-block;
+  margin: 1rem;
+  &--neck {
+
+  }
+  &--left-hand {
+
+  }
+  &--right-hand {
+
+  }
+  &--weapon {
+
+  }
+  &--armor {
+
+  }
+  &--highlighted {
+    border: 1px solid #999;
+  }
+}

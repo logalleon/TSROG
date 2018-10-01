@@ -1,17 +1,16 @@
-import { Screen, ScreenNames } from './Screen';
-import Game from '../Game';
-import { InputMap } from '../Input';
-import { clearCanvas, fontOptions } from '../Canvas/Canvas'
-import { Player, InventoryItems } from '../Entity/Actor/Player';
-import { Prop } from '../Entity/Prop/Prop';
-import { Message } from '../Message/Messenger';
-import { Colors } from '../Canvas/Color';
-import { Panel } from '../Message/Messenger';
+import { Screen, ScreenNames } from '../Screen';
+import Game from '../../Game';
+import { InputMap } from '../../Input';
+import { clearCanvas, fontOptions } from '../../Canvas/Canvas'
+import { Player, InventoryItems } from '../../Entity/Actor/Player';
+import { Prop } from '../../Entity/Prop/Prop';
+import { Message } from '../../Message/Messenger';
+import { Colors } from '../../Canvas/Color';
+import { Panel } from '../../Message/Messenger';
 
 class InventoryScreen extends Screen {
 
   public name: ScreenNames = ScreenNames.INVENTORY;
-  public game: Game;
   public inputs: InputMap;
 
   constructor() {
@@ -19,20 +18,20 @@ class InventoryScreen extends Screen {
   }
 
   render() {
-    const { messenger } = this.game;
+    const { messenger } = Game.instance;
     this.renderPlayerInventory();
     messenger.renderReturnToMap();
   }
 
   renderPlayerInventory () {
-    const { player } = this.game;
+    const { player } = Game.instance;
     let keyCode = 65;
     let i = 0;
-    this.game.messenger.clearPanel(Panel.PANEL_1);
+    Game.instance.messenger.clearPanel(Panel.PANEL_1);
     const title = [{ text: 'Inventory' }];
-    this.game.messenger.writeToPanel(Panel.PANEL_1, title);
+    Game.instance.messenger.writeToPanel(Panel.PANEL_1, title);
     for (let key in InventoryItems) {
-      this.game.messenger.writeToPanel(Panel.PANEL_1, 
+      Game.instance.messenger.writeToPanel(Panel.PANEL_1, 
         player[InventoryItems[key]].map((item: Prop): Message => {
           const message: Message = {
             text: `${String.fromCharCode(keyCode)}) ${item.name}`,

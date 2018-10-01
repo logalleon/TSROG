@@ -9,7 +9,6 @@ import { DungeonGenerator, DungeonOptions } from './Map/DungeonGenerator';
 import { Floor } from './Map/Floor';
 import { js as EasyStar, js } from '../custom_modules/easystarjs';
 import { Promise } from 'bluebird';
-import { EnemySpawner } from './Entity/Actor/EnemySpawner';
 import { Effects } from './Effects';
 import { StatusMenu } from './UI/StatusMenu';
 import RaycastVisibility from './Map/Visibility';
@@ -17,7 +16,8 @@ import { Colors } from './Canvas/Color';
 import { materialData } from './Entity/Prop/Prop.data';
 import { weaponData } from './Entity/Prop/Weapon/Weapon.data';
 import { Parser } from 'ossuary';
-import { ScreenNameMap } from '.';
+import { EntityManager } from './Entity/EntityManager';
+import { ScreenManager } from './Screen/ScreenManager';
 
 interface ScreenMap {
   string: Screen
@@ -29,9 +29,7 @@ class Game {
 
   public static instance: Game | null = null;
 
-  public screens: ScreenNameMap;
-  public activeScreen: Screen;
-
+  public screenManager: ScreenManager;
   public player: Player;
 
   public messenger: Messenger;
@@ -54,10 +52,9 @@ class Game {
 
   private raycaster: RaycastVisibility;
 
-  constructor (
-      screens: ScreenNameMap,
-      player: Player
-    ) {
+  public entityManager: EntityManager;
+
+  constructor (player: Player) {
 
     if (Game.instance !== null) {
       throw 'Critical error! Two game instances';
@@ -66,8 +63,6 @@ class Game {
     }
 
     this.player = player;
-    this.screens = screens;
-    this.activeScreen = screens[ScreenNames.MAP];
     this.keyMap = {};
     this.messenger = new Messenger({
       panel1: document.getElementById('panel-1'),
@@ -85,27 +80,36 @@ class Game {
       depth: 8
     });
 
+    // Load all screens through the manager
+    this.screenManager = new ScreenManager();
+
     this.effects = new Effects(<HTMLDivElement>document.getElementById('transition-wrapper'));
 
     // Create and render the status menu
     this.statusMenu = new StatusMenu(document.getElementById('status-menu'));
     this.statusMenu.render();
 
+    // Always instantiate the entity manager before the dungeon itself
+    this.entityManager = new EntityManager();
+
     // Debug
     //this.dungeonGenerator.debugAndGenerateAllFloors();
     this.dungeonGenerator.generateNewFloor();
     this.currentFloor = this.dungeonGenerator.floors[0];
     this.initializeEasyStar();
-    this.updatePlayerPos(this.player, this.dungeonGenerator.floors[0].floorStart);
+    this.entityManager.updatePlayerPos(this.player, this.dungeonGenerator.floors[0].floorStart);
     this.effects.transitionToNextFloor();
     // Debug
 
-    this.activeScreen.render([]); // @TODO make sure the map screen is always the first screen
+    this.screenManager.activeScreen.render([]); // @TODO make sure the map screen is always the first screen
 
     // Set the initial LOS
     this.raycaster = new RaycastVisibility(this.currentFloor.floorWidth, this.currentFloor.floorHeight);
     this.raycaster.resetLos(player.pos, player.los);
     this.raycaster.compute(player.pos, player.los);
+
+    // You should always start on the right screen for now
+    this.messenger.writeToPanel(Panel.PANEL_1, [{ text: 'This is the map screen', color: Colors.DEFAULT }]);
   }
 
   /**
@@ -130,7 +134,8 @@ class Game {
         char = keyCodeToChar[keyCode];
       }
       // Handle the player input first. The player gets priority for everything
-      const inputMessages = this.activeScreen.handleInput(char);
+      console.log(char);
+      const inputMessages = this.screenManager.activeScreen.handleInput(char);
       let messages: Message[] = Array.isArray(inputMessages) ? inputMessages : [];
 
       /**
@@ -172,46 +177,17 @@ class Game {
 
       // Finally, render what's changed
       // @TODO this shouldn't apply to the map screen
-      if (this.activeScreen.name !== ScreenNames.MAP) {
-        this.activeScreen.render([]);
+      if (this.screenManager.activeScreen.name !== ScreenNames.MAP) {
+        this.screenManager.activeScreen.render([]);
       }
     }
   }
 
-  updatePlayerPos (player: Player, nextPos: Vector2): void {
-    const { tiles } = this.currentFloor;
-    const { x, y } = player.pos;
-    const { x: nextX, y: nextY } = nextPos;
-    // This is a reference to the row and the items themselves - don't forget they're essentially pointers
-    let p_row = tiles[y];
-    let p_item = p_row[x];
-    // @TODO This isn't right. Clearing out the occupiers will mess up what's in that tile
-    // especially when Tile becomes a class
-    p_item.occupiers = [];
-    p_item.isOccupied = false;
-    // Select the next row and tiles
-    p_row = tiles[nextY];
-    p_item = p_row[nextX];
-    p_item.occupiers = [player];
-    p_item.isOccupied = true;
-    // @TODO revisit above
-    this.currentFloor.tiles = tiles;
-    player.move(nextPos);
-  }
-
   update () {
-    this.currentFloor.activeEnemies = this.currentFloor.activeEnemies.filter(this.corpsify.bind(this));
+    this.currentFloor.activeEnemies = this.currentFloor.activeEnemies.filter(this.entityManager.corpsify.bind(this));
     if (this.player.isDead()) {
       this.playerDeath();
     }
-  }
-
-  corpsify (enemy: Enemy): boolean {
-    if (enemy.isDead()) {
-      this.removeDeadOccupants(enemy.pos);
-      // @TODO generate a bloody mess to inspect
-    }
-    return enemy.isActive;
   }
 
   initializeEasyStar (): void {
@@ -221,18 +197,6 @@ class Game {
     this.easystar.setAcceptableTiles([this.easystarOpenTile, this.easystarOccupiedTile]);
     this.easystar.enableDiagonals();
     this.easystar.enableSync();
-  }
-
-  removeDeadOccupants (pos: Vector2): void {
-    const { x, y } = pos;
-    let { occupiers } = this.currentFloor.tiles[y][x];
-    // @TODO change this to inspectable
-    this.currentFloor.tiles[y][x].char = occupiers[0].char;
-    this.currentFloor.tiles[y][x].color = Colors.STANDARD_CORPSE;
-    // Bring out the dead
-    occupiers = occupiers.filter(occupier => !occupier.isDead());
-    this.currentFloor.tiles[y][x].occupiers = occupiers;
-    this.currentFloor.tiles[y][x].isOccupied = Boolean(occupiers.length);
   }
 
   generateEasystarTiles (): number[][] {
@@ -282,22 +246,6 @@ class Game {
     return found;
   }
 
-  updateEnemyPosition (oldPos: Vector2, newPos: Vector2, enemy: Enemy): void {
-    const { x, y } = oldPos;
-    // Remove here
-    this.currentFloor.tiles[y][x].occupiers = this.currentFloor.tiles[y][x].occupiers.filter(occupier => !occupier.isEnemy);
-    this.currentFloor.tiles[y][x].isOccupied = false;
-    // Add to the next position
-    try {
-    Array.isArray(this.currentFloor.tiles[newPos.y][newPos.x].occupiers) ? 
-    this.currentFloor.tiles[newPos.y][newPos.x].occupiers.push(enemy) :
-    this.currentFloor.tiles[newPos.y][newPos.x].occupiers = [enemy];
-    this.currentFloor.tiles[newPos.y][newPos.x].isOccupied = true;
-    } catch (e) {
-      console.log(oldPos, newPos, this.currentFloor.tiles );
-    }
-  }
-
   playerDescend () {
     const { floors, currentDepth } = this.dungeonGenerator;
     if (floors[currentDepth + 1]) {
@@ -306,19 +254,30 @@ class Game {
       this.dungeonGenerator.generateNewFloor();
       // Dungeon generator updates the depth automatically
       this.currentFloor = floors[this.dungeonGenerator.currentDepth - 1];
-      this.updatePlayerPos(this.player, this.dungeonGenerator.floors[this.dungeonGenerator.currentDepth - 1].floorStart);
+      this.entityManager.updatePlayerPos(this.player, this.dungeonGenerator.floors[this.dungeonGenerator.currentDepth - 1].floorStart);
       // @TODO Seems like the previous easystar tiles should be saved somehow
       this.initializeEasyStar();
     }
     this.effects.transitionToNextFloor();
     this.raycaster.updateMapSize(this.currentFloor.floorWidth, this.currentFloor.floorHeight);
-    this.activeScreen.render([]); // @TODO will this always be the map screen that gets re-rendered?
+    this.screenManager.activeScreen.render([]); // @TODO will this always be the map screen that gets re-rendered?
   }
 
   playerDeath () {
     this.player.canMove = false;
     // @TODO other things need to happen here
     this.effects.showDeathScreen();
+  }
+
+  removeObjectFromMap (pos: Vector2, index?: number) {
+    // @TODO this will eventually require the index of the item to be removed
+    if (index) {
+      let arr = this.currentFloor.tiles[pos.y][pos.x].occupiers;
+      arr = [].concat(arr.slice(0, index), arr.slice(index + 1));
+      this.currentFloor.tiles[pos.y][pos.x].occupiers = arr;
+    } else {
+      this.currentFloor.tiles[pos.y][pos.x].occupiers.pop(); // should work for now
+    }
   }
 }
 

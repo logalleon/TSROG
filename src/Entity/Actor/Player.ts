@@ -11,8 +11,17 @@ import { Thirst } from './Status/Thirst';
 import { Skill, SkillNames, ISkill, SkillLevels, LevelingAllotment } from './Skill/Skill';
 import { defaultSkills, SkillMap } from './Skill/Skill.data';
 import { Random } from 'ossuary';
+import { Amulet } from '../Prop/Amulet/Amulet';
+import { Armor } from '../Prop/Armor/Armor';
+import { Food } from '../Prop/KeyItems/KeyItems';
+import { Potion } from '../Prop/Potion/Potion';
+import { Ring } from '../Prop/Ring/Ring';
+import { Scroll } from '../Prop/Scroll/Scroll';
+import { Weapon } from '../Prop/Weapon/Weapon';
 
 const { colorize } = Messenger;
+
+const TOTAL_EQUIPMENT_SLOTS = 5;
 
 enum InventoryItems {
   AMULETS = 'AMULETS',
@@ -213,7 +222,7 @@ class Player extends Actor {
   }
 
   formatSuccessfulAttack (damage: number, target: Enemy, isCritical?: boolean): Message {
-    const weapon = this.equipped[EquipmentSlots.WEAPON];
+    const weapon: Weapon = this.equipped[EquipmentSlots.WEAPON] as Weapon;
     const isMassiveDamage = damage >= target.massiveDamageThreshold;
     if (weapon) {
       return {
@@ -258,4 +267,5 @@ class Player extends Actor {
 
 }
 
-export { Player, PlayerOptions, Pickup, EquipmentSlots, EquippedItemAccessor, EquippedInventoryItemAccessors,EquippedItems, InventoryItems };
+export { Player, PlayerOptions, Pickup, EquipmentSlots, EquippedItemAccessor,
+  EquippedInventoryItemAccessors,EquippedItems, InventoryItems, TOTAL_EQUIPMENT_SLOTS };

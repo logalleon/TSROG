@@ -1,13 +1,13 @@
-import { Screen, ScreenNames } from "./Screen";
-import { Panel, Message } from "../Message/Messenger";
-import { InputMap } from "../Input";
-import MapScreen, { MapScreenInputs } from "./MapScreen";
-import Vector2 from "../Vector";
-import Game from "../Game";
-import { Prop, PickupProp } from "../Entity/Prop/Prop";
-import { TileTypes } from "../Map/Tile";
-import { applyYesNoBinding, applyEscapeHandlerBinding } from "./CommonHandlers";
-import { Pickup, InventoryItems } from "../Entity/Actor/Player";
+import { Screen, ScreenNames } from "../Screen";
+import { Panel, Message } from "../../Message/Messenger";
+import { InputMap } from "../../Input";
+import MapScreen, { MapScreenInputs } from "../Map/MapScreen";
+import Vector2 from "../../Vector";
+import Game from "../../Game";
+import { Prop, PickupProp } from "../../Entity/Prop/Prop";
+import { TileTypes } from "../../Map/Tile";
+import { applyYesNoBinding, applyEscapeHandlerBinding } from "../CommonHandlers";
+import { Pickup, InventoryItems } from "../../Entity/Actor/Player";
 
 class InspectScreen extends Screen {
 
@@ -72,12 +72,13 @@ class InspectScreen extends Screen {
       this.unHighlightTiles();
       let text: string;
       if (tile.isOccupied) {
+        // @TODO this needs to filter for a list of potential pickups or interactable items
         const prop: PickupProp = tile.occupiers[0];
         text = prop.descriptionLong; // @TODO this obviously has to exclude the player
         if (prop.canBePickedUp) {
           Game.instance.messenger.clearPanel(Panel.PANEL_2);
           Game.instance.messenger.writeToPanel(Panel.PANEL_2, [{
-            text: `Equip the ${prop.name}? [y/n]`
+            text: `Pickup the ${prop.name}? [y/n]`
           }], true);
           this.storeAndSwapInputMap(
             applyEscapeHandlerBinding(this,
@@ -87,6 +88,7 @@ class InspectScreen extends Screen {
                   const type: InventoryItems = prop.type;
                   const pickup: Pickup = { type, item: prop };
                   Game.instance.player.addToInventory(pickup);
+                  Game.instance.removeObjectFromMap(prop.pos);
                   // @TODO move this to a pickup / inventory management manager
                 },
                 () => {
@@ -102,7 +104,7 @@ class InspectScreen extends Screen {
       }
       // @TODO it really seems at this point that mutliple entities need to exist on the same tile and that a selection process has to exist like in DF
       // Set the active screen back to the map
-      Game.instance.activeScreen = Game.instance.screens[ScreenNames.MAP];
+      Game.instance.screenManager.activeScreen = Game.instance.screenManager.screens[ScreenNames.MAP];
       return [{ text }];
   }
 
@@ -124,7 +126,7 @@ class InspectScreen extends Screen {
         if (currentFloor.inBounds(floorWidth, floorHeight, new Vector2(x, y)) &&
           tiles[y][x].type !== TileTypes.VOID
           ) {
-          const selector = (Game.instance.screens[ScreenNames.MAP] as MapScreen).getTileId(y, x);
+          const selector = (Game.instance.screenManager.screens[ScreenNames.MAP] as MapScreen).getTileId(y, x);
           document.getElementById(selector).classList.add('inspect');
         }
       }
@@ -138,7 +140,7 @@ class InspectScreen extends Screen {
     for (let x = pos.x - 1; x <= pos.x + 1; x++) {
       for (let y = pos.y - 1; y <= pos.y + 1; y++) {
         if (currentFloor.inBounds(floorWidth, floorHeight, new Vector2(x, y))) {
-          const selector = (Game.instance.screens[ScreenNames.MAP] as MapScreen).getTileId(y, x);
+          const selector = (Game.instance.screenManager.screens[ScreenNames.MAP] as MapScreen).getTileId(y, x);
           document.getElementById(selector).classList.remove('inspect');
         }
       }

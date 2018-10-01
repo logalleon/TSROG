@@ -25,7 +25,7 @@ class RaycastVisibility {
             for (let x = 0; x < Game_1.default.instance.currentFloor.floorWidth; x++) {
                 tiles[y][x].isVisible = false;
                 // @TODO the map screen really should have its own refernce
-                Game_1.default.instance.screens[Screen_1.ScreenNames.MAP].redrawTile(new Vector_1.default(x, y));
+                Game_1.default.instance.screenManager.screens[Screen_1.ScreenNames.MAP].redrawTile(new Vector_1.default(x, y));
             }
         }
     }
@@ -34,7 +34,7 @@ class RaycastVisibility {
         // The origin is always visible
         tiles[origin.y][origin.x].isVisible = true;
         // Redraw the origin tile
-        Game_1.default.instance.screens[Screen_1.ScreenNames.MAP].redrawTile(origin);
+        Game_1.default.instance.screenManager.screens[Screen_1.ScreenNames.MAP].redrawTile(origin);
         // Calculate clipping for the x coordinate
         const left = ossuary_1.Random.clamp(origin.x - losRange, 0, this.mapWidth);
         const right = ossuary_1.Random.clamp(origin.x + losRange, 0, this.mapWidth);
@@ -90,7 +90,7 @@ class RaycastVisibility {
                 tiles[y][x].hasVisited = true;
             }
             // Redraw the tile to expose it
-            Game_1.default.instance.screens[Screen_1.ScreenNames.MAP].redrawTile(new Vector_1.default(x, y));
+            Game_1.default.instance.screenManager.screens[Screen_1.ScreenNames.MAP].redrawTile(new Vector_1.default(x, y));
             // Stop looping after exposing a los-blocking tile
             if (tiles[y][x].blocksVisibility) {
                 break;

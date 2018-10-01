@@ -1,19 +1,18 @@
 import { startCase } from 'lodash';
-import { Screen, ScreenNames } from './Screen';
-import Game from '../Game';
-import { InputMap } from '../Input';
-import { clearCanvas, fontOptions, padding } from '../Canvas/Canvas';
-import { Colors } from '../Canvas/Color';
-import { Player, InventoryItems } from '../Entity/Actor/Player';
-import { Prop } from '../Entity/Prop/Prop';
-import { MapScreenInputs } from './MapScreen';
+import { Screen, ScreenNames } from '../Screen';
+import Game from '../../Game';
+import { InputMap } from '../../Input';
+import { clearCanvas, fontOptions, padding } from '../../Canvas/Canvas';
+import { Colors } from '../../Canvas/Color';
+import { Player, InventoryItems } from '../../Entity/Actor/Player';
+import { Prop } from '../../Entity/Prop/Prop';
+import { MapScreenInputs } from '../Map/MapScreen';
 import { titleCase } from 'lodash';
-import { Panel } from '../Message/Messenger';
+import { Panel } from '../../Message/Messenger';
 
 class CommandScreen extends Screen {
 
   public name: ScreenNames = ScreenNames.COMMANDS;
-  public game: Game;
   public inputs: InputMap;
 
   constructor() {
@@ -21,7 +20,7 @@ class CommandScreen extends Screen {
   }
 
   render() {
-    const { messenger } = this.game;
+    const { messenger } = Game.instance;
     this.renderCommands();
     messenger.renderReturnToMap();
   }
@@ -31,7 +30,7 @@ class CommandScreen extends Screen {
   }
 
   renderCommands (): void {
-    const { messenger } = this.game;
+    const { messenger } = Game.instance;
     const I = MapScreenInputs;
     const S = ScreenNames;
     const text = `
@@ -51,7 +50,7 @@ class CommandScreen extends Screen {
       ${I.POTIONS} - ${S.POTIONS}<br/>
       ${I.FOOD} - ${S.FOOD}<br/>
       ${I.KEYS} - ${S.KEYS}<br/>
-      ${I.UNEQUIP} - ${S.UNEQUIP}<br/>
+      ${I.EQUIPMENT} - ${S.EQUIPMENT}<br/>
     `;
     console.log(text);
     messenger.writeToPanel(Panel.PANEL_1, [{
@@ -60,7 +59,7 @@ class CommandScreen extends Screen {
   }
 
   renderPlayerInventory () {
-    const { player } = this.game;
+    const { player } = Game.instance;
     const padding = fontOptions.fontSize * 2;
     let keyCode = 65;
     let i = 0;

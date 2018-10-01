@@ -10,6 +10,8 @@ const Thirst_1 = require("./Status/Thirst");
 const Skill_1 = require("./Skill/Skill");
 const ossuary_1 = require("ossuary");
 const { colorize } = Messenger_1.Messenger;
+const TOTAL_EQUIPMENT_SLOTS = 5;
+exports.TOTAL_EQUIPMENT_SLOTS = TOTAL_EQUIPMENT_SLOTS;
 var InventoryItems;
 (function (InventoryItems) {
     InventoryItems["AMULETS"] = "AMULETS";

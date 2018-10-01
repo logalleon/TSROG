@@ -1,0 +1,30 @@
+enum MapScreenInputs {
+  INVENTORY = 'I',
+  AMULET = 't',
+  ARMOR = 'u',
+  FOOD = 'o',
+  KEYS = 'y',
+  POTIONS = 'p',
+  RING = 'n',
+  SCROLL = 'l',
+  WEAPONS = 'k',
+  COMMANDS = '?',
+  EQUIPMENT = 'E',
+  MESSAGES = 'M',
+  HELP = '/',
+  MOVE_UP = 'w',
+  MOVE_LEFT = 'a',
+  MOVE_DOWN = 's',
+  MOVE_RIGHT = 'd',
+  MOVE_UP_LEFT = 'q',
+  MOVE_UP_RIGHT = 'e',
+  MOVE_DOWN_LEFT = 'z',
+  MOVE_DOWN_RIGHT = 'c',
+  DESCEND = '>',
+  ASCEND = '<',
+  WAIT = 'x',
+  INSPECT = 'i',
+  SKILLS = 'g'
+}
+
+export { MapScreenInputs }

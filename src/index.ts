@@ -1,3 +1,4 @@
+import '../sass/main.scss';
 import Game from './Game';
 import { Screen, ScreenNames } from './Screen/Screen';
 import * as Input from './Input';

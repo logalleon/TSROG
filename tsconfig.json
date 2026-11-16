@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
-      "target": "es6",
-      "module": "commonjs",
-      "moduleResolution": "node",
-      "sourceMap": true,
-      "outDir": "dist",
-      "skipLibCheck": true,
-      "lib": [ "es2015", "es2016", "dom", "es5", "es6", "es7", "dom.iterable" ]
-  }
+    "target": "es2020",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "noEmit": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "lib": ["es2020", "dom", "dom.iterable"]
+  },
+  "include": ["src"]
 }

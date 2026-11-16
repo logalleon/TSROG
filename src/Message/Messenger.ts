@@ -1,6 +1,6 @@
 import { Color, Colors } from '../Canvas/Color';
 import { fontOptions } from '../Canvas/Canvas';
-import { Message, MessengerOptions } from './interfaces';
+import type { Message, MessengerOptions } from './interfaces';
 import Formatter from './Formatter';
 
 const invalidInput = (keyValue: string): Message => ({

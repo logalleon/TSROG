@@ -2,7 +2,7 @@ import Game from '../../Game';
 import { DamageType, Quality, Material, MaterialType, MaterialSubtype, Damage } from './Prop.data';
 import { Colors } from '../../Canvas/Color';
 import { InventoryItems } from '../Actor/Player';
-import { WeaponSpawnParams, DamageParams } from './Weapon/WeaponInterfaces';
+import type { WeaponSpawnParams, DamageParams } from './Weapon/WeaponInterfaces';
 import Vector2 from '../../Vector';
 import { WeaponLookupTable, MeleeWeapons, weaponDefaultProperties } from './Weapon/Weapon.data';
 import { Weapon } from './Weapon/Weapon';
